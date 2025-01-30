@@ -3,129 +3,243 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Finance Brunch</title>
+  <title>Finance Brunch | Strategic Financial Advisory</title>
   <style>
+    :root {
+      --primary-color: #2c3e50;
+      --accent-color: #f4d03f;
+      --dark-bg: #1a2b3c;
+    }
+
     body {
       margin: 0;
       font-family: 'Arial', sans-serif;
       color: #333;
-      background: url('d5a371ac-bd1d-4dba-bbc4-99ff4a1a5f6f.jpeg') no-repeat center center fixed;
-      background-size: cover;
+      background: #f9f9f9;
     }
+
     header {
-      background-color: rgba(0, 0, 0, 0.8);
-      padding: 1rem;
+      background: linear-gradient(to right, var(--dark-bg), #2c3e50);
+      color: white;
+      padding: 2rem 1rem;
       text-align: center;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
     }
-    header h1 {
-      color: white; /* Changed to white */
-      margin-top: 10px;
-    }
+
     nav {
       display: flex;
       justify-content: center;
-      background-color: rgba(0, 0, 0, 0.9);
-      padding: 0.5rem;
+      background: var(--primary-color);
+      padding: 1rem;
+      position: sticky;
+      top: 0;
+      z-index: 1000;
     }
+
     nav a {
       color: white;
       text-decoration: none;
-      margin: 0 15px;
-      font-weight: bold;
+      margin: 0 20px;
+      font-weight: 600;
+      transition: all 0.3s ease;
+      padding: 5px 10px;
+      border-radius: 4px;
     }
+
     nav a:hover {
-      color: #f4d03f;
+      color: var(--accent-color);
+      transform: translateY(-2px);
     }
+
     section {
-      padding: 2rem;
-      background: rgba(255, 255, 255, 0.8);
+      padding: 3rem 2rem;
+      background: white;
       margin: 2rem auto;
       border-radius: 10px;
       max-width: 1200px;
-      box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
+      box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+      opacity: 0;
+      transform: translateY(20px);
+      transition: all 0.6s ease;
     }
+
+    section.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
     footer {
       text-align: center;
-      padding: 1rem;
-      background-color: rgba(0, 0, 0, 0.9);
+      padding: 2rem;
+      background: var(--dark-bg);
       color: white;
-      position: fixed;
-      bottom: 0;
-      width: 100%;
+      margin-top: 4rem;
     }
-    h2, h3 {
-      color: #2c3e50;
+
+    h1, h2, h3 {
+      color: var(--primary-color);
+      margin: 0 0 1.5rem;
     }
-    .button {
-      background-color: #3498db;
-      color: white;
-      border: none;
-      padding: 10px 20px;
-      cursor: pointer;
-      border-radius: 5px;
-      text-transform: uppercase;
+
+    h1 {
+      font-size: 2.5rem;
+      margin-bottom: 0.5rem;
     }
-    .button:hover {
-      background-color: #2980b9;
+
+    h2 {
+      font-size: 2rem;
+      color: var(--dark-bg);
+      border-bottom: 3px solid var(--accent-color);
+      padding-bottom: 0.5rem;
+      margin-bottom: 2rem;
     }
-    .contact-info {
+
+    .highlight {
+      color: var(--accent-color);
+      font-weight: bold;
+    }
+
+    .services-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 2rem;
+      margin-top: 1.5rem;
+    }
+
+    .service-item {
+      padding: 1.5rem;
+      background: #fff;
+      border-radius: 8px;
+      border: 1px solid #eee;
+      transition: transform 0.3s ease;
+    }
+
+    .service-item:hover {
+      transform: translateY(-5px);
+    }
+
+    .social-links {
       display: flex;
-      flex-direction: column;
-      align-items: center;
+      justify-content: center;
+      gap: 2rem;
+      margin-top: 1.5rem;
     }
-    .contact-info p {
-      margin: 5px 0;
-    }
-    .contact-info a {
-      color: #3498db;
+
+    .social-links a {
+      color: var(--accent-color);
       text-decoration: none;
+      font-weight: 600;
+      transition: color 0.3s ease;
     }
-    .contact-info a:hover {
-      text-decoration: underline;
+
+    .social-links a:hover {
+      color: #fff;
+    }
+
+    blockquote {
+      background: #f8f9fa;
+      border-left: 4px solid var(--accent-color);
+      padding: 1.5rem;
+      margin: 1.5rem 0;
+      font-style: italic;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
     }
   </style>
 </head>
 <body>
   <header>
-    <h1>Welcome to Finance Brunch</h1>
-    <p>Your trusted partner in financial planning and growth 🌟</p>
+    <h1>💰 Finance Brunch</h1>
+    <p>Your Pathway to Financial Freedom 🌟</p>
   </header>
+
   <nav>
-    <a href="#about">About Us</a>
-    <a href="#services">Services</a>
-    <a href="#contact">Contact</a>
-    <a href="#testimonials">Testimonials</a>
+    <a href="#about">📖 About</a>
+    <a href="#services">💼 Services</a>
+    <a href="#contact">📞 Contact</a>
+    <a href="#testimonials">⭐ Testimonials</a>
   </nav>
+
   <main>
-    <section id="about">
-      <h2>About Us</h2>
-      <p>Finance Brunch is dedicated to providing top-notch financial planning services to businesses and individuals worldwide. With a team of experts, we deliver tailored strategies that align with your financial goals.</p>
+    <section id="about" class="visible">
+      <h2>🌟 About Us</h2>
+      <p>Finance Brunch is a premier financial advisory firm dedicated to empowering individuals with strategic financial planning and investment solutions. Founded by <span class="highlight">Saikarun</span>, a finance MBA with 7+ years of experience, we serve clients across India, the USA, the UK, and Canada, helping them navigate the complexities of personal finance.</p>
+      
+      <p>Our expertise spans individual financial planning, stock market investments, mutual funds, health & term insurance, early retirement planning, and precise financial calculations. We specialize in <span class="highlight">FIRE (Financial Independence, Retire Early)</span> number calculations, helping clients determine the wealth required for early and stress-free retirement.</p>
+
+      <p>Backed by <span class="highlight">ARN/CFP credentials</span> and <span class="highlight">NISM certification</span>, we provide data-driven insights tailored to unique financial goals. As we continue to expand, we are serving clients across various terrains and financial backgrounds, ensuring that financial growth is accessible to all.</p>
     </section>
+
     <section id="services">
-      <h2>Our Services</h2>
-      <ul>
-        <li>📊 Financial Planning</li>
-        <li>💼 Business Strategy</li>
-        <li>📈 Investment Consulting</li>
-        <li>🖊️ Tax Planning</li>
-      </ul>
-    </section>
-    <section id="contact">
-      <h2>Contact Us</h2>
-      <div class="contact-info">
-        <p>📧 Email: <a href="mailto:admin@financebrunch.in">admin@financebrunch.in</a></p>
-        <p>📞 Phone: +91 7842494981</p>
-        <p>🌍 We work globally and have clients worldwide!</p>
+      <h2>🔧 Our Services</h2>
+      <div class="services-grid">
+        <div class="service-item">
+          <h3>📈 Investment Planning</h3>
+          <p>Stock Market & Mutual Funds</p>
+        </div>
+        <div class="service-item">
+          <h3>🛡️ Insurance Solutions</h3>
+          <p>Term & Health Insurance</p>
+        </div>
+        <div class="service-item">
+          <h3>🎯 FIRE Calculation</h3>
+          <p>Early Retirement Planning</p>
+        </div>
+        <div class="service-item">
+          <h3>📊 Financial Analysis</h3>
+          <p>Personalized Wealth Management</p>
+        </div>
       </div>
     </section>
+
+    <section id="contact">
+      <h2>📬 Contact Us</h2>
+      <div class="contact-info">
+        <p>📧 <a href="mailto:admin@financebrunch.in">admin@financebrunch.in</a></p>
+        <p>📞 +91 7842494981</p>
+        <div class="social-links">
+          <a href="https://twitter.com/Financebrunch" target="_blank">🐦 Twitter</a>
+          <a href="https://linkedin.com/company/Financebrunch" target="_blank">💼 LinkedIn</a>
+          <a href="https://instagram.com/Financebrunch" target="_blank">📸 Instagram</a>
+          <a href="https://facebook.com/Financebrunch" target="_blank">📘 Facebook</a>
+        </div>
+      </div>
+    </section>
+
     <section id="testimonials">
-      <h2>What Our Clients Say</h2>
-      <blockquote>"Finance Brunch has transformed our business strategy. Truly professional and dedicated!" - Client A</blockquote>
-      <blockquote>"Their financial insights are unparalleled. Highly recommend their services!" - Client B</blockquote>
+      <h2>💬 Client Testimonials</h2>
+      <blockquote>
+        "Finance Brunch transformed our financial strategy - truly professional service with personalized attention!"
+        <br>- Client from USA 🇺🇸
+      </blockquote>
+      <blockquote>
+        "Their FIRE calculations gave me clarity on my retirement goals. Highly recommended!"
+        <br>- Young Professional 🇮🇳
+      </blockquote>
     </section>
   </main>
+
   <footer>
-    &copy; 2025 Finance Brunch. All rights reserved 🌎.
+    <p>© 2025 Finance Brunch | 🌍 Global Financial Advisory</p>
+    <p>ARN/CFP Certified | NISM Certified Analysts</p>
   </footer>
+
+  <script>
+    // Scroll animation trigger
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('visible');
+        }
+      });
+    }, { threshold: 0.1 });
+
+    document.querySelectorAll('section').forEach(section => {
+      observer.observe(section);
+    });
+  </script>
 </body>
 </html>
