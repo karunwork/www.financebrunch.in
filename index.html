@@ -3,10 +3,117 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Website</title>
+    <title>Finance Brunch</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            color: #333;
+            line-height: 1.6;
+        }
+        header {
+            background: url('https://source.unsplash.com/1600x900/?finance,office') no-repeat center center/cover;
+            color: white;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+        }
+        header h1 {
+            font-size: 4rem;
+            margin: 0;
+        }
+        header p {
+            font-size: 1.5rem;
+        }
+        nav {
+            background: #333;
+            color: white;
+            display: flex;
+            justify-content: center;
+            padding: 1rem;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+        nav a {
+            color: white;
+            text-decoration: none;
+            margin: 0 1rem;
+            font-weight: bold;
+        }
+        nav a:hover {
+            text-decoration: underline;
+        }
+        section {
+            padding: 4rem 2rem;
+            text-align: center;
+        }
+        .about {
+            background: #f4f4f4;
+        }
+        .services {
+            background: url('https://source.unsplash.com/1600x900/?business,analytics') no-repeat center center/cover;
+            color: white;
+        }
+        .services h2, .services p {
+            color: white;
+        }
+        footer {
+            background: #333;
+            color: white;
+            text-align: center;
+            padding: 1rem;
+        }
+        .btn {
+            background: #007bff;
+            color: white;
+            padding: 1rem 2rem;
+            text-decoration: none;
+            border-radius: 5px;
+            font-weight: bold;
+        }
+        .btn:hover {
+            background: #0056b3;
+        }
+    </style>
 </head>
 <body>
-    <h1>Welcome to Finace Brunch!</h1>
-    <p>This is hosted on GitHub Pages.</p>
+    <header>
+        <h1>Welcome to Finance Brunch 🌟</h1>
+        <p>Your go-to resource for financial insights and success.</p>
+        <a href="#about" class="btn">Learn More</a>
+    </header>
+    <nav>
+        <a href="#about">About Us</a>
+        <a href="#services">Services</a>
+        <a href="#contact">Contact</a>
+    </nav>
+    <section id="about" class="about">
+        <h2>About Us</h2>
+        <p>At Finance Brunch, we provide the latest financial news, investment tips, and tools to help you succeed in the world of finance. 🌍 Whether you're a beginner or a seasoned investor, we have something for everyone.</p>
+    </section>
+    <section id="services" class="services">
+        <h2>Our Services</h2>
+        <p>We offer a range of services to cater to your financial needs:</p>
+        <ul>
+            <li>📊 Personal Finance Advice</li>
+            <li>💼 Investment Planning</li>
+            <li>📈 Market Analysis</li>
+            <li>📉 Budget Management Tools</li>
+        </ul>
+    </section>
+    <section id="contact">
+        <h2>Contact Us</h2>
+        <p>Have questions or need guidance? We're here to help. 🌟</p>
+        <p>Email: <a href="mailto:admin@financebrunch.in">admin@financebrunch.in</a></p>
+        <p>Phone: +91 7842494981</p>
+        <p>🌎 We work globally and have clients worldwide!</p>
+    </section>
+    <footer>
+        <p>&copy; 2025 Finance Brunch. All rights reserved. 🌐</p>
+    </footer>
 </body>
 </html>
