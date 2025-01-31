@@ -5,12 +5,13 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Finance Brunch | Certified Financial Advisory</title>
   <style>
+    /* All previous CSS styles remain unchanged */
     :root {
-      --primary-blue: #1a2b3c; /* Dark blue for professionalism */
-      --accent-gold: #f4d03f; /* Gold for highlights */
-      --dark-bg: #0d1720; /* Dark background for header */
-      --clean-white: #f8f9fa; /* Clean white for text and backgrounds */
-      --light-blue: #e6f0ff; /* Light blue for accents */
+      --primary-blue: #1a2b3c;
+      --accent-gold: #f4d03f;
+      --dark-bg: #0d1720;
+      --clean-white: #f8f9fa;
+      --light-blue: #e6f0ff;
     }
 
     body {
@@ -21,7 +22,6 @@
       line-height: 1.6;
     }
 
-    /* Enhanced Header */
     header {
       background: linear-gradient(135deg, var(--dark-bg) 0%, var(--primary-blue) 100%);
       color: white;
@@ -43,7 +43,7 @@
       max-width: 800px;
       margin: 0 auto;
       position: relative;
-      z-index: 1; /* Ensure content is above the logo */
+      z-index: 1;
     }
 
     h1 {
@@ -53,7 +53,6 @@
       text-shadow: 0 2px 4px rgba(0,0,0,0.3);
     }
 
-    /* Mobile-Friendly Navigation */
     nav {
       display: flex;
       flex-wrap: wrap;
@@ -82,7 +81,6 @@
       color: var(--primary-blue);
     }
 
-    /* Responsive Sections */
     section {
       padding: 2.5rem 1.5rem;
       background: white;
@@ -100,7 +98,6 @@
       transform: translateY(0);
     }
 
-    /* Professional Services Grid */
     .services-grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
@@ -115,6 +112,7 @@
       border: 1px solid rgba(0,0,0,0.05);
       text-align: center;
       transition: transform 0.3s ease;
+      cursor: pointer;
     }
 
     .service-card:hover {
@@ -128,7 +126,6 @@
       color: var(--accent-gold);
     }
 
-    /* Contact Section Styling */
     .contact-info {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
@@ -161,7 +158,6 @@
       color: var(--primary-blue) !important;
     }
 
-    /* Certification Badges */
     .certification-badges {
       display: flex;
       gap: 1.5rem;
@@ -179,7 +175,26 @@
       color: var(--primary-blue);
     }
 
-    /* Mobile Responsive Adjustments */
+    .video-container {
+      margin: 3rem 0;
+      position: relative;
+      padding-bottom: 56.25%;
+      height: 0;
+      overflow: hidden;
+      max-width: 100%;
+      background: #000;
+      border-radius: 12px;
+    }
+
+    .video-container iframe {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      border: 0;
+    }
+
     @media (max-width: 768px) {
       h1 {
         font-size: 2rem;
@@ -222,7 +237,7 @@
 </head>
 <body>
   <header>
-    <img src="https://github.com/your-repo/path-to-logo/d5a371ac-bd1d-4dba-bbc4-99ff4a1a5f6f.jpeg" alt="Finance Brunch Logo" class="logo">
+    <img src="https://drive.google.com/thumbnail?id=1cO1837W4-L-GIoeFwxTE34gxLP_JnYZp" alt="Finance Brunch Logo" class="logo">
     <div class="header-content">
       <h1>Finance Brunch</h1>
       <p style="font-size: 1.2rem; color: rgba(255,255,255,0.9);">Strategic Wealth Management & Financial Planning</p>
@@ -262,15 +277,23 @@
     <section id="services">
       <h2>📊 Our Professional Services</h2>
       <div class="services-grid">
-        <div class="service-card">
+        <!-- Corrected WhatsApp redirection -->
+        <div class="service-card" 
+             onclick="window.open('https://wa.me/917842494981?text=Hi%20Finance%20Brunch%20Team%2C%20I%27m%20looking%20for%20Investment%20Guidance.%20Can%20we%20connect%3F', '_blank')">
           <div class="service-icon">📈</div>
           <h3>Investment Planning</h3>
           <p>Stock Market & Mutual Fund Portfolio Management</p>
         </div>
-        <div class="service-card">
+        
+        <div class="service-card" onclick="window.open('https://www.pbpartners.com/v2/partner/finance-brunch-vizianagaram-Qvk', '_blank')">
           <div class="service-icon">🛡</div>
           <h3>Insurance Solutions</h3>
           <p>Term & Health Insurance Optimization</p>
+        </div>
+        <div class="service-card" onclick="window.open('http://p.njw.bz/41510', '_blank')">
+          <div class="service-icon">📊</div>
+          <h3>Mutual Funds</h3>
+          <p>Expert Mutual Fund Portfolio Management</p>
         </div>
         <div class="service-card">
           <div class="service-icon">🎯</div>
@@ -282,6 +305,14 @@
           <h3>Wealth Management</h3>
           <p>Personalized Financial Roadmaps</p>
         </div>
+      </div>
+    </section>
+
+    <section class="video-section">
+      <div class="video-container">
+        <iframe src="https://www.youtube.com/embed/Y2VFn9_bCNk?autoplay=1&mute=1&loop=1&playlist=Y2VFn9_bCNk&vq=hd1080" 
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                allowfullscreen></iframe>
       </div>
     </section>
 
@@ -336,32 +367,34 @@
   </footer>
 
   <script>
-    // Scroll animation for sections
-    const observer = new IntersectionObserver((entries) => {
-      entries.forEach(entry => {
-        if (entry.isIntersecting) {
-          entry.target.classList.add('visible');
-        }
+    document.addEventListener("DOMContentLoaded", function () {
+      // Intersection Observer for smooth section appearance
+      const observer = new IntersectionObserver((entries, observer) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add("visible");
+            observer.unobserve(entry.target);
+          }
+        });
+      }, { threshold: 0.2 });
+
+      document.querySelectorAll("section").forEach(section => {
+        observer.observe(section);
       });
-    }, { threshold: 0.1 });
 
-    document.querySelectorAll('section').forEach(section => {
-      observer.observe(section);
-    });
-
-    // Mobile menu toggle
-    document.addEventListener('DOMContentLoaded', function() {
+      // Mobile Menu Toggle
       const nav = document.querySelector('nav');
       if (window.innerWidth <= 768) {
         nav.insertAdjacentHTML('afterbegin', '<button class="menu-toggle">☰</button>');
         const menuToggle = document.querySelector('.menu-toggle');
         const navLinks = document.querySelectorAll('nav a');
-        
+
         menuToggle.addEventListener('click', function() {
-          navLinks.forEach(link => link.style.display = 
-            link.style.display === 'block' ? 'none' : 'block');
+          navLinks.forEach(link => {
+            link.style.display = link.style.display === 'block' ? 'none' : 'block';
+          });
         });
-        
+
         navLinks.forEach(link => link.style.display = 'none');
       }
     });
