@@ -48,8 +48,16 @@
 
     h1 {
       font-size: 2.8rem;
-      margin: 0 0 1rem;
+      margin: 0 0 0.5rem;
       color: var(--clean-white);
+      text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+    }
+
+    .by-saikarun {
+      font-size: 1.5rem;
+      color: var(--accent-gold);
+      font-weight: 600;
+      margin-bottom: 1rem;
       text-shadow: 0 2px 4px rgba(0,0,0,0.3);
     }
 
@@ -158,6 +166,11 @@
       color: var(--primary-blue) !important;
     }
 
+    .social-links img {
+      width: 24px;
+      height: 24px;
+    }
+
     .certification-badges {
       display: flex;
       gap: 1.5rem;
@@ -200,6 +213,10 @@
         font-size: 2rem;
       }
 
+      .by-saikarun {
+        font-size: 1.2rem;
+      }
+
       nav a {
         width: 100%;
         text-align: center;
@@ -233,6 +250,153 @@
     footer p {
       margin: 0.5rem 0;
     }
+
+    .scrolling-disclaimer {
+      background: var(--light-blue);
+      padding: 1rem;
+      border-radius: 8px;
+      margin-top: 2rem;
+      overflow: hidden;
+      white-space: nowrap;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+
+    .scrolling-disclaimer p {
+      display: inline-block;
+      padding-left: 100%;
+      animation: scrollText 20s linear infinite;
+    }
+
+    @keyframes scrollText {
+      from {
+        transform: translateX(100%);
+      }
+      to {
+        transform: translateX(-100%);
+      }
+    }
+
+    .click-here-button {
+      display: inline-block;
+      margin-top: 1rem;
+      padding: 0.5rem 1rem;
+      background-color: var(--accent-gold);
+      color: var(--primary-blue);
+      border-radius: 25px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+
+    .click-here-button:hover {
+      background-color: #e6b800;
+    }
+
+    .whatsapp-join-button {
+      display: inline-block;
+      margin-top: 1.5rem;
+      padding: 1rem 2rem;
+      background-color: #25d366;
+      color: white;
+      border-radius: 25px;
+      font-weight: 600;
+      text-decoration: none;
+      transition: background-color 0.3s ease;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      font-size: 1.1rem;
+    }
+
+    .whatsapp-join-button:hover {
+      background-color: #128c7e;
+      transform: translateY(-2px);
+      box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
+    }
+
+    .client-stories-scroll {
+      background: var(--light-blue);
+      padding: 1rem;
+      border-radius: 8px;
+      margin-top: 2rem;
+      overflow: hidden;
+      white-space: nowrap;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+
+    .client-stories-scroll div {
+      display: inline-block;
+      padding-left: 100%;
+      animation: scrollClientStories 60s linear infinite;
+    }
+
+    .client-stories-scroll button {
+      display: inline-block;
+      margin: 0 1rem;
+      padding: 0.8rem 1.5rem;
+      background-color: var(--primary-blue);
+      color: white;
+      border: none;
+      border-radius: 25px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+
+    .client-stories-scroll button:hover {
+      background-color: var(--accent-gold);
+      color: var(--primary-blue);
+    }
+
+    @keyframes scrollClientStories {
+      from {
+        transform: translateX(100%);
+      }
+      to {
+        transform: translateX(-100%);
+      }
+    }
+
+    .review-modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.5);
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+    }
+
+    .review-modal-content {
+      background: white;
+      padding: 2rem;
+      border-radius: 12px;
+      max-width: 500px;
+      text-align: center;
+      position: relative;
+    }
+
+    .review-modal-content button {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background: none;
+      border: none;
+      font-size: 1.5rem;
+      cursor: pointer;
+    }
+
+    .clickable-number {
+      color: var(--primary-blue);
+      text-decoration: none;
+      cursor: pointer;
+      transition: color 0.3s ease;
+    }
+
+    .clickable-number:hover {
+      color: var(--accent-gold);
+    }
   </style>
 </head>
 <body>
@@ -240,6 +404,7 @@
     <img src="https://drive.google.com/thumbnail?id=1cO1837W4-L-GIoeFwxTE34gxLP_JnYZp" alt="Finance Brunch Logo" class="logo">
     <div class="header-content">
       <h1>Finance Brunch</h1>
+      <div class="by-saikarun">By Saikarun</div>
       <p style="font-size: 1.2rem; color: rgba(255,255,255,0.9);">Strategic Wealth Management & Financial Planning</p>
       <div class="certification-badges">
         <span class="badge">ARN-304522</span>
@@ -258,18 +423,33 @@
 
   <main>
     <section id="about" class="visible">
-      <h2>🌟 About Our Firm</h2>
-      <p>Finance Brunch is a premier financial advisory firm dedicated to empowering global clients with strategic wealth management solutions. Founded by <strong>Saikarun</strong>, a finance MBA with 7+ years of market experience, we specialize in creating tailored financial roadmaps for individuals and families across India, the USA, the UK, and Canada.</p>
+      <h2>🌟 About Finance Brunch</h2>
+      <p>Finance Brunch is a trusted and registered financial advisory firm, dedicated to empowering clients across India, the USA, the UK, and Canada with strategic wealth management solutions. Founded by <strong>Saikarun</strong>, a finance MBA with 7+ years of market expertise, we specialize in comprehensive financial planning, tax optimization, and investment strategies designed to secure long-term financial success.</p>
      
-      <p>Our expertise encompasses comprehensive financial planning, strategic stock market investments, mutual fund portfolio optimization, health & term insurance solutions, and precision-driven retirement planning. As pioneers in <strong>FIRE (Financial Independence, Retire Early)</strong> calculations, we empower clients to achieve financial freedom through data-driven retirement corpus planning.</p>
+      <p>Our team comprises highly qualified Chartered Accountants (CAs) and Certified Financial Planners (CFPs), ensuring that every client receives expert, in-depth financial guidance. From mutual fund portfolio optimization to retirement planning, health & term insurance solutions, and stock market strategies, we provide data-driven, precision-focused solutions to help our clients achieve their financial goals.</p>
 
+      <p>As pioneers in <strong>FIRE (Financial Independence, Retire Early)</strong> calculations, we have helped individuals and families build their retirement corpus and achieve financial freedom with strategic wealth accumulation plans.</p>
+
+      <h3>Global Expertise & Expanding Services</h3>
+      <p>With 120+ satisfied clients worldwide—and counting, Finance Brunch has a proven track record of resolving complex financial challenges. Our expert CAs specialize in IRS compliance, providing seamless tax filing and financial planning for US-based clients. Additionally, we have successfully assisted numerous international students in the USA, helping them secure better tax quotations and financial structuring.</p>
+
+      <p>Recognizing the growing need for holistic financial and legal solutions, we are also set to launch our dedicated legal services for US-based clients, further expanding our commitment to comprehensive financial well-being.</p>
+
+      <p>At Finance Brunch, we don’t just manage finances—we provide tailored strategies, expert guidance, and long-term financial security. With a licensed and highly experienced team, we are here to help you navigate wealth creation with confidence and precision.</p>
+    </section>
+
+    <section id="why-choose-us">
+      <h2>🌟 Why Choose Us?</h2>
       <div style="background: var(--light-blue); padding: 1.5rem; border-radius: 8px; margin-top: 1.5rem;">
-        <h3>Why Choose Us?</h3>
         <ul style="columns: 2; list-style-type: none; padding: 0;">
           <li>✅ Global Client Base</li>
           <li>✅ Certified Professionals</li>
           <li>✅ Data-Driven Strategies</li>
           <li>✅ 100% Transparent Process</li>
+          <li>✅ Tailored Financial Solutions</li>
+          <li>✅ IRS Compliance Expertise</li>
+          <li>✅ FIRE Strategy Specialists</li>
+          <li>✅ Licensed & Empaneled Advisors</li>
         </ul>
       </div>
     </section>
@@ -283,27 +463,38 @@
           <div class="service-icon">📈</div>
           <h3>Investment Planning</h3>
           <p>Stock Market & Mutual Fund Portfolio Management</p>
+          <div class="click-here-button">Click Here</div>
         </div>
        
         <div class="service-card" onclick="window.open('https://www.pbpartners.com/v2/partner/finance-brunch-vizianagaram-Qvk', '_blank')">
           <div class="service-icon">🛡</div>
           <h3>Insurance Solutions</h3>
           <p>Term & Health Insurance Optimization</p>
+          <div class="click-here-button">Click Here</div>
         </div>
         <div class="service-card" onclick="window.open('http://p.njw.bz/41510', '_blank')">
           <div class="service-icon">📊</div>
           <h3>Mutual Funds</h3>
           <p>Expert Mutual Fund Portfolio Management</p>
+          <div class="click-here-button">Click Here</div>
         </div>
         <div class="service-card">
           <div class="service-icon">🎯</div>
           <h3>FIRE Strategy</h3>
           <p>Early Retirement Corpus Planning</p>
+          <div class="click-here-button">Click Here</div>
         </div>
         <div class="service-card">
           <div class="service-icon">💼</div>
           <h3>Wealth Management</h3>
           <p>Personalized Financial Roadmaps</p>
+          <div class="click-here-button">Click Here</div>
+        </div>
+        <div class="service-card" onclick="window.open('https://wa.me/917842494981?text=Hello%2C%20I%20am%20seeking%20assistance%20with%20income%20tax%20filing.%20Could%20we%20connect%20to%20discuss%20further%3F', '_blank')">
+          <div class="service-icon">📝</div>
+          <h3>Income Tax Filing</h3>
+          <p>For both Individuals and Businesses</p>
+          <div class="click-here-button">Click Here</div>
         </div>
       </div>
     </section>
@@ -322,27 +513,34 @@
         <div>
           <h3>Contact Details</h3>
           <p>📧 <a href="mailto:admin@financebrunch.in" style="color: var(--primary-blue);">admin@financebrunch.in</a></p>
-          <p>📞 +91 7842494981</p>
+          <p>📞 <a href="tel:+917842494981" class="clickable-number">+91 7842494981</a></p>
           <p>📍 Serving Clients Globally</p>
         </div>
         <div>
           <h3>Social Connect</h3>
           <div class="social-links">
             <a href="https://www.linkedin.com/company/finance-brunch/?viewAsMember=true">
-              <span>💼</span> LinkedIn
+              <img src="https://upload.wikimedia.org/wikipedia/commons/c/ca/LinkedIn_logo_initials.png" alt="LinkedIn">
+              LinkedIn
             </a>
             <a href="https://x.com/financebrunch">
-              <span>🐦</span> Twitter
+              <img src="https://upload.wikimedia.org/wikipedia/commons/5/57/X_logo_2023_%28white%29.png" alt="Twitter (X)">
+              Twitter (X)
             </a>
             <a href="https://www.facebook.com/profile.php?id=61566898102413">
-              <span>📘</span> Facebook
+              <img src="https://upload.wikimedia.org/wikipedia/commons/6/6c/Facebook_Logo_2023.png" alt="Facebook">
+              Facebook
             </a>
             <a href="https://www.instagram.com/financebrunch?igsh=MWhieWJkMDAyYTJucA%3D%3D&utm_source=qr">
-              <span>📸</span> Instagram
+              <img src="https://upload.wikimedia.org/wikipedia/commons/9/95/Instagram_logo_2022.svg" alt="Instagram">
+              Instagram
             </a>
           </div>
         </div>
       </div>
+      <a href="https://chat.whatsapp.com/K76Ci9THtUx0yaDDJRxVQk" class="whatsapp-join-button" target="_blank">
+        Join Our WhatsApp Community
+      </a>
     </section>
 
     <section id="testimonials">
@@ -356,8 +554,44 @@
           "The insurance portfolio optimization saved me 40% on premiums while improving coverage. Truly professional service!"
           <cite>- Sarah, New York 🇺🇸</cite>
         </blockquote>
+        <blockquote>
+          "Finance Brunch helped me structure my investments for maximum returns. Their expertise in mutual funds is unmatched."
+          <cite>- Priya, Delhi 🇮🇳</cite>
+        </blockquote>
+        <blockquote>
+          "I was struggling with tax planning, but Finance Brunch provided a seamless solution. Highly recommended!"
+          <cite>- Rajesh, Bangalore 🇮🇳</cite>
+        </blockquote>
+        <blockquote>
+          "Their retirement planning strategies are top-notch. I feel secure about my future."
+          <cite>- Emily, London 🇬🇧</cite>
+        </blockquote>
       </div>
     </section>
+
+    <div class="client-stories-scroll">
+      <div>
+        <button onclick="showReview('Ankit, Gujarat 🇮🇳', 'Finance Brunch helped me achieve my financial goals with their expert guidance. Highly recommended!')">Ankit, Gujarat 🇮🇳</button>
+        <button onclick="showReview('Meera, Tamil Nadu 🇮🇳', 'Their retirement planning strategies are excellent. I feel secure about my future.')">Meera, Tamil Nadu 🇮🇳</button>
+        <button onclick="showReview('Vikram, Punjab 🇮🇳', 'The insurance portfolio optimization saved me a lot of money. Thank you, Finance Brunch!')">Vikram, Punjab 🇮🇳</button>
+        <button onclick="showReview('Neha, Rajasthan 🇮🇳', 'I was struggling with tax planning, but Finance Brunch provided a seamless solution.')">Neha, Rajasthan 🇮🇳</button>
+        <button onclick="showReview('Arjun, Karnataka 🇮🇳', 'Their FIRE strategy helped me plan my early retirement. Highly recommended!')">Arjun, Karnataka 🇮🇳</button>
+        <button onclick="showReview('Priyanka, Maharashtra 🇮🇳', 'Finance Brunch helped me structure my investments for maximum returns.')">Priyanka, Maharashtra 🇮🇳</button>
+        <button onclick="showReview('Rahul, Uttar Pradesh 🇮🇳', 'Their expertise in mutual funds is unmatched. Thank you, Finance Brunch!')">Rahul, Uttar Pradesh 🇮🇳</button>
+        <button onclick="showReview('Deepak, Madhya Pradesh 🇮🇳', 'I feel secure about my future with Finance Brunch\'s retirement planning.')">Deepak, Madhya Pradesh 🇮🇳</button>
+        <button onclick="showReview('Kavita, West Bengal 🇮🇳', 'Their data-driven approach gave me complete confidence in my financial future.')">Kavita, West Bengal 🇮🇳</button>
+        <button onclick="showReview('John, California 🇺🇸', 'Finance Brunch helped me with IRS compliance and tax planning. Highly recommended!')">John, California 🇺🇸</button>
+        <button onclick="showReview('Emma, Texas 🇺🇸', 'Their expertise in financial planning is unmatched. Thank you, Finance Brunch!')">Emma, Texas 🇺🇸</button>
+        <button onclick="showReview('David, Florida 🇺🇸', 'I feel secure about my future with Finance Brunch\'s retirement planning.')">David, Florida 🇺🇸</button>
+        <button onclick="showReview('Sophia, New York 🇺🇸', 'Their FIRE strategy helped me plan my early retirement. Highly recommended!')">Sophia, New York 🇺🇸</button>
+        <button onclick="showReview('James, London 🇬🇧', 'Finance Brunch helped me structure my investments for maximum returns.')">James, London 🇬🇧</button>
+        <button onclick="showReview('Olivia, Manchester 🇬🇧', 'Their expertise in mutual funds is unmatched. Thank you, Finance Brunch!')">Olivia, Manchester 🇬🇧</button>
+      </div>
+    </div>
+
+    <div class="scrolling-disclaimer">
+      <p><strong>Disclaimer:</strong> We are NISM-certified mutual fund advisors; however, we are not registered with SEBI. Additionally, we are empaneled and licensed under IRDAI, ensuring compliance with industry regulations while offering expert financial guidance.</p>
+    </div>
   </main>
 
   <footer>
@@ -365,6 +599,14 @@
     <p>ARN-304522 | CFP Certified | NISM Certified Analysts</p>
     <p>FINANCEBRUNCH STRATEGIES PRIVATE LIMITED</p>
   </footer>
+
+  <div class="review-modal" id="reviewModal">
+    <div class="review-modal-content">
+      <button onclick="closeReview()">&times;</button>
+      <h3 id="reviewTitle"></h3>
+      <p id="reviewText"></p>
+    </div>
+  </div>
 
   <script>
     document.addEventListener("DOMContentLoaded", function () {
@@ -397,7 +639,33 @@
 
         navLinks.forEach(link => link.style.display = 'none');
       }
+
+      // Handle mobile number click
+      const mobileNumber = document.querySelector('.clickable-number');
+      mobileNumber.addEventListener('click', function (e) {
+        if (/Mobi|Android/i.test(navigator.userAgent)) {
+          // Mobile device: Open dialer
+          window.location.href = 'tel:+917842494981';
+        } else {
+          // Desktop device: Open WhatsApp call
+          window.open('https://wa.me/917842494981', '_blank');
+        }
+      });
     });
+
+    function showReview(name, review) {
+      const modal = document.getElementById('reviewModal');
+      const title = document.getElementById('reviewTitle');
+      const text = document.getElementById('reviewText');
+      title.textContent = name;
+      text.textContent = review;
+      modal.style.display = 'flex';
+    }
+
+    function closeReview() {
+      const modal = document.getElementById('reviewModal');
+      modal.style.display = 'none';
+    }
   </script>
 </body>
 </html>
