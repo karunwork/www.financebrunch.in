@@ -833,7 +833,7 @@ export default function SIPCalculator({ className, showHeading = false }: SIPCal
               Important Financial Disclaimer
             </p>
             <p>
-              SIP calculations are illustrative estimates based on the assumed rate of return and contribution schedule. Mutual fund investments are subject to market risks. Actual returns may vary and are not guaranteed. This calculator does not constitute investment advice.
+              These calculations are illustrative estimates based on the selected return assumptions and cash-flow schedule. Actual investment returns may vary and are not guaranteed. Market risks apply. This calculator does not constitute investment advice.
             </p>
           </div>
         </div>

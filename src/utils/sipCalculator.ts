@@ -234,3 +234,6 @@ export function calculateSIP(inputs: SIPCalculatorInputs): SIPCalculationResult 
     isValid: true,
   };
 }
+
+export const FINANCIAL_CALCULATOR_DISCLAIMER =
+  "These calculations are illustrative estimates based on the selected return assumptions and cash-flow schedule. Actual investment returns may vary and are not guaranteed. Market risks apply. This calculator does not constitute investment advice.";

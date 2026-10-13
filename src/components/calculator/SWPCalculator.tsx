@@ -1,342 +1,484 @@
-
-import { useState, useEffect } from 'react';
+import React, { useState, useMemo } from 'react';
 import { Input } from '@/components/ui/input';
 import { Slider } from '@/components/ui/slider';
 import { Label } from '@/components/ui/label';
-import { Card } from '@/components/ui/card';
-import { TrendingUp, IndianRupee, Calendar, ArrowDownRight } from 'lucide-react';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { Card, CardContent } from '@/components/ui/card';
+import {
+  IndianRupee,
+  TrendingUp,
+  Calendar,
+  ArrowDownRight,
+  PieChart as PieChartIcon,
+  BarChart3,
+  ChevronDown,
+  ChevronUp,
+  Info,
+  AlertTriangle,
+  CheckCircle2,
+} from 'lucide-react';
+import {
+  ResponsiveContainer,
+  Tooltip as RechartsTooltip,
+  AreaChart,
+  Area,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+} from 'recharts';
+import {
+  calculateSWP,
+  formatINR,
+  formatCompactINR,
+} from '@/utils/swpCalculator';
+import { CalculatorDisclaimer } from './CalculatorDisclaimer';
 
-const SWPCalculator = () => {
-  const [initialInvestment, setInitialInvestment] = useState(1000000);
-  const [monthlyWithdrawal, setMonthlyWithdrawal] = useState(5000);
-  const [expectedReturn, setExpectedReturn] = useState(8);
-  const [withdrawalYears, setWithdrawalYears] = useState(10);
-  const [finalCorpus, setFinalCorpus] = useState(0);
-  const [totalWithdrawal, setTotalWithdrawal] = useState(0);
-  
-  const minInvestment = 0;
-  const maxInvestment = 99999999;
-  const minWithdrawal = 0;
-  const maxWithdrawal = 9999999;
-  const maxReturn = 30;
-  const maxDuration = 35;
-  
-  const calculateSWP = () => {
-    if (initialInvestment === 0) {
-      setFinalCorpus(0);
-      setTotalWithdrawal(0);
-      return;
-    }
-    
-    // Calculate using the provided SWP formula
-    const months = withdrawalYears * 12;
-    const monthlyRate = expectedReturn / 100 / 12;
-    
-    // Calculate monthly withdrawal amount using the SWP formula
-    const calculatedMonthlyWithdrawal = (initialInvestment * monthlyRate) / (1 - Math.pow(1 + monthlyRate, -months));
-    
-    // If user specified a withdrawal amount, use that instead of calculated amount
-    const effectiveMonthlyWithdrawal = monthlyWithdrawal > 0 ? monthlyWithdrawal : calculatedMonthlyWithdrawal;
-    
-    // Calculate final corpus if withdrawing at the specified rate
-    let remainingCorpus = initialInvestment;
-    let totalWithdrawn = 0;
-    
-    for (let i = 0; i < months; i++) {
-      // First grow the corpus for this month
-      remainingCorpus = remainingCorpus * (1 + monthlyRate);
-      
-      // Then withdraw for this month
-      remainingCorpus -= effectiveMonthlyWithdrawal;
-      totalWithdrawn += effectiveMonthlyWithdrawal;
-      
-      // Check if corpus is depleted
-      if (remainingCorpus <= 0) {
-        remainingCorpus = 0;
-        break;
-      }
-    }
-    
-    setFinalCorpus(Math.max(0, remainingCorpus));
-    setTotalWithdrawal(totalWithdrawn);
-  };
-  
-  useEffect(() => {
-    calculateSWP();
-  }, [initialInvestment, monthlyWithdrawal, expectedReturn, withdrawalYears]);
-  
-  const handleInitialInvestmentChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const inputValue = e.target.value.replace(/[^0-9]/g, '');
-    
-    if (inputValue === '') {
-      setInitialInvestment(0);
+export default function SWPCalculator() {
+  const [initialCorpus, setInitialCorpus] = useState<number>(1000000);
+  const [corpusInputStr, setCorpusInputStr] = useState<string>('1000000');
+
+  const [monthlyWithdrawal, setMonthlyWithdrawal] = useState<number>(6000);
+  const [withdrawalInputStr, setWithdrawalInputStr] = useState<string>('6000');
+
+  const [expectedReturn, setExpectedReturn] = useState<number>(8);
+  const [returnInputStr, setReturnInputStr] = useState<string>('8');
+
+  const [withdrawalDuration, setWithdrawalDuration] = useState<number>(10);
+  const [durationInputStr, setDurationInputStr] = useState<string>('10');
+
+  const [isScheduleOpen, setIsScheduleOpen] = useState<boolean>(false);
+
+  const [errors, setErrors] = useState<{
+    corpus?: string;
+    withdrawal?: string;
+    returnRate?: string;
+    duration?: string;
+  }>({});
+
+  const result = useMemo(() => {
+    return calculateSWP({
+      initialCorpus,
+      monthlyWithdrawal,
+      expectedAnnualReturn: expectedReturn,
+      withdrawalDurationYears: withdrawalDuration,
+    });
+  }, [initialCorpus, monthlyWithdrawal, expectedReturn, withdrawalDuration]);
+
+  const handleCorpusChange = (valStr: string) => {
+    setCorpusInputStr(valStr);
+    const cleaned = valStr.replace(/[^0-9]/g, '');
+    const num = Number(cleaned);
+
+    if (valStr.trim() === '') {
+      setErrors((prev) => ({ ...prev, corpus: 'Initial corpus is required.' }));
+      setInitialCorpus(0);
+    } else if (isNaN(num) || num < 10000) {
+      setErrors((prev) => ({ ...prev, corpus: 'Minimum corpus is ₹10,000.' }));
+      setInitialCorpus(num > 0 ? num : 0);
+    } else if (num > 100000000) {
+      setErrors((prev) => ({ ...prev, corpus: 'Maximum corpus supported is ₹10 Crore.' }));
+      setInitialCorpus(100000000);
     } else {
-      const value = parseInt(inputValue);
-      setInitialInvestment(Math.min(value, maxInvestment));
+      setErrors((prev) => ({ ...prev, corpus: undefined }));
+      setInitialCorpus(num);
     }
   };
-  
-  const handleMonthlyWithdrawalChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const inputValue = e.target.value.replace(/[^0-9]/g, '');
-    
-    if (inputValue === '') {
+
+  const handleWithdrawalChange = (valStr: string) => {
+    setWithdrawalInputStr(valStr);
+    const cleaned = valStr.replace(/[^0-9]/g, '');
+    const num = Number(cleaned);
+
+    if (valStr.trim() === '') {
+      setErrors((prev) => ({ ...prev, withdrawal: 'Monthly withdrawal is required.' }));
       setMonthlyWithdrawal(0);
+    } else if (isNaN(num) || num < 500) {
+      setErrors((prev) => ({ ...prev, withdrawal: 'Minimum withdrawal is ₹500.' }));
+      setMonthlyWithdrawal(num > 0 ? num : 0);
+    } else if (num > 5000000) {
+      setErrors((prev) => ({ ...prev, withdrawal: 'Maximum monthly withdrawal is ₹50 Lakh.' }));
+      setMonthlyWithdrawal(5000000);
     } else {
-      const value = parseInt(inputValue);
-      setMonthlyWithdrawal(Math.min(value, maxWithdrawal));
+      setErrors((prev) => ({ ...prev, withdrawal: undefined }));
+      setMonthlyWithdrawal(num);
     }
   };
-  
-  const formatCurrency = (value: number) => {
-    if (value >= 10000000) {
-      return `₹${(value / 10000000).toFixed(2)} Cr`;
-    } else if (value >= 100000) {
-      return `₹${(value / 100000).toFixed(2)} Lakhs`;
-    } else if (value >= 1000) {
-      return `₹${(value / 1000).toFixed(2)}k`;
+
+  const handleReturnChange = (valStr: string) => {
+    setReturnInputStr(valStr);
+    const num = parseFloat(valStr);
+    if (valStr.trim() === '' || isNaN(num)) {
+      setErrors((prev) => ({ ...prev, returnRate: 'Return rate is required.' }));
+      setExpectedReturn(0);
+    } else if (num < 0 || num > 30) {
+      setErrors((prev) => ({ ...prev, returnRate: 'Return rate must be between 0% and 30%.' }));
+      setExpectedReturn(Math.min(30, Math.max(0, num)));
+    } else {
+      setErrors((prev) => ({ ...prev, returnRate: undefined }));
+      setExpectedReturn(num);
     }
-    return `₹${value.toFixed(0)}`;
   };
-  
-  const generateChartData = () => {
-    const data = [];
-    let remainingCorpus = initialInvestment;
-    const monthlyRate = expectedReturn / 100 / 12;
-    
-    for (let year = 0; year <= withdrawalYears; year++) {
-      if (year === 0) {
-        data.push({
-          name: 'Start',
-          corpus: remainingCorpus,
-          withdrawal: 0,
-        });
-        continue;
-      }
-      
-      let yearlyWithdrawal = 0;
-      
-      for (let month = 0; month < 12; month++) {
-        if (remainingCorpus <= 0) {
-          remainingCorpus = 0;
-          break;
-        }
-        
-        // First grow the corpus for this month
-        remainingCorpus = remainingCorpus * (1 + monthlyRate);
-        
-        // Then withdraw for this month
-        remainingCorpus -= monthlyWithdrawal;
-        yearlyWithdrawal += monthlyWithdrawal;
-        
-        if (remainingCorpus < 0) {
-          remainingCorpus = 0;
-          break;
-        }
-      }
-      
-      data.push({
-        name: `Year ${year}`,
-        corpus: remainingCorpus,
-        withdrawal: yearlyWithdrawal,
-      });
+
+  const handleDurationChange = (valStr: string) => {
+    setDurationInputStr(valStr);
+    const num = parseInt(valStr, 10);
+    if (valStr.trim() === '' || isNaN(num)) {
+      setErrors((prev) => ({ ...prev, duration: 'Duration is required.' }));
+      setWithdrawalDuration(1);
+    } else if (num < 1 || num > 35) {
+      setErrors((prev) => ({ ...prev, duration: 'Duration must be between 1 and 35 years.' }));
+      setWithdrawalDuration(Math.min(35, Math.max(1, num)));
+    } else {
+      setErrors((prev) => ({ ...prev, duration: undefined }));
+      setWithdrawalDuration(num);
     }
-    
-    return data;
   };
-  
-  const chartData = generateChartData();
-  
-  // Check if corpus depletes before the specified duration
-  const corpusDepletesIn = chartData.findIndex(item => item.corpus <= 0);
-  const corpusDepletionYear = corpusDepletesIn > 0 ? corpusDepletesIn - 1 : null;
+
+  const areaData = result.yearlySchedule.map((item) => ({
+    name: `Yr ${item.year}`,
+    Balance: item.closingBalance,
+    CumulativeWithdrawals: item.cumulativeWithdrawals,
+  }));
 
   return (
-    <div>
-      <div className="grid md:grid-cols-2 gap-8">
-        <div className="space-y-6">
-          <div className="space-y-3">
-            <div className="flex justify-between items-center">
-              <Label htmlFor="initialInvestment" className="text-base flex items-center">
-                <IndianRupee className="h-4 w-4 mr-1.5" />
-                Initial Investment
-              </Label>
-              <Input
-                id="initialInvestment"
-                type="text"
-                value={initialInvestment === 0 ? '' : initialInvestment.toLocaleString()}
-                onChange={handleInitialInvestmentChange}
-                placeholder="Enter amount"
-                className="w-32 text-right"
-              />
-            </div>
-            <Slider
-              value={[initialInvestment]}
-              min={minInvestment}
-              max={10000000}
-              step={1000}
-              onValueChange={(values) => setInitialInvestment(values[0])}
-            />
-            <div className="flex justify-between text-xs text-gray-500">
-              <span>₹{minInvestment}</span>
-              <span>₹1 Cr</span>
-            </div>
-          </div>
-          
-          <div className="space-y-3">
-            <div className="flex justify-between items-center">
-              <Label htmlFor="monthlyWithdrawal" className="text-base flex items-center">
-                <ArrowDownRight className="h-4 w-4 mr-1.5" />
-                Monthly Withdrawal
-              </Label>
-              <Input
-                id="monthlyWithdrawal"
-                type="text"
-                value={monthlyWithdrawal === 0 ? '' : monthlyWithdrawal.toLocaleString()}
-                onChange={handleMonthlyWithdrawalChange}
-                placeholder="Enter amount"
-                className="w-32 text-right"
-              />
-            </div>
-            <Slider
-              value={[monthlyWithdrawal]}
-              min={minWithdrawal}
-              max={maxWithdrawal > initialInvestment / 10 ? initialInvestment / 10 : maxWithdrawal}
-              step={100}
-              onValueChange={(values) => setMonthlyWithdrawal(values[0])}
-            />
-            <div className="flex justify-between text-xs text-gray-500">
-              <span>₹{minWithdrawal}</span>
-              <span>{formatCurrency(maxWithdrawal > initialInvestment / 10 ? initialInvestment / 10 : maxWithdrawal)}</span>
-            </div>
-          </div>
-          
-          <div className="space-y-3">
-            <div className="flex justify-between items-center">
-              <Label htmlFor="expectedReturn" className="text-base flex items-center">
-                <TrendingUp className="h-4 w-4 mr-1.5" />
-                Expected Return (% p.a)
-              </Label>
-              <Input
-                id="expectedReturn"
-                type="number"
-                value={expectedReturn}
-                onChange={(e) => setExpectedReturn(Math.min(Math.max(Number(e.target.value), 1), maxReturn))}
-                className="w-32 text-right"
-              />
-            </div>
-            <Slider
-              value={[expectedReturn]}
-              min={1}
-              max={maxReturn}
-              step={0.5}
-              onValueChange={(values) => setExpectedReturn(values[0])}
-            />
-            <div className="flex justify-between text-xs text-gray-500">
-              <span>1%</span>
-              <span>{maxReturn}%</span>
-            </div>
-          </div>
-          
-          <div className="space-y-3">
-            <div className="flex justify-between items-center">
-              <Label htmlFor="withdrawalYears" className="text-base flex items-center">
-                <Calendar className="h-4 w-4 mr-1.5" />
-                Withdrawal Period (Years)
-              </Label>
-              <Input
-                id="withdrawalYears"
-                type="number"
-                value={withdrawalYears}
-                onChange={(e) => setWithdrawalYears(Math.min(Math.max(Number(e.target.value), 1), maxDuration))}
-                className="w-32 text-right"
-              />
-            </div>
-            <Slider
-              value={[withdrawalYears]}
-              min={1}
-              max={maxDuration}
-              step={1}
-              onValueChange={(values) => setWithdrawalYears(values[0])}
-            />
-            <div className="flex justify-between text-xs text-gray-500">
-              <span>1 Year</span>
-              <span>{maxDuration} Years</span>
-            </div>
-          </div>
-        </div>
-        
-        <div className="space-y-6">
-          <Card className="p-6">
-            <h3 className="text-lg font-semibold mb-4">Results</h3>
-            
-            <div className="grid grid-cols-1 gap-4">
-              <div className="flex justify-between py-2 border-b">
-                <span className="text-gray-600">Initial Investment:</span>
-                <span className="font-semibold">₹{initialInvestment.toLocaleString()}</span>
-              </div>
-              
-              <div className="flex justify-between py-2 border-b">
-                <span className="text-gray-600">Total Withdrawals:</span>
-                <span className="font-semibold text-primary">₹{totalWithdrawal.toLocaleString()}</span>
-              </div>
-              
-              <div className="flex justify-between py-2">
-                <span className="text-gray-600">Final Corpus:</span>
-                <span className="font-bold text-lg">₹{finalCorpus > 0 ? finalCorpus.toLocaleString() : 0}</span>
-              </div>
-              
-              {corpusDepletionYear && (
-                <div className="py-2 mt-2">
-                  <div className="p-3 bg-amber-50 dark:bg-amber-900/20 text-amber-700 dark:text-amber-400 rounded-md text-sm">
-                    <strong>Note:</strong> Your corpus may deplete in {corpusDepletionYear} years at this withdrawal rate.
+    <div className="space-y-8">
+      {/* 2-Column Dashboard Layout */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+        {/* Left Inputs Column (5 Cols) */}
+        <div className="lg:col-span-5 space-y-6">
+          <Card className="border-slate-200/80 dark:border-slate-800 bg-white dark:bg-slate-900/60 shadow-sm">
+            <CardContent className="p-6 space-y-6">
+              {/* Total Corpus */}
+              <div className="space-y-3">
+                <div className="flex justify-between items-center">
+                  <Label htmlFor="swp-corpus" className="text-sm font-semibold flex items-center gap-1.5">
+                    <IndianRupee size={15} className="text-cyan-600 dark:text-cyan-400" />
+                    Total Investment Corpus
+                  </Label>
+                  <div className="relative w-36">
+                    <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-xs font-semibold text-slate-400 select-none">₹</span>
+                    <Input
+                      id="swp-corpus"
+                      type="text"
+                      value={initialCorpus === 0 ? '' : initialCorpus.toLocaleString('en-IN')}
+                      onChange={(e) => handleCorpusChange(e.target.value)}
+                      className="pl-6 text-right font-mono text-sm h-9 border-slate-200 dark:border-slate-700"
+                    />
                   </div>
                 </div>
-              )}
-            </div>
+                <Slider
+                  value={[initialCorpus]}
+                  min={100000}
+                  max={10000000}
+                  step={50000}
+                  onValueChange={(val) => {
+                    setInitialCorpus(val[0]);
+                    setCorpusInputStr(val[0].toString());
+                    setErrors((prev) => ({ ...prev, corpus: undefined }));
+                  }}
+                  className="py-1"
+                />
+                <div className="flex justify-between text-[11px] font-mono text-slate-400">
+                  <span>₹1 Lakh</span>
+                  <span>₹50 Lakh</span>
+                  <span>₹1 Crore</span>
+                </div>
+                {errors.corpus && <p className="text-xs text-rose-500">{errors.corpus}</p>}
+              </div>
+
+              {/* Monthly Withdrawal */}
+              <div className="space-y-3">
+                <div className="flex justify-between items-center">
+                  <Label htmlFor="swp-withdrawal" className="text-sm font-semibold flex items-center gap-1.5">
+                    <ArrowDownRight size={15} className="text-cyan-600 dark:text-cyan-400" />
+                    Monthly Withdrawal (SWP)
+                  </Label>
+                  <div className="relative w-32">
+                    <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-xs font-semibold text-slate-400 select-none">₹</span>
+                    <Input
+                      id="swp-withdrawal"
+                      type="text"
+                      value={monthlyWithdrawal === 0 ? '' : monthlyWithdrawal.toLocaleString('en-IN')}
+                      onChange={(e) => handleWithdrawalChange(e.target.value)}
+                      className="pl-6 text-right font-mono text-sm h-9 border-slate-200 dark:border-slate-700"
+                    />
+                  </div>
+                </div>
+                <Slider
+                  value={[monthlyWithdrawal]}
+                  min={1000}
+                  max={100000}
+                  step={1000}
+                  onValueChange={(val) => {
+                    setMonthlyWithdrawal(val[0]);
+                    setWithdrawalInputStr(val[0].toString());
+                    setErrors((prev) => ({ ...prev, withdrawal: undefined }));
+                  }}
+                  className="py-1"
+                />
+                <div className="flex justify-between text-[11px] font-mono text-slate-400">
+                  <span>₹1,000</span>
+                  <span>₹50,000</span>
+                  <span>₹1 Lakh</span>
+                </div>
+                {errors.withdrawal && <p className="text-xs text-rose-500">{errors.withdrawal}</p>}
+              </div>
+
+              {/* Expected Return */}
+              <div className="space-y-3">
+                <div className="flex justify-between items-center">
+                  <Label htmlFor="swp-return" className="text-sm font-semibold flex items-center gap-1.5">
+                    <TrendingUp size={15} className="text-cyan-600 dark:text-cyan-400" />
+                    Expected Return Rate (p.a.)
+                  </Label>
+                  <div className="relative w-28">
+                    <Input
+                      id="swp-return"
+                      type="number"
+                      step="0.5"
+                      value={returnInputStr}
+                      onChange={(e) => handleReturnChange(e.target.value)}
+                      className="pr-6 text-right font-mono text-sm h-9 border-slate-200 dark:border-slate-700"
+                    />
+                    <span className="absolute right-2.5 top-1/2 -translate-y-1/2 text-xs font-semibold text-slate-400 select-none">%</span>
+                  </div>
+                </div>
+                <Slider
+                  value={[expectedReturn]}
+                  min={1}
+                  max={20}
+                  step={0.5}
+                  onValueChange={(val) => {
+                    setExpectedReturn(val[0]);
+                    setReturnInputStr(val[0].toString());
+                    setErrors((prev) => ({ ...prev, returnRate: undefined }));
+                  }}
+                  className="py-1"
+                />
+                <div className="flex justify-between text-[11px] font-mono text-slate-400">
+                  <span>1%</span>
+                  <span>10%</span>
+                  <span>20%</span>
+                </div>
+                {errors.returnRate && <p className="text-xs text-rose-500">{errors.returnRate}</p>}
+              </div>
+
+              {/* Duration */}
+              <div className="space-y-3">
+                <div className="flex justify-between items-center">
+                  <Label htmlFor="swp-duration" className="text-sm font-semibold flex items-center gap-1.5">
+                    <Calendar size={15} className="text-cyan-600 dark:text-cyan-400" />
+                    Time Period
+                  </Label>
+                  <div className="relative w-28">
+                    <Input
+                      id="swp-duration"
+                      type="number"
+                      value={durationInputStr}
+                      onChange={(e) => handleDurationChange(e.target.value)}
+                      className="pr-8 text-right font-mono text-sm h-9 border-slate-200 dark:border-slate-700"
+                    />
+                    <span className="absolute right-2.5 top-1/2 -translate-y-1/2 text-xs font-semibold text-slate-400 select-none">Yr</span>
+                  </div>
+                </div>
+                <Slider
+                  value={[withdrawalDuration]}
+                  min={1}
+                  max={35}
+                  step={1}
+                  onValueChange={(val) => {
+                    setWithdrawalDuration(val[0]);
+                    setDurationInputStr(val[0].toString());
+                    setErrors((prev) => ({ ...prev, duration: undefined }));
+                  }}
+                  className="py-1"
+                />
+                <div className="flex justify-between text-[11px] font-mono text-slate-400">
+                  <span>1 Year</span>
+                  <span>15 Years</span>
+                  <span>35 Years</span>
+                </div>
+                {errors.duration && <p className="text-xs text-rose-500">{errors.duration}</p>}
+              </div>
+            </CardContent>
           </Card>
-          
-          <Card className="p-6">
-            <h3 className="text-base font-semibold mb-2">Sustainable Withdrawal Rate</h3>
-            <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
-              {finalCorpus > 0 
-                ? "Your withdrawal rate is sustainable for the entire period."
-                : `Consider reducing your monthly withdrawal amount to make your corpus last the entire ${withdrawalYears} years.`
-              }
-            </p>
-            
-            <div className="flex items-center justify-between">
-              <div className="text-xs text-gray-500">Less</div>
-              <div className={`w-full mx-2 h-2 rounded-full bg-gradient-to-r ${
-                finalCorpus > initialInvestment * 0.5 
-                  ? 'from-green-500 to-green-300' 
-                  : finalCorpus > 0 
-                    ? 'from-yellow-500 to-yellow-300' 
-                    : 'from-red-500 to-red-300'
-              }`}></div>
-              <div className="text-xs text-gray-500">More</div>
+
+          {/* Sustainability Status Callout */}
+          {result.isExhausted ? (
+            <Card className="border-amber-200 dark:border-amber-900/60 bg-amber-50/50 dark:bg-amber-950/20 p-4 flex items-start gap-3">
+              <AlertTriangle className="w-5 h-5 text-amber-600 dark:text-amber-400 flex-shrink-0 mt-0.5" />
+              <div className="text-xs space-y-1">
+                <p className="font-semibold text-amber-900 dark:text-amber-300">
+                  Corpus Depleted Early (Year {result.exhaustionYear})
+                </p>
+                <p className="text-amber-700 dark:text-amber-400">
+                  At ₹{monthlyWithdrawal.toLocaleString('en-IN')}/mo, the corpus is completely exhausted by month {result.exhaustionMonthNumber}. Consider reducing the monthly withdrawal or increasing return assumptions.
+                </p>
+              </div>
+            </Card>
+          ) : (
+            <Card className="border-emerald-200 dark:border-emerald-900/60 bg-emerald-50/50 dark:bg-emerald-950/20 p-4 flex items-start gap-3">
+              <CheckCircle2 className="w-5 h-5 text-emerald-600 dark:text-emerald-400 flex-shrink-0 mt-0.5" />
+              <div className="text-xs space-y-1">
+                <p className="font-semibold text-emerald-900 dark:text-emerald-300">
+                  Sustainable Withdrawal Schedule
+                </p>
+                <p className="text-emerald-700 dark:text-emerald-400">
+                  Your corpus comfortably sustains all scheduled withdrawals for the entire {withdrawalDuration}-year period, leaving a remaining balance of {formatINR(result.remainingCorpus)}.
+                </p>
+              </div>
+            </Card>
+          )}
+        </div>
+
+        {/* Right Results & Visualizations Column (7 Cols) */}
+        <div className="lg:col-span-7 space-y-6">
+          {/* Key Metric Summary Cards */}
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3.5">
+            <Card className="border-slate-200/80 dark:border-slate-800 bg-white dark:bg-slate-900/60 shadow-sm p-3.5">
+              <span className="text-[11px] font-medium text-slate-500 dark:text-slate-400 block mb-1">
+                Initial Corpus
+              </span>
+              <p className="text-lg sm:text-xl font-bold text-slate-900 dark:text-white font-mono">
+                {formatINR(result.initialCorpus)}
+              </p>
+              <span className="text-[10px] text-slate-400 block mt-0.5">Opening</span>
+            </Card>
+
+            <Card className="border-slate-200/80 dark:border-slate-800 bg-white dark:bg-slate-900/60 shadow-sm p-3.5">
+              <span className="text-[11px] font-medium text-slate-500 dark:text-slate-400 block mb-1">
+                Total Withdrawn
+              </span>
+              <p className="text-lg sm:text-xl font-bold text-cyan-600 dark:text-cyan-400 font-mono">
+                {formatINR(result.totalActualWithdrawals)}
+              </p>
+              <span className="text-[10px] text-slate-400 block mt-0.5">Received cash flow</span>
+            </Card>
+
+            <Card className="border-slate-200/80 dark:border-slate-800 bg-white dark:bg-slate-900/60 shadow-sm p-3.5">
+              <span className="text-[11px] font-medium text-slate-500 dark:text-slate-400 block mb-1">
+                Growth Earned
+              </span>
+              <p className="text-lg sm:text-xl font-bold text-emerald-600 dark:text-emerald-400 font-mono">
+                +{formatINR(result.totalGrowthEarned)}
+              </p>
+              <span className="text-[10px] text-slate-400 block mt-0.5">During tenure</span>
+            </Card>
+
+            <Card className="border-cyan-500/30 dark:border-cyan-500/40 bg-gradient-to-br from-cyan-50/50 via-white to-blue-50/30 dark:from-slate-900 dark:to-cyan-950/30 shadow-sm p-3.5">
+              <span className="text-[11px] font-semibold text-cyan-800 dark:text-cyan-300 block mb-1">
+                Remaining Corpus
+              </span>
+              <p className="text-lg sm:text-xl font-extrabold text-blue-700 dark:text-cyan-300 font-mono">
+                {formatINR(result.remainingCorpus)}
+              </p>
+              <span className="text-[10px] text-slate-500 dark:text-slate-400 block mt-0.5">
+                Closing balance
+              </span>
+            </Card>
+          </div>
+
+          {/* Visualization Section */}
+          <Card className="border-slate-200/80 dark:border-slate-800 bg-white dark:bg-slate-900/60 shadow-sm overflow-hidden">
+            <div className="p-4 border-b border-slate-100 dark:border-slate-800/80 flex items-center justify-between">
+              <span className="text-sm font-semibold text-slate-800 dark:text-slate-200">
+                Corpus Balance & Cumulative Withdrawals
+              </span>
+              <span className="text-xs font-mono text-slate-500">
+                {withdrawalDuration} Years Projection
+              </span>
+            </div>
+
+            <div className="p-6">
+              <div className="h-64">
+                <ResponsiveContainer width="100%" height="100%">
+                  <AreaChart data={areaData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
+                    <defs>
+                      <linearGradient id="swpBalanceGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+                        <stop offset="0%" stopColor="#2563EB" stopOpacity={0.35} />
+                        <stop offset="100%" stopColor="#2563EB" stopOpacity={0.0} />
+                      </linearGradient>
+                      <linearGradient id="swpWithdrawalGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+                        <stop offset="0%" stopColor="#06B6D4" stopOpacity={0.35} />
+                        <stop offset="100%" stopColor="#06B6D4" stopOpacity={0.0} />
+                      </linearGradient>
+                    </defs>
+                    <CartesianGrid strokeDasharray="3 3" opacity={0.15} />
+                    <XAxis dataKey="name" tick={{ fontSize: 11 }} />
+                    <YAxis tickFormatter={(val) => formatCompactINR(val)} tick={{ fontSize: 11 }} />
+                    <RechartsTooltip formatter={(val: number) => formatINR(val)} />
+                    <Area type="monotone" dataKey="Balance" stroke="#2563EB" strokeWidth={2.5} fill="url(#swpBalanceGrad)" name="Remaining Corpus" />
+                    <Area type="monotone" dataKey="CumulativeWithdrawals" stroke="#06B6D4" strokeWidth={2} fill="url(#swpWithdrawalGrad)" name="Cumulative Cash Withdrawn" />
+                  </AreaChart>
+                </ResponsiveContainer>
+              </div>
             </div>
           </Card>
         </div>
       </div>
-      
-      <div className="mt-10">
-        <h3 className="text-lg font-semibold mb-4">Corpus & Withdrawals Over Time</h3>
-        <div className="h-72">
-          <ResponsiveContainer width="100%" height="100%">
-            <LineChart data={chartData}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="name" />
-              <YAxis tickFormatter={formatCurrency} />
-              <Tooltip formatter={(value) => [formatCurrency(Number(value)), ""]} />
-              <Line type="monotone" dataKey="corpus" stroke="#8884d8" name="Remaining Corpus" strokeWidth={2} />
-              <Line type="monotone" dataKey="withdrawal" stroke="#82ca9d" name="Yearly Withdrawal" strokeWidth={2} />
-            </LineChart>
-          </ResponsiveContainer>
-        </div>
+
+      {/* Year-by-Year Withdrawal Schedule Table */}
+      <div className="border border-slate-200/80 dark:border-slate-800 rounded-xl overflow-hidden bg-white dark:bg-slate-900/60">
+        <button
+          type="button"
+          onClick={() => setIsScheduleOpen(!isScheduleOpen)}
+          className="w-full px-6 py-4 flex items-center justify-between text-left hover:bg-slate-50 dark:hover:bg-slate-800/40 transition-colors"
+        >
+          <div className="flex items-center gap-2">
+            <span className="text-sm font-semibold text-slate-800 dark:text-slate-200">
+              Annual SWP Cash-Flow & Balance Schedule
+            </span>
+            <span className="text-xs text-slate-500 font-mono">({result.yearlySchedule.length} Years)</span>
+          </div>
+          {isScheduleOpen ? <ChevronUp size={18} className="text-slate-400" /> : <ChevronDown size={18} className="text-slate-400" />}
+        </button>
+
+        {isScheduleOpen && (
+          <div className="p-6 pt-0 border-t border-slate-100 dark:border-slate-800 overflow-x-auto">
+            <table className="w-full text-xs text-left">
+              <thead>
+                <tr className="border-b border-slate-200 dark:border-slate-800 text-slate-500 dark:text-slate-400">
+                  <th className="py-2.5 font-semibold">Year</th>
+                  <th className="py-2.5 font-semibold">Opening Balance</th>
+                  <th className="py-2.5 font-semibold">Growth Earned</th>
+                  <th className="py-2.5 font-semibold">Annual Withdrawn</th>
+                  <th className="py-2.5 font-semibold text-right">Closing Balance</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-100 dark:divide-slate-800/60 font-mono">
+                {result.yearlySchedule.map((row) => (
+                  <tr key={row.year} className="hover:bg-slate-50/50 dark:hover:bg-slate-800/20">
+                    <td className="py-2 font-medium text-slate-700 dark:text-slate-300">Year {row.year}</td>
+                    <td className="py-2 text-slate-600 dark:text-slate-400">{formatINR(row.openingBalance)}</td>
+                    <td className="py-2 text-emerald-600 dark:text-emerald-400">+{formatINR(row.growthEarned)}</td>
+                    <td className="py-2 text-cyan-600 dark:text-cyan-400">-{formatINR(row.annualWithdrawal)}</td>
+                    <td className="py-2 text-right font-semibold text-slate-900 dark:text-white">
+                      {row.closingBalance === 0 ? (
+                        <span className="text-amber-600 dark:text-amber-400 font-sans font-medium text-[11px]">Exhausted</span>
+                      ) : (
+                        formatINR(row.closingBalance)
+                      )}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
       </div>
+
+      {/* Assumptions Explanation */}
+      <div className="p-4 rounded-xl bg-blue-50/50 dark:bg-slate-900/40 border border-blue-100 dark:border-slate-800 text-xs text-slate-600 dark:text-slate-400 space-y-1">
+        <div className="font-semibold text-slate-800 dark:text-slate-200 flex items-center gap-1.5">
+          <Info size={14} className="text-cyan-500" />
+          Calculation Assumptions
+        </div>
+        <p>
+          Each month, the remaining corpus earns interest at an effective monthly return rate equivalent to {expectedReturn}% per annum. The scheduled withdrawal of {formatINR(monthlyWithdrawal)} is then deducted at month-end. Withdrawals are capped at the remaining balance; once the corpus reaches zero, withdrawals cease.
+        </p>
+      </div>
+
+      {/* Required Financial Disclaimer */}
+      <CalculatorDisclaimer />
     </div>
   );
-};
-
-export default SWPCalculator;
+}

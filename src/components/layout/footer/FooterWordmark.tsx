@@ -16,7 +16,7 @@ export const FooterWordmark: React.FC = () => {
         transition={{ duration: DURATIONS.slow, ease: EASING.decelerate }}
       >
         <h2 
-          className="text-5xl sm:text-7xl md:text-8xl lg:text-[10.5vw] font-black tracking-tighter leading-none uppercase bg-gradient-to-b from-slate-900/15 via-slate-800/8 to-transparent dark:from-white/20 dark:via-white/5 dark:to-transparent bg-clip-text text-transparent"
+          className="text-4xl sm:text-6xl md:text-7xl lg:text-[7.5vw] font-black tracking-tighter leading-none uppercase bg-gradient-to-b from-slate-900/10 via-slate-800/5 to-transparent dark:from-white/12 dark:via-white/4 dark:to-transparent bg-clip-text text-transparent"
           aria-hidden="true"
         >
           FINANCE BRUNCH

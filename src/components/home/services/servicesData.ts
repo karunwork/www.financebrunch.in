@@ -26,6 +26,7 @@ export interface ServiceItem {
   highlights?: string[];
   ctaText?: string;
   isComingSoon?: boolean;
+  backgroundWord?: string;
 }
 
 export interface ProductCategoryGroup {
@@ -410,6 +411,7 @@ export const homepageServices: ServiceItem[] = [
     showSheet: false,
     linkTo: "/investment-planning",
     ctaText: "Explore Strategy",
+    backgroundWord: "PLAN",
     highlights: ["Goal-Driven Planning", "Risk Profiling", "Portfolio Optimization"]
   },
   // 2. Mutual Funds
@@ -428,6 +430,7 @@ export const homepageServices: ServiceItem[] = [
     sheetType: "mutual-fund",
     linkTo: "/mutual-funds",
     ctaText: "Explore Mutual Funds",
+    backgroundWord: "GROW",
     highlights: ["Zero Commission Direct Funds", "ELSS Tax Saving 80C", "Disciplined SIP Plans"]
   },
   // 3. Global Tax File (Replaced Fixed Deposits with complete information)
@@ -445,6 +448,7 @@ export const homepageServices: ServiceItem[] = [
     showSheet: false,
     linkTo: "/global-tax-file",
     ctaText: "Explore Global Tax",
+    backgroundWord: "GLOBAL",
     highlights: ["Cross-Border Tax Returns", "DTAA & Foreign Tax Credits", "Expat & NRI Tax Advisory"]
   },
   // 4. FIRE Strategy / Early Retirement
@@ -462,6 +466,7 @@ export const homepageServices: ServiceItem[] = [
     showSheet: false,
     linkTo: "/fire-strategy",
     ctaText: "Plan Early Retirement",
+    backgroundWord: "FREEDOM",
     highlights: ["Rule of 25 & 4% Safe Rate", "Early Exit Blueprint", "Corpus Sustainability Modeling"]
   },
   // 5. Wealth Management
@@ -480,6 +485,7 @@ export const homepageServices: ServiceItem[] = [
     showSheet: false,
     linkTo: "/investment-planning",
     ctaText: "Connect with Advisor",
+    backgroundWord: "WEALTH",
     highlights: ["Custom Asset Allocation", "Quarterly Rebalancing", "Dedicated Wealth Specialist"]
   },
   // 6. Insurance Solutions
@@ -497,6 +503,7 @@ export const homepageServices: ServiceItem[] = [
     showSheet: false,
     linkTo: "/insurance-planning",
     ctaText: "Get Insurance Audit",
+    backgroundWord: "PROTECT",
     highlights: ["Policy Portfolio Review", "Claim Settlement Guidance", "Unbiased Product Curation"]
   },
   // 7. Income Tax Filing
@@ -515,6 +522,7 @@ export const homepageServices: ServiceItem[] = [
     showSheet: false,
     linkTo: "/income-tax-filing",
     ctaText: "File Your Taxes",
+    backgroundWord: "TAX",
     highlights: ["Old vs New Regime Modeling", "Capital Gains Calculation", "Notice Management"]
   }
 ];
