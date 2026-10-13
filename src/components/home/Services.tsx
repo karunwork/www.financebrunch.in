@@ -9,7 +9,7 @@ export default function Services() {
       {/* Anchor identifier for both #services and #products */}
       <div id="products" className="absolute -top-24 left-0 w-full pointer-events-none" />
 
-      <div className="container px-4 mx-auto max-w-7xl">
+      <div className="w-full max-w-7xl 2xl:max-w-[1536px] 3xl:max-w-[1680px] px-4 sm:px-6 lg:px-8 mx-auto">
         {/* Section Header displaying exactly the 7 homepage solutions */}
         <ServicesHeader totalProductsCount={homepageServices.length} />
 

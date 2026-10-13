@@ -27,7 +27,7 @@ export default function Footer() {
         aria-hidden="true" 
       />
 
-      <div className="container max-w-7xl px-4 sm:px-6 lg:px-8 mx-auto relative z-10">
+      <div className="w-full max-w-7xl 2xl:max-w-[1536px] 3xl:max-w-[1680px] px-4 sm:px-6 lg:px-8 mx-auto relative z-10">
         {/* 1. Opening Statement — Oversized Editorial Typography & Brand Logo */}
         <FooterEditorialHeadline />
 

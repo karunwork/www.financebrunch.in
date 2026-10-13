@@ -9,7 +9,7 @@ const Calculator = () => {
   
   return (
     <main className="flex-grow pt-24 pb-24 min-h-screen">
-      <div className="container px-4 mx-auto">
+      <div className="w-full max-w-7xl 2xl:max-w-[1536px] 3xl:max-w-[1680px] px-4 sm:px-6 lg:px-8 mx-auto">
         <div className="mb-8 flex items-center">
           <Button
             variant="ghost"

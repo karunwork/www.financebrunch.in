@@ -27,10 +27,10 @@ const Hero = () => {
         <div className="absolute bottom-1/3 right-1/4 w-32 h-32 md:w-64 md:h-64 bg-blue-400 dark:bg-blue-600 opacity-10 blur-3xl rounded-full"></div>
       </div>
       
-      <div className="container px-4 mx-auto relative z-10">
-        <div className="flex flex-col lg:flex-row items-center py-12 lg:py-24 min-h-[calc(100vh-4rem)]">
+      <div className="w-full max-w-7xl 2xl:max-w-[1536px] 3xl:max-w-[1680px] px-4 sm:px-6 lg:px-8 mx-auto relative z-10">
+        <div className="flex flex-col lg:flex-row items-center justify-between py-10 lg:py-16 xl:py-20 min-h-[calc(100vh-5rem)] gap-8 lg:gap-12 xl:gap-16">
           {/* Left content */}
-          <div className="flex-1 max-w-2xl text-center lg:text-left lg:pr-12 mb-10 lg:mb-0">
+          <div className="flex-1 max-w-2xl xl:max-w-3xl text-center lg:text-left lg:pr-6 xl:pr-10 mb-10 lg:mb-0">
             {/* Heading with subtle reveal */}
             <motion.h1 
               initial={shouldReduceMotion ? { opacity: 1 } : { opacity: 0, y: 16 }}
@@ -105,7 +105,7 @@ const Hero = () => {
           </div>
           
           {/* Right content - Premium 3D Floating Financial Visualization */}
-          <div className="flex-1 w-full max-w-lg lg:max-w-xl">
+          <div className="flex-1 w-full max-w-lg lg:max-w-xl xl:max-w-2xl 2xl:max-w-[660px] flex justify-center lg:justify-end">
             <HeroFloatingGraph />
           </div>
         </div>

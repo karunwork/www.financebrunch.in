@@ -50,7 +50,7 @@ export default function HomeCalculator() {
 
   return (
     <section id="calculator" className="py-24 bg-gradient-to-br from-blue-50/50 via-indigo-50/30 to-transparent dark:from-indigo-950/20 dark:via-transparent dark:to-purple-950/15">
-      <div className="container px-4 mx-auto">
+      <div className="w-full max-w-7xl 2xl:max-w-[1536px] 3xl:max-w-[1680px] px-4 sm:px-6 lg:px-8 mx-auto">
         <CalculatorHeader />
         
         <FadeIn 

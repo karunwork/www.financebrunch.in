@@ -14,7 +14,7 @@ export default function About() {
 
   return (
     <section id="about" className="py-24 overflow-hidden scroll-mt-24">
-      <div className="container px-4 mx-auto">
+      <div className="w-full max-w-7xl 2xl:max-w-[1536px] 3xl:max-w-[1680px] px-4 sm:px-6 lg:px-8 mx-auto">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
           {/* Left Column: Executive image with viewport reveal and restrained hover zoom */}
           <FadeIn direction="right" duration={DURATIONS.slow} className="relative">

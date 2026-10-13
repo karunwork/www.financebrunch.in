@@ -50,10 +50,17 @@ function ScrollToHashElement() {
   useEffect(() => {
     if (hash) {
       const id = hash.replace('#', '');
-      const timer = setTimeout(() => {
+      const scroll = () => {
         scrollToSection(id, true);
-      }, 150);
-      return () => clearTimeout(timer);
+      };
+      const t1 = setTimeout(scroll, 100);
+      const t2 = setTimeout(scroll, 350);
+      const t3 = setTimeout(scroll, 750);
+      return () => {
+        clearTimeout(t1);
+        clearTimeout(t2);
+        clearTimeout(t3);
+      };
     }
   }, [pathname, hash]);
 

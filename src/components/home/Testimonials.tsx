@@ -99,7 +99,7 @@ export default function Testimonials() {
 
   return (
     <section id="testimonials" className="py-24 bg-transparent overflow-hidden">
-      <div className="container px-4 mx-auto">
+      <div className="w-full max-w-7xl 2xl:max-w-[1536px] 3xl:max-w-[1680px] px-4 sm:px-6 lg:px-8 mx-auto">
         <FadeIn direction="up" className="max-w-3xl mx-auto text-center mb-16">
           <span className="inline-block px-3 py-1 bg-primary/10 text-primary rounded-full text-sm font-medium mb-4">
             Client Testimonials
