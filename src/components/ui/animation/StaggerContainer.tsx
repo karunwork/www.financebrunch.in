@@ -51,7 +51,8 @@ export const StaggerContainer = React.forwardRef<HTMLDivElement, StaggerContaine
             },
           },
         }}
-        className={cn(className)}
+        className={cn('scroll-depth', className)}
+        data-scroll-depth="10"
         {...props}
       >
         {children}
@@ -90,7 +91,8 @@ export const StaggerItem = React.forwardRef<HTMLDivElement, StaggerItemProps>(
             },
           },
         }}
-        className={cn(className)}
+        className={cn('scroll-depth', className)}
+        data-scroll-depth="12"
         {...props}
       >
         {children}

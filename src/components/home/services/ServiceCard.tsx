@@ -1,5 +1,5 @@
 import React from 'react';
-import { ArrowRight, CheckCircle2 } from 'lucide-react';
+import { ArrowRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Link } from 'react-router-dom';
 import {
@@ -15,8 +15,8 @@ export interface ServiceCardProps {
   category?: string;
   badge?: string;
   description: string;
-  icon: React.ReactNode;
-  color: string;
+  icon?: React.ReactNode;
+  color?: string;
   index?: number;
   isInView?: boolean;
   redirectToWhatsApp?: boolean;
@@ -29,6 +29,7 @@ export interface ServiceCardProps {
   highlights?: string[];
   ctaText?: string;
   backgroundWord?: string;
+  isFullWidth?: boolean;
 }
 
 export function ServiceCard({ 
@@ -36,8 +37,7 @@ export function ServiceCard({
   category,
   badge,
   description, 
-  icon, 
-  color, 
+  index = 0,
   redirectToWhatsApp, 
   whatsAppMessage, 
   imageSrc, 
@@ -45,9 +45,9 @@ export function ServiceCard({
   sheetType = 'mutual-fund',
   linkTo,
   imageObjectFit = 'cover',
-  highlights,
   ctaText = 'Learn more',
-  backgroundWord
+  backgroundWord,
+  isFullWidth = false,
 }: ServiceCardProps) {
   const handleCardClick = () => {
     if (redirectToWhatsApp) {
@@ -58,102 +58,165 @@ export function ServiceCard({
     }
   };
 
-  const cardInner = (
-    <div className="group relative bg-white dark:bg-gray-900 rounded-2xl overflow-hidden shadow-sm hover:shadow-[0_20px_45px_-12px_rgba(6,182,212,0.15)] dark:hover:shadow-[0_20px_45px_-12px_rgba(6,182,212,0.22)] hover:-translate-y-1.5 border border-slate-200/80 dark:border-slate-800 hover:border-cyan-500/40 dark:hover:border-cyan-400/50 transition-all duration-300 flex flex-col h-full cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-gray-900">
-      {/* 1. Image Header with Gradient Overlay & Badges */}
-      <div className="w-full h-52 overflow-hidden relative bg-gray-100 dark:bg-gray-800">
-        <img 
-          src={imageSrc} 
-          alt={title} 
-          loading="lazy"
-          className={cn(
-            "w-full h-full transition-transform duration-700 ease-out group-hover:scale-105",
-            imageObjectFit === 'contain' ? "object-contain" : "object-cover"
-          )}
-        />
-        {/* Subtle Dark Gradient Overlay for Contrast */}
-        <div className="absolute inset-0 bg-gradient-to-t from-gray-950/80 via-gray-950/30 to-transparent pointer-events-none transition-opacity duration-300"></div>
+  // Apple-inspired alternating dark and refined light panels
+  // Index 1 (Mutual Funds) -> Dark, Index 2 (Global Tax) -> Light, Index 3 (FIRE) -> Dark, Index 4 (Wealth) -> Light, Index 5 (Insurance) -> Dark, Index 6 (Income Tax) -> Full-width Dark
+  const isLightPanel = !isFullWidth && (index === 2 || index === 4);
 
-        {/* Top-Left: Category Pill */}
-        {category && (
-          <div className="absolute top-3.5 left-3.5 z-10">
-            <span className="backdrop-blur-md bg-white/90 dark:bg-gray-900/90 text-gray-800 dark:text-gray-200 text-xs font-semibold px-2.5 py-1 rounded-full border border-white/20 dark:border-gray-700/50 shadow-sm inline-block">
-              {category}
-            </span>
-          </div>
-        )}
+  const cardInner = isFullWidth ? (
+    /* Full-Width Panoramic Apple Showcase Panel (7th Item: Income Tax Filing) */
+    <div className="group relative w-full h-[460px] sm:h-[500px] lg:h-[540px] rounded-3xl sm:rounded-[2.25rem] overflow-hidden bg-gradient-to-br from-[#060E1D] via-[#091834] to-[#040A18] text-white border border-slate-800/90 hover:border-cyan-500/40 shadow-xl hover:shadow-[0_25px_60px_-15px_rgba(6,182,212,0.22)] transition-all duration-500 flex flex-col lg:flex-row items-center justify-between p-8 sm:p-12 lg:p-14 select-none cursor-pointer">
+      {/* Top Edge Highlight */}
+      <div className="absolute top-0 inset-x-0 h-[1.5px] bg-gradient-to-r from-transparent via-cyan-400/40 to-transparent pointer-events-none" />
 
-        {/* Top-Right: Feature / Key Benefit Badge */}
-        {badge && (
-          <div className="absolute top-3.5 right-3.5 z-10">
-            <span className="backdrop-blur-md bg-blue-600/90 text-white text-xs font-medium px-2.5 py-1 rounded-full shadow-sm border border-white/20 inline-block">
-              {badge}
-            </span>
-          </div>
-        )}
+      {/* Background Wordmark */}
+      {backgroundWord && (
+        <div 
+          aria-hidden="true" 
+          className="absolute -right-4 -bottom-10 pointer-events-none select-none z-0 opacity-[0.05] dark:opacity-[0.07] group-hover:opacity-[0.12] transition-opacity duration-700"
+        >
+          <span className="font-black text-[18vw] lg:text-[14vw] tracking-tighter leading-none bg-gradient-to-br from-white via-cyan-200 to-transparent bg-clip-text text-transparent">
+            {backgroundWord}
+          </span>
+        </div>
+      )}
+
+      {/* Left Column: Text & CTA */}
+      <div className="relative z-10 w-full lg:max-w-xl flex flex-col justify-center space-y-4 text-center lg:text-left">
+        <p className="text-xs sm:text-sm font-semibold uppercase tracking-[0.2em] text-cyan-400">
+          {category || 'Tax & Specialized Solutions'} {badge ? `• ${badge}` : ''}
+        </p>
+
+        <h3 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight text-white leading-[1.05]">
+          {title}
+        </h3>
+
+        <p className="text-slate-300 text-sm sm:text-base lg:text-lg leading-relaxed max-w-lg">
+          {description}
+        </p>
+
+        <div className="pt-2 flex items-center justify-center lg:justify-start gap-4">
+          <span className="inline-flex items-center text-sm sm:text-base font-semibold text-cyan-400 group-hover:text-cyan-300 transition-colors">
+            {ctaText}
+            <ArrowRight size={16} className="ml-2 transition-transform duration-300 group-hover:translate-x-1.5" />
+          </span>
+        </div>
       </div>
 
-      {/* 2. Elevated Floating Icon Tile */}
-      <div className="px-6 -mt-7 relative z-10">
+      {/* Right Column: Expansive Visual */}
+      <div className="relative z-10 w-full lg:w-1/2 h-56 sm:h-64 lg:h-full flex items-center justify-center mt-6 lg:mt-0">
+        <div className="relative w-full h-full max-h-[360px] rounded-2xl overflow-hidden border border-white/10 shadow-2xl bg-slate-950/60">
+          <img
+            src={imageSrc}
+            alt={title}
+            loading="lazy"
+            className="w-full h-full object-cover object-center filter contrast-[1.08] saturate-[1.06] transition-transform duration-700 ease-out group-hover:scale-105"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-[#060E1D] via-transparent to-transparent pointer-events-none" />
+        </div>
+      </div>
+    </div>
+  ) : (
+    /* Standard 2-Column Apple-Inspired Broad Rectangular Product Tile */
+    <div 
+      className={cn(
+        "group relative w-full h-[520px] sm:h-[560px] lg:h-[600px] xl:h-[620px] rounded-3xl sm:rounded-[2rem] overflow-hidden transition-all duration-500 flex flex-col justify-between p-7 sm:p-9 lg:p-10 select-none cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-500",
+        isLightPanel
+          ? "bg-[#F5F7FA] text-slate-900 border border-slate-200/90 dark:bg-[#0B172E] dark:text-white dark:border-slate-800 shadow-lg hover:shadow-[0_24px_55px_-12px_rgba(29,78,216,0.14)] hover:border-blue-400/50"
+          : "bg-[#071224] text-white border border-slate-800/90 dark:border-cyan-500/25 shadow-xl hover:shadow-[0_24px_55px_-12px_rgba(6,182,212,0.22)] hover:border-cyan-400/50"
+      )}
+    >
+      {/* Top Edge Inset Highlight Line */}
+      <div 
+        className={cn(
+          "absolute top-0 inset-x-0 h-[1.5px] pointer-events-none z-20",
+          isLightPanel 
+            ? "bg-gradient-to-r from-transparent via-blue-400/40 to-transparent" 
+            : "bg-gradient-to-r from-transparent via-cyan-400/40 to-transparent"
+        )} 
+      />
+
+      {/* Oversized Background Word Typography */}
+      {backgroundWord && (
         <div 
+          aria-hidden="true" 
+          className="absolute -right-2 -bottom-8 pointer-events-none select-none z-0 opacity-[0.04] dark:opacity-[0.06] group-hover:opacity-[0.11] transition-opacity duration-700"
+        >
+          <span className="font-black text-8xl sm:text-9xl lg:text-[10rem] tracking-tighter leading-none bg-gradient-to-br from-slate-900 via-blue-900 to-cyan-700 dark:from-white dark:via-cyan-200 dark:to-transparent bg-clip-text text-transparent">
+            {backgroundWord}
+          </span>
+        </div>
+      )}
+
+      {/* Top Area: Clean Apple-Style Typography & CTA Header */}
+      <div className="relative z-10 w-full text-center max-w-md mx-auto pt-1">
+        {/* Eyebrow Label */}
+        <p 
           className={cn(
-            "w-14 h-14 rounded-xl flex items-center justify-center text-white shadow-lg transition-all duration-300 group-hover:scale-110 group-hover:rotate-2 group-hover:shadow-xl",
-            color
+            "text-xs font-semibold uppercase tracking-[0.2em] mb-2 sm:mb-2.5",
+            isLightPanel ? "text-blue-600 dark:text-cyan-400" : "text-cyan-400"
           )}
         >
-          {icon}
-        </div>
-      </div>
+          {category || 'Financial Solution'} {badge ? `• ${badge}` : ''}
+        </p>
 
-      {/* 3. Card Body: Title, Description, and Feature Highlights */}
-      <div className="p-6 pt-4 flex flex-col flex-grow justify-between relative overflow-hidden">
-        {/* Cinematic Oversized Background Typography */}
-        {backgroundWord && (
-          <div 
-            aria-hidden="true" 
-            className="absolute -right-2 -bottom-6 pointer-events-none select-none overflow-hidden z-0 pr-1 opacity-[0.05] dark:opacity-[0.06] group-hover:opacity-[0.14] dark:group-hover:opacity-[0.16] transition-all duration-500 ease-out transform group-hover:-translate-x-1 group-hover:-translate-y-1 group-hover:scale-105 origin-bottom-right"
-          >
-            <span className="font-black text-7xl sm:text-8xl tracking-tighter leading-none bg-gradient-to-br from-slate-900 via-blue-900 to-cyan-700 dark:from-white dark:via-blue-200 dark:to-cyan-400 bg-clip-text text-transparent">
-              {backgroundWord}
-            </span>
-          </div>
-        )}
-
-        <div className="relative z-10">
-          <h3 className="text-xl font-bold tracking-tight text-gray-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-cyan-400 transition-colors duration-200 mb-2.5">
-            {title}
-          </h3>
-          <p className="text-gray-600 dark:text-gray-300 text-sm leading-relaxed mb-4">
-            {description}
-          </p>
-
-          {/* Value Highlights Pill List */}
-          {highlights && highlights.length > 0 && (
-            <div className="space-y-1.5 mb-5 pt-1">
-              {highlights.map((highlight, i) => (
-                <div key={i} className="flex items-center text-xs text-gray-600 dark:text-gray-400">
-                  <CheckCircle2 className="h-3.5 w-3.5 text-blue-600 dark:text-cyan-400 mr-2 flex-shrink-0" />
-                  <span className="truncate">{highlight}</span>
-                </div>
-              ))}
-            </div>
+        {/* Large Clean Apple Headline */}
+        <h3 
+          className={cn(
+            "text-2xl sm:text-3xl lg:text-4xl font-extrabold tracking-tight leading-[1.08] mb-2.5 sm:mb-3",
+            isLightPanel ? "text-slate-900 dark:text-white" : "text-white"
           )}
-        </div>
+        >
+          {title}
+        </h3>
 
-        {/* 4. Action Footer: CTA and Animated Arrow Indicator */}
-        <div className="pt-4 border-t border-gray-100 dark:border-gray-800/80 flex items-center justify-between mt-auto relative z-10">
-          <span className="inline-flex items-center text-sm font-semibold text-blue-600 dark:text-cyan-400 group-hover:text-blue-700 dark:group-hover:text-cyan-300 transition-colors">
+        {/* Short Concise Description */}
+        <p 
+          className={cn(
+            "text-xs sm:text-sm lg:text-base leading-relaxed line-clamp-2 max-w-sm mx-auto",
+            isLightPanel ? "text-slate-600 dark:text-slate-300" : "text-slate-300"
+          )}
+        >
+          {description}
+        </p>
+
+        {/* Clean Apple-Style Inline CTA */}
+        <div className="mt-3 sm:mt-4 flex items-center justify-center">
+          <span 
+            className={cn(
+              "inline-flex items-center text-xs sm:text-sm font-semibold transition-colors group-hover:underline underline-offset-4",
+              isLightPanel ? "text-blue-600 hover:text-blue-700 dark:text-cyan-400" : "text-cyan-400 hover:text-cyan-300"
+            )}
+          >
             {ctaText}
-            <ArrowRight size={16} className="ml-1.5 transition-transform duration-300 group-hover:translate-x-1.5" />
+            <ArrowRight size={14} className="ml-1.5 transition-transform duration-300 group-hover:translate-x-1" />
           </span>
-          <div className="w-7 h-7 rounded-full bg-blue-50 dark:bg-blue-950/40 text-blue-600 dark:text-cyan-400 flex items-center justify-center transition-all duration-200 group-hover:bg-gradient-to-r group-hover:from-blue-600 group-hover:to-cyan-500 group-hover:text-white">
-            <ArrowRight size={14} className="transition-transform duration-200 group-hover:scale-110" />
-          </div>
         </div>
       </div>
 
-      {/* Decorative Interactive Subtle Glow Ring on Hover */}
-      <div className="absolute inset-0 border-2 border-transparent group-hover:border-cyan-500/25 rounded-2xl transition-colors duration-300 pointer-events-none"></div>
+      {/* Lower Area: Broad Product Image Occupying Lower Portion of Panel */}
+      <div className="relative z-10 w-full flex-grow mt-4 sm:mt-6 overflow-hidden rounded-2xl flex items-end justify-center">
+        <div className="relative w-full h-full max-h-[290px] sm:max-h-[320px] lg:max-h-[350px] rounded-xl sm:rounded-2xl overflow-hidden border border-slate-200/50 dark:border-white/10 shadow-lg">
+          <img
+            src={imageSrc}
+            alt={title}
+            loading="lazy"
+            className={cn(
+              "w-full h-full transition-transform duration-700 ease-out group-hover:scale-106 filter contrast-[1.06] saturate-[1.05]",
+              imageObjectFit === 'contain' ? "object-contain p-4" : "object-cover object-center"
+            )}
+          />
+
+          {/* Smooth Fade Vignette blending into panel background */}
+          <div 
+            className={cn(
+              "absolute inset-0 pointer-events-none",
+              isLightPanel
+                ? "bg-gradient-to-t from-[#F5F7FA]/70 via-transparent to-transparent dark:from-[#0B172E]/70"
+                : "bg-gradient-to-t from-[#071224]/80 via-transparent to-transparent"
+            )}
+          />
+        </div>
+      </div>
     </div>
   );
 
@@ -163,7 +226,7 @@ export function ServiceCard({
     return (
       <Sheet>
         <SheetTrigger asChild>
-          <div className="h-full focus-visible:outline-none">
+          <div className="w-full h-full focus-visible:outline-none">
             {cardInner}
           </div>
         </SheetTrigger>
@@ -175,7 +238,7 @@ export function ServiceCard({
   // If card has an internal React Router link
   if (linkTo) {
     return (
-      <Link to={linkTo} className="block h-full focus-visible:outline-none rounded-2xl">
+      <Link to={linkTo} className="block w-full h-full focus-visible:outline-none rounded-3xl">
         {cardInner}
       </Link>
     );
@@ -183,7 +246,7 @@ export function ServiceCard({
 
   // Otherwise handle external WhatsApp or fallback click
   return (
-    <div onClick={handleCardClick} className="h-full focus-visible:outline-none">
+    <div onClick={handleCardClick} className="w-full h-full focus-visible:outline-none">
       {cardInner}
     </div>
   );

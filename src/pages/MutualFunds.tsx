@@ -96,7 +96,7 @@ const MutualFunds = () => {
         </div>
 
         {/* Fund Categories Grid */}
-        <div className="mb-16">
+        <div id="fund-categories-section" className="mb-16">
           <div className="text-center mb-10">
             <h2 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white">
               Explore Popular Mutual Fund Categories

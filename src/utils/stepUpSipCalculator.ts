@@ -89,6 +89,29 @@ export function calculateStepUpSIP(inputs: StepUpSIPCalculatorInputs): StepUpSIP
     };
   }
 
+  // Prevent calculation overflow for unrealistic extremes
+  if (initialMonthlyInvestment > 100000000 || investmentDurationYears > 60 || expectedAnnualReturn > 100 || annualStepUpPercentage > 100) {
+    return {
+      initialMonthlySIP: initialMonthlyInvestment,
+      finalMonthlySIP: initialMonthlyInvestment,
+      investmentDurationYears,
+      expectedAnnualReturn,
+      annualStepUpPercentage,
+      totalInvested: 0,
+      estimatedReturns: 0,
+      futureValue: 0,
+      annualSchedule: [],
+      fixedSipComparison: {
+        totalInvested: 0,
+        estimatedReturns: 0,
+        futureValue: 0,
+        differenceFV: 0,
+      },
+      isValid: false,
+      validationError: 'Input values exceed maximum supported limits.',
+    };
+  }
+
   const totalMonths = Math.round(investmentDurationYears * 12);
   const monthlyRate = expectedAnnualReturn === 0
     ? 0
@@ -107,6 +130,7 @@ export function calculateStepUpSIP(inputs: StepUpSIPCalculatorInputs): StepUpSIP
     currentYearInvested += monthlyContribution;
 
     // End-of-month contribution accumulation:
+    // closingBalance = previousBalance * (1 + monthlyRate) + contribution
     if (monthlyRate === 0) {
       stepUpBalance += monthlyContribution;
     } else {
@@ -115,27 +139,45 @@ export function calculateStepUpSIP(inputs: StepUpSIPCalculatorInputs): StepUpSIP
 
     if (m % 12 === 0 || m === totalMonths) {
       const yearNumber = Math.ceil(m / 12);
+      const roundedYearlyInvested = Math.round(currentYearInvested);
+      const roundedCumulativeInvested = Math.round(stepUpTotalInvested);
+      const roundedFV = Math.round(stepUpBalance);
+      const roundedReturns = Math.max(0, roundedFV - roundedCumulativeInvested);
+
       annualSchedule.push({
         year: yearNumber,
         monthlyContribution: Math.round(monthlyContribution),
-        yearlyInvested: Math.round(currentYearInvested),
-        cumulativeInvested: Math.round(stepUpTotalInvested),
-        futureValue: Math.round(stepUpBalance),
-        estimatedReturns: Math.round(Math.max(0, stepUpBalance - stepUpTotalInvested)),
+        yearlyInvested: roundedYearlyInvested,
+        cumulativeInvested: roundedCumulativeInvested,
+        futureValue: roundedFV,
+        estimatedReturns: roundedReturns,
       });
       currentYearInvested = 0;
     }
   }
 
-  // Final scheduled monthly SIP:
-  const finalMonthlySIP = initialMonthlyInvestment * Math.pow(1 + annualStepUpPercentage / 100, investmentDurationYears - 1);
+  // Final scheduled monthly SIP (last month's contribution):
+  const finalYearIndex = Math.floor((totalMonths - 1) / 12);
+  const finalMonthlySIP = initialMonthlyInvestment * Math.pow(1 + annualStepUpPercentage / 100, finalYearIndex);
 
-  // Fixed SIP calculation for identical starting parameters:
+  // Fixed SIP calculation for identical starting parameters and end-of-month timing:
   const fixedTotalInvested = initialMonthlyInvestment * totalMonths;
-  const fixedFutureValue = monthlyRate === 0
-    ? fixedTotalInvested
-    : initialMonthlyInvestment * (Math.pow(1 + monthlyRate, totalMonths) - 1) / monthlyRate;
+  let fixedFutureValue = 0;
+  if (monthlyRate === 0) {
+    fixedFutureValue = fixedTotalInvested;
+  } else {
+    fixedFutureValue = initialMonthlyInvestment * (Math.pow(1 + monthlyRate, totalMonths) - 1) / monthlyRate;
+  }
   const fixedReturns = Math.max(0, fixedFutureValue - fixedTotalInvested);
+
+  const roundedFV = Math.round(stepUpBalance);
+  const roundedTotalInvested = Math.round(stepUpTotalInvested);
+  const roundedEstimatedReturns = Math.max(0, roundedFV - roundedTotalInvested);
+
+  const roundedFixedFV = Math.round(fixedFutureValue);
+  const roundedFixedInvested = Math.round(fixedTotalInvested);
+  const roundedFixedReturns = Math.max(0, roundedFixedFV - roundedFixedInvested);
+  const roundedDifferenceFV = roundedFV - roundedFixedFV;
 
   return {
     initialMonthlySIP: Math.round(initialMonthlyInvestment),
@@ -143,15 +185,15 @@ export function calculateStepUpSIP(inputs: StepUpSIPCalculatorInputs): StepUpSIP
     investmentDurationYears,
     expectedAnnualReturn,
     annualStepUpPercentage,
-    totalInvested: Math.round(stepUpTotalInvested),
-    estimatedReturns: Math.round(Math.max(0, stepUpBalance - stepUpTotalInvested)),
-    futureValue: Math.round(stepUpBalance),
+    totalInvested: roundedTotalInvested,
+    estimatedReturns: roundedEstimatedReturns,
+    futureValue: roundedFV,
     annualSchedule,
     fixedSipComparison: {
-      totalInvested: Math.round(fixedTotalInvested),
-      estimatedReturns: Math.round(fixedReturns),
-      futureValue: Math.round(fixedFutureValue),
-      differenceFV: Math.round(stepUpBalance - fixedFutureValue),
+      totalInvested: roundedFixedInvested,
+      estimatedReturns: roundedFixedReturns,
+      futureValue: roundedFixedFV,
+      differenceFV: roundedDifferenceFV,
     },
     isValid: true,
   };

@@ -181,7 +181,19 @@ assert(Math.abs(res2b.futureValue - expectedFV2b) < 0.001, "FV must match Groww 
 assert(Math.abs(res2b.futureValue - 1120179.45) < 1, "FV should be approx ₹11.20 Lakh");
 assert.strictEqual(res2b.yearlyBreakdown.length, 10, "Should have 10 years in breakdown");
 assert(Math.abs(res2b.yearlyBreakdown[9].futureValue - res2b.futureValue) < 0.001, "Year 10 breakdown FV matches main result");
-console.log(`✓ PASS: 10-Year 12% SIP matches: FV = ₹${res2b.futureValue.toFixed(2)}, Invested = ₹${res2b.totalInvested}, Returns = ₹${res2b.estimatedReturns.toFixed(2)}.\n`);
+console.log(`✓ PASS: 10-Year 12% SIP matches: FV = ₹${res2b.futureValue.toFixed(2)}, Invested = ₹${res2b.totalInvested}, Returns = ₹${res2b.estimatedReturns.toFixed(2)}.`);
+
+// 2c: 10 Years, ₹100/mo (Minimum SIP check)
+const res2c = calculateSIP({
+  monthlyInvestment: 100,
+  expectedAnnualReturn: 12,
+  investmentDurationYears: 10,
+});
+assert.strictEqual(res2c.isValid, true);
+assert.strictEqual(res2c.totalInvested, 12000, "10y: Total invested should be ₹12,000");
+const expectedFV2c = 100 * ((Math.pow(1 + i12, 120) - 1) / i12) * (1 + i12);
+assert(Math.abs(res2c.futureValue - expectedFV2c) < 0.001, "FV must match Groww annuity due formula");
+console.log(`✓ PASS: 10-Year ₹100/mo SIP matches: FV = ₹${res2c.futureValue.toFixed(2)}, Invested = ₹${res2c.totalInvested}.\n`);
 
 // Test 3: 30% annual return and 25-Year Example (User's comparison case)
 console.log("TEST 3: 30% Annual Return — 25 Years, ₹2,000 Monthly (300 contributions)");

@@ -33,6 +33,7 @@ import {
   formatINR,
   formatCompactINR,
 } from '@/utils/stepUpSipCalculator';
+import { CalculatorCTAButtons } from './CalculatorCTAButtons';
 import { CalculatorDisclaimer } from './CalculatorDisclaimer';
 
 export default function StepUpSIPCalculator() {
@@ -75,8 +76,8 @@ export default function StepUpSIPCalculator() {
     if (valStr.trim() === '') {
       setErrors((prev) => ({ ...prev, monthly: 'Monthly investment is required.' }));
       setInitialMonthly(0);
-    } else if (isNaN(num) || num < 500) {
-      setErrors((prev) => ({ ...prev, monthly: 'Minimum recommended monthly SIP is ₹500.' }));
+    } else if (isNaN(num) || num < 100) {
+      setErrors((prev) => ({ ...prev, monthly: 'Minimum recommended monthly SIP is ₹100.' }));
       setInitialMonthly(num > 0 ? num : 0);
     } else if (num > 5000000) {
       setErrors((prev) => ({ ...prev, monthly: 'Maximum monthly SIP supported is ₹50 Lakh.' }));
@@ -172,9 +173,9 @@ export default function StepUpSIPCalculator() {
                 </div>
                 <Slider
                   value={[initialMonthly]}
-                  min={500}
+                  min={100}
                   max={200000}
-                  step={500}
+                  step={100}
                   onValueChange={(val) => {
                     setInitialMonthly(val[0]);
                     setMonthlyInputStr(val[0].toString());
@@ -183,7 +184,7 @@ export default function StepUpSIPCalculator() {
                   className="py-1"
                 />
                 <div className="flex justify-between text-[11px] font-mono text-slate-400">
-                  <span>₹500</span>
+                  <span>₹100</span>
                   <span>₹1 Lakh</span>
                   <span>₹2 Lakh</span>
                 </div>
@@ -369,6 +370,9 @@ export default function StepUpSIPCalculator() {
               </span>
             </Card>
           </div>
+
+          {/* Calculator Call-to-Action Buttons */}
+          <CalculatorCTAButtons sourceCalculator="stepup" />
 
           {/* Visualization Section */}
           <Card className="border-slate-200/80 dark:border-slate-800 bg-white dark:bg-slate-900/60 shadow-sm overflow-hidden">

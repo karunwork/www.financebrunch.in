@@ -39,6 +39,7 @@ const navLinks = [
 
 export default function Navbar() {
   const [isScrolled, setIsScrolled] = useState(false);
+  const [isScrollingDown, setIsScrollingDown] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
   const [isContactOpen, setIsContactOpen] = useState(false);
@@ -49,12 +50,24 @@ export default function Navbar() {
 
   // Handle scroll shadow effect
   useEffect(() => {
+    let previousScrollY = window.scrollY;
+    let frame = 0;
     const handleScroll = () => {
-      setIsScrolled(window.scrollY > 20);
+      if (frame) return;
+      frame = window.requestAnimationFrame(() => {
+        const currentScrollY = window.scrollY;
+        setIsScrolled(currentScrollY > 20);
+        setIsScrollingDown(currentScrollY > previousScrollY && currentScrollY > 96);
+        previousScrollY = currentScrollY;
+        frame = 0;
+      });
     };
     
     window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => window.removeEventListener('scroll', handleScroll);
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+      if (frame) window.cancelAnimationFrame(frame);
+    };
   }, []);
 
   // Handle outside click and Escape key to close the dropdown
@@ -152,13 +165,17 @@ export default function Navbar() {
       transition={{ duration: DURATIONS.normal, ease: EASING.decelerate }}
       className={cn(
         "fixed top-0 left-0 right-0 z-50 transition-all duration-300",
+        isScrollingDown && "shadow-md",
         isScrolled || location.pathname !== '/' 
           ? "bg-white/85 dark:bg-[#080F1F]/85 backdrop-blur-lg shadow-sm border-b border-gray-100 dark:border-gray-800" 
           : "bg-transparent"
       )}
     >
       <div className="w-full max-w-7xl 2xl:max-w-[1536px] 3xl:max-w-[1680px] mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16 sm:h-20">
+        <div className={cn(
+          "flex items-center justify-between transition-[height] duration-300",
+          isScrolled ? "h-16 sm:h-[4.5rem]" : "h-16 sm:h-20"
+        )}>
           {/* Logo */}
           <div className="flex-shrink-0 font-display">
             <Link 
@@ -470,4 +487,3 @@ export default function Navbar() {
     </motion.header>
   );
 }
-

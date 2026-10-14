@@ -194,40 +194,55 @@ export function calculateSIP(inputs: SIPCalculatorInputs): SIPCalculationResult 
     totalInvested += monthlyContribution;
     currentYearInvested += monthlyContribution;
 
-    // Beginning-of-month contribution accumulation:
-    if (monthlyRate === 0) {
-      currentBalance += monthlyContribution;
+    if (isStepUpEnabled) {
+      // End-of-month contribution accumulation for step-up SIP:
+      if (monthlyRate === 0) {
+        currentBalance += monthlyContribution;
+      } else {
+        currentBalance = (currentBalance * (1 + monthlyRate)) + monthlyContribution;
+      }
     } else {
-      currentBalance = (currentBalance + monthlyContribution) * (1 + monthlyRate);
+      // Beginning-of-month contribution accumulation for standard regular SIP:
+      if (monthlyRate === 0) {
+        currentBalance += monthlyContribution;
+      } else {
+        currentBalance = (currentBalance + monthlyContribution) * (1 + monthlyRate);
+      }
     }
 
     // Record at year boundaries (month 12, 24, 36...) or at the final month
     const isYearBoundary = m % 12 === 0 || m === totalMonths;
     if (isYearBoundary) {
       const yearNumber = Math.ceil(m / 12);
+      const roundedYearlyInvested = Math.round(currentYearInvested);
+      const roundedCumulativeInvested = Math.round(totalInvested);
+      const roundedRowFV = Math.round(currentBalance);
+      const roundedRowReturns = Math.max(0, roundedRowFV - roundedCumulativeInvested);
+
       yearlyBreakdown.push({
         year: yearNumber,
-        monthlyContribution,
-        yearlyInvested: currentYearInvested,
-        cumulativeInvested: totalInvested,
-        futureValue: currentBalance,
-        estimatedReturns: Math.max(0, currentBalance - totalInvested),
+        monthlyContribution: Math.round(monthlyContribution),
+        yearlyInvested: roundedYearlyInvested,
+        cumulativeInvested: roundedCumulativeInvested,
+        futureValue: roundedRowFV,
+        estimatedReturns: roundedRowReturns,
       });
       currentYearInvested = 0;
     }
   }
 
-  const futureValue = currentBalance;
-  const estimatedReturns = Math.max(0, futureValue - totalInvested);
+  const roundedFV = Math.round(currentBalance);
+  const roundedTotalInvested = Math.round(totalInvested);
+  const roundedEstimatedReturns = Math.max(0, roundedFV - roundedTotalInvested);
 
   return {
     monthlyInvestment,
     investmentDurationYears,
     investmentDurationMonths: totalMonths,
     expectedAnnualReturn,
-    totalInvested,
-    estimatedReturns,
-    futureValue,
+    totalInvested: roundedTotalInvested,
+    estimatedReturns: roundedEstimatedReturns,
+    futureValue: roundedFV,
     isStepUpEnabled,
     stepUpPercentage,
     yearlyBreakdown,

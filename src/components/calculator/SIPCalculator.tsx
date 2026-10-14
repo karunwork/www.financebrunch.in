@@ -18,6 +18,7 @@ import {
   AlertCircle,
   Sparkles,
 } from 'lucide-react';
+import { CalculatorCTAButtons } from './CalculatorCTAButtons';
 import {
   PieChart,
   Pie,
@@ -94,8 +95,8 @@ export default function SIPCalculator({ className, showHeading = false }: SIPCal
     if (valStr.trim() === '') {
       setValidationErrors((prev) => ({ ...prev, monthly: 'Monthly investment is required.' }));
       setMonthlyInvestment(0);
-    } else if (isNaN(num) || num < 500) {
-      setValidationErrors((prev) => ({ ...prev, monthly: 'Minimum recommended monthly SIP is ₹500.' }));
+    } else if (isNaN(num) || num < 100) {
+      setValidationErrors((prev) => ({ ...prev, monthly: 'Minimum recommended monthly SIP is ₹100.' }));
       setMonthlyInvestment(num > 0 ? num : 0);
     } else if (num > 10000000) {
       setValidationErrors((prev) => ({ ...prev, monthly: 'Maximum allowed input is ₹1 Crore.' }));
@@ -248,16 +249,16 @@ export default function SIPCalculator({ className, showHeading = false }: SIPCal
 
             <Slider
               value={[monthlyInvestment]}
-              min={500}
+              min={100}
               max={200000}
-              step={500}
+              step={100}
               onValueChange={(vals) => handleMonthlySlider(vals[0])}
               className="py-1 cursor-pointer"
               aria-label="Monthly Investment Slider"
             />
 
             <div className="flex justify-between text-xs text-gray-500 dark:text-gray-400 font-medium">
-              <span>₹500</span>
+              <span>₹100</span>
               <span>₹50k</span>
               <span>₹1 Lakh</span>
               <span>₹2 Lakhs</span>
@@ -265,7 +266,7 @@ export default function SIPCalculator({ className, showHeading = false }: SIPCal
 
             {/* Quick preset buttons */}
             <div className="flex flex-wrap gap-1.5 pt-1">
-              {[2500, 5000, 10000, 25000, 50000].map((preset) => (
+              {[500, 1000, 2500, 5000, 10000, 25000].map((preset) => (
                 <button
                   key={preset}
                   type="button"
@@ -612,6 +613,9 @@ export default function SIPCalculator({ className, showHeading = false }: SIPCal
               </CardContent>
             </Card>
           </div>
+
+          {/* Calculator Call-to-Action Buttons */}
+          <CalculatorCTAButtons sourceCalculator="sip" />
 
           {/* Visual Breakdown: Chart Container */}
           <Card className="rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900/90 p-5 shadow-sm">

@@ -77,7 +77,8 @@ export const FadeIn = React.forwardRef<HTMLDivElement, FadeInProps>(
           amount,
           margin: DEFAULT_VIEWPORT.margin,
         }}
-        className={cn(className)}
+        className={cn('scroll-depth', className)}
+        data-scroll-depth="18"
         {...props}
       >
         {children}

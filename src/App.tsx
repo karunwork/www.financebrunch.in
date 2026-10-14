@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { lazy, Suspense, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ThemeProvider } from '@/components/theme/theme-provider';
@@ -10,23 +10,25 @@ import NotFound from './pages/NotFound';
 import Navbar from './components/layout/Navbar';
 import Footer from './components/layout/Footer';
 import { GlobalAmbientBackground } from './components/layout/GlobalAmbientBackground';
+import { ScrollProgress } from './components/layout/ScrollProgress';
+import { ScrollLinkedMotion } from './components/layout/ScrollLinkedMotion';
 import { Toaster } from './components/ui/sonner';
 
-import Calculator from './pages/Calculator';
-import MutualFunds from './pages/MutualFunds';
-import IncomeTaxFiling from './pages/IncomeTaxFiling';
-import IndianStockAnalysis from './pages/IndianStockAnalysis';
-import UnlistedShares from './pages/UnlistedShares';
-import InvestmentPlanning from './pages/InvestmentPlanning';
-import InsurancePlanning from './pages/InsurancePlanning';
-import FireStrategy from './pages/FireStrategy';
-import IPOAnalysis from './pages/IPOAnalysis';
-import PrivacyPolicy from './pages/PrivacyPolicy';
-import TermsOfService from './pages/TermsOfService';
-import Disclaimer from './pages/Disclaimer';
-import Careers from './pages/Careers';
-import EarlyRetirement from './pages/EarlyRetirement';
-import Contact from './pages/Contact';
+const Calculator = lazy(() => import('./pages/Calculator'));
+const MutualFunds = lazy(() => import('./pages/MutualFunds'));
+const IncomeTaxFiling = lazy(() => import('./pages/IncomeTaxFiling'));
+const IndianStockAnalysis = lazy(() => import('./pages/IndianStockAnalysis'));
+const UnlistedShares = lazy(() => import('./pages/UnlistedShares'));
+const InvestmentPlanning = lazy(() => import('./pages/InvestmentPlanning'));
+const InsurancePlanning = lazy(() => import('./pages/InsurancePlanning'));
+const FireStrategy = lazy(() => import('./pages/FireStrategy'));
+const IPOAnalysis = lazy(() => import('./pages/IPOAnalysis'));
+const PrivacyPolicy = lazy(() => import('./pages/PrivacyPolicy'));
+const TermsOfService = lazy(() => import('./pages/TermsOfService'));
+const Disclaimer = lazy(() => import('./pages/Disclaimer'));
+const Careers = lazy(() => import('./pages/Careers'));
+const EarlyRetirement = lazy(() => import('./pages/EarlyRetirement'));
+const Contact = lazy(() => import('./pages/Contact'));
 
 import { motion, useReducedMotion } from 'framer-motion';
 
@@ -85,6 +87,14 @@ function PageTransition({ children }: { children: React.ReactNode }) {
   );
 }
 
+function RouteLoadingFallback() {
+  return (
+    <div className="flex min-h-[40vh] flex-1 items-center justify-center" role="status" aria-live="polite">
+      <span className="text-sm text-muted-foreground">Loading page...</span>
+    </div>
+  );
+}
+
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
@@ -94,10 +104,13 @@ function App() {
             <ScrollToTop />
             <ScrollToHashElement />
             <div className="relative flex flex-col min-h-screen bg-background text-gray-900 dark:text-gray-100 transition-colors duration-300">
+              <ScrollProgress />
+              <ScrollLinkedMotion />
               <GlobalAmbientBackground />
               <Navbar />
               <PageTransition>
-                <Routes>
+                <Suspense fallback={<RouteLoadingFallback />}>
+                  <Routes>
                   {/* Home - Freely accessible without disclaimer */}
                   <Route path="/" element={<Index />} />
 
@@ -139,7 +152,8 @@ function App() {
 
                   {/* 404 Fallback */}
                   <Route path="*" element={<NotFound />} />
-                </Routes>
+                  </Routes>
+                </Suspense>
               </PageTransition>
               <Footer />
               <Toaster />

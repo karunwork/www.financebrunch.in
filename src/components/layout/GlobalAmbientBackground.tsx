@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 
 /**
  * GlobalAmbientBackground Component
@@ -7,6 +7,29 @@ import React from 'react';
  * active across all routes, and dynamically styled for light and dark themes.
  */
 export function GlobalAmbientBackground() {
+  const watermarkRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (reduceMotion) return;
+
+    let frame = 0;
+    const updateParallax = () => {
+      frame = 0;
+      const offset = Math.min(window.scrollY * 0.035, 28);
+      watermarkRef.current?.style.setProperty('transform', `translate3d(0, ${offset}px, 0)`);
+    };
+    const handleScroll = () => {
+      if (!frame) frame = window.requestAnimationFrame(updateParallax);
+    };
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+      if (frame) window.cancelAnimationFrame(frame);
+    };
+  }, []);
+
   return (
     <div 
       className="fixed inset-0 pointer-events-none z-0 overflow-hidden select-none transition-colors duration-300"
@@ -39,7 +62,8 @@ export function GlobalAmbientBackground() {
 
       {/* 2. Single, Centered Official Finance Brunch FB Logo Watermark */}
       <div className="absolute inset-0 flex items-center justify-center pointer-events-none select-none">
-        <div 
+        <div
+          ref={watermarkRef}
           className="w-[280px] sm:w-[380px] md:w-[480px] lg:w-[580px] xl:w-[680px] max-w-[85vw] max-h-[80vh] opacity-[0.085] dark:opacity-[0.11] transition-opacity duration-300 pointer-events-none select-none flex items-center justify-center"
         >
           <img

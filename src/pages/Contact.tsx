@@ -5,15 +5,30 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent } from '@/components/ui/card';
 import { toast } from 'sonner';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 
 const Contact = () => {
+  const [searchParams] = useSearchParams();
+  const subjectParam = searchParams.get('subject') || searchParams.get('service');
+  
+  const resolveInitialService = (param: string | null) => {
+    if (!param) return 'Investment Planning';
+    if (param === 'Mutual Fund Advisory' || param === 'Mutual Funds') {
+      return 'Mutual Fund Advisory';
+    }
+    return param;
+  };
+
+  const initialService = resolveInitialService(subjectParam);
+
   const [formData, setFormData] = useState({
     name: '',
     email: '',
     phone: '',
-    service: 'Investment Planning',
-    message: '',
+    service: initialService,
+    message: initialService === 'Mutual Fund Advisory'
+      ? 'I would like to consult with a mutual fund advisor regarding my investment plan.'
+      : '',
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
@@ -21,6 +36,17 @@ const Contact = () => {
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
+
+  useEffect(() => {
+    if (subjectParam) {
+      const resolved = resolveInitialService(subjectParam);
+      setFormData((prev) => ({
+        ...prev,
+        service: resolved,
+        message: prev.message || (resolved === 'Mutual Fund Advisory' ? 'I would like to consult with a mutual fund advisor regarding my investment plan.' : ''),
+      }));
+    }
+  }, [subjectParam]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
@@ -267,6 +293,7 @@ const Contact = () => {
                           onChange={handleChange}
                           className="w-full h-10 px-3 rounded-md border border-input bg-gray-50/50 dark:bg-darkblue-800 text-sm text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
                         >
+                          <option value="Mutual Fund Advisory">Mutual Fund Advisory</option>
                           <option value="Investment Planning">Investment Planning</option>
                           <option value="Mutual Funds">Mutual Funds</option>
                           <option value="Health Insurance">Health Insurance</option>
