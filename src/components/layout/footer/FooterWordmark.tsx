@@ -1,8 +1,13 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { motion, useReducedMotion, useScroll, useTransform } from 'framer-motion';
 import { DURATIONS, EASING } from '@/lib/animations';
+import { cn } from '@/lib/utils';
 
-export const FooterWordmark: React.FC = () => {
+interface FooterWordmarkProps {
+  className?: string;
+}
+
+export const FooterWordmark: React.FC<FooterWordmarkProps> = ({ className }) => {
   const shouldReduceMotion = useReducedMotion();
   const containerRef = useRef<HTMLDivElement>(null);
   const panelRef = useRef<HTMLDivElement>(null);
@@ -127,7 +132,7 @@ export const FooterWordmark: React.FC = () => {
   return (
     <div 
       ref={containerRef}
-      className="relative w-full overflow-hidden py-10 sm:py-14 select-none"
+      className={cn("relative w-full overflow-hidden py-8 sm:py-12 select-none", className)}
     >
       {/* A. Large Frosted Architectural Glass Panel Behind Wordmark */}
       <motion.div

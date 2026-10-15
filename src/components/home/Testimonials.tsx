@@ -168,7 +168,7 @@ export default function Testimonials() {
           </div>
 
           {/* Navigation arrows */}
-          <div className="absolute top-1/2 left-0 transform -translate-y-1/2 -translate-x-4">
+          <div className="absolute top-1/2 left-1 sm:-left-3 lg:-left-5 transform -translate-y-1/2 z-20">
             <Button 
               variant="outline" 
               size="icon" 
@@ -179,7 +179,7 @@ export default function Testimonials() {
               <ChevronLeft size={20} className="transition-transform duration-200 hover:-translate-x-0.5" />
             </Button>
           </div>
-          <div className="absolute top-1/2 right-0 transform -translate-y-1/2 translate-x-4">
+          <div className="absolute top-1/2 right-1 sm:-right-3 lg:-right-5 transform -translate-y-1/2 z-20">
             <Button 
               variant="outline" 
               size="icon" 
@@ -195,6 +195,7 @@ export default function Testimonials() {
           <div className="flex justify-center mt-10">
             {testimonials.map((_, index) => (
               <button
+                type="button"
                 key={index}
                 className={cn(
                   "w-3 h-3 mx-1 rounded-full transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary",

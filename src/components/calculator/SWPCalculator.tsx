@@ -29,15 +29,22 @@ import {
   calculateSWP,
   formatINR,
   formatCompactINR,
+  MAX_SWP_CORPUS,
+  MIN_SWP_CORPUS,
+  MAX_SWP_WITHDRAWAL,
+  MIN_SWP_WITHDRAWAL,
 } from '@/utils/swpCalculator';
 import { CalculatorDisclaimer } from './CalculatorDisclaimer';
+import { cn } from '@/lib/utils';
 
 export default function SWPCalculator() {
   const [initialCorpus, setInitialCorpus] = useState<number>(1000000);
-  const [corpusInputStr, setCorpusInputStr] = useState<string>('1000000');
+  const [corpusInputStr, setCorpusInputStr] = useState<string>('10,00,000');
+  const [isCorpusFocused, setIsCorpusFocused] = useState<boolean>(false);
 
   const [monthlyWithdrawal, setMonthlyWithdrawal] = useState<number>(6000);
-  const [withdrawalInputStr, setWithdrawalInputStr] = useState<string>('6000');
+  const [withdrawalInputStr, setWithdrawalInputStr] = useState<string>('6,000');
+  const [isWithdrawalFocused, setIsWithdrawalFocused] = useState<boolean>(false);
 
   const [expectedReturn, setExpectedReturn] = useState<number>(8);
   const [returnInputStr, setReturnInputStr] = useState<string>('8');
@@ -71,15 +78,29 @@ export default function SWPCalculator() {
     if (valStr.trim() === '') {
       setErrors((prev) => ({ ...prev, corpus: 'Initial corpus is required.' }));
       setInitialCorpus(0);
-    } else if (isNaN(num) || num < 10000) {
-      setErrors((prev) => ({ ...prev, corpus: 'Minimum corpus is ₹10,000.' }));
+    } else if (isNaN(num) || num < MIN_SWP_CORPUS) {
+      setErrors((prev) => ({ ...prev, corpus: `Minimum corpus is ₹${MIN_SWP_CORPUS.toLocaleString('en-IN')}.` }));
       setInitialCorpus(num > 0 ? num : 0);
-    } else if (num > 100000000) {
-      setErrors((prev) => ({ ...prev, corpus: 'Maximum corpus supported is ₹10 Crore.' }));
-      setInitialCorpus(100000000);
+    } else if (num > MAX_SWP_CORPUS) {
+      setErrors((prev) => ({ ...prev, corpus: 'Maximum corpus supported is ₹100 Crore.' }));
+      setInitialCorpus(num);
     } else {
       setErrors((prev) => ({ ...prev, corpus: undefined }));
       setInitialCorpus(num);
+    }
+  };
+
+  const handleCorpusBlur = () => {
+    setIsCorpusFocused(false);
+    if (initialCorpus > 0) {
+      setCorpusInputStr(initialCorpus.toLocaleString('en-IN'));
+    }
+  };
+
+  const handleCorpusFocus = () => {
+    setIsCorpusFocused(true);
+    if (initialCorpus > 0) {
+      setCorpusInputStr(initialCorpus.toString());
     }
   };
 
@@ -91,15 +112,29 @@ export default function SWPCalculator() {
     if (valStr.trim() === '') {
       setErrors((prev) => ({ ...prev, withdrawal: 'Monthly withdrawal is required.' }));
       setMonthlyWithdrawal(0);
-    } else if (isNaN(num) || num < 500) {
-      setErrors((prev) => ({ ...prev, withdrawal: 'Minimum withdrawal is ₹500.' }));
+    } else if (isNaN(num) || num < MIN_SWP_WITHDRAWAL) {
+      setErrors((prev) => ({ ...prev, withdrawal: `Minimum withdrawal is ₹${MIN_SWP_WITHDRAWAL.toLocaleString('en-IN')}.` }));
       setMonthlyWithdrawal(num > 0 ? num : 0);
-    } else if (num > 5000000) {
-      setErrors((prev) => ({ ...prev, withdrawal: 'Maximum monthly withdrawal is ₹50 Lakh.' }));
-      setMonthlyWithdrawal(5000000);
+    } else if (num > MAX_SWP_WITHDRAWAL) {
+      setErrors((prev) => ({ ...prev, withdrawal: 'Maximum monthly withdrawal is ₹100 Crore.' }));
+      setMonthlyWithdrawal(num);
     } else {
       setErrors((prev) => ({ ...prev, withdrawal: undefined }));
       setMonthlyWithdrawal(num);
+    }
+  };
+
+  const handleWithdrawalBlur = () => {
+    setIsWithdrawalFocused(false);
+    if (monthlyWithdrawal > 0) {
+      setWithdrawalInputStr(monthlyWithdrawal.toLocaleString('en-IN'));
+    }
+  };
+
+  const handleWithdrawalFocus = () => {
+    setIsWithdrawalFocused(true);
+    if (monthlyWithdrawal > 0) {
+      setWithdrawalInputStr(monthlyWithdrawal.toString());
     }
   };
 
@@ -149,76 +184,104 @@ export default function SWPCalculator() {
             <CardContent className="p-6 space-y-6">
               {/* Total Corpus */}
               <div className="space-y-3">
-                <div className="flex justify-between items-center">
-                  <Label htmlFor="swp-corpus" className="text-sm font-semibold flex items-center gap-1.5">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 min-w-0">
+                  <Label htmlFor="swp-corpus" className="text-sm font-semibold flex items-center gap-1.5 shrink-0">
                     <IndianRupee size={15} className="text-cyan-600 dark:text-cyan-400" />
                     Total Investment Corpus
                   </Label>
-                  <div className="relative w-36">
-                    <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-xs font-semibold text-slate-400 select-none">₹</span>
+                  <div className="relative min-w-[160px] sm:w-52 lg:w-56 max-w-full">
+                    <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-xs font-semibold text-slate-400 select-none pointer-events-none">₹</span>
                     <Input
                       id="swp-corpus"
                       type="text"
-                      value={initialCorpus === 0 ? '' : initialCorpus.toLocaleString('en-IN')}
+                      value={corpusInputStr}
                       onChange={(e) => handleCorpusChange(e.target.value)}
-                      className="pl-6 text-right font-mono text-sm h-9 border-slate-200 dark:border-slate-700"
+                      onFocus={handleCorpusFocus}
+                      onBlur={handleCorpusBlur}
+                      className="pl-6 pr-3 text-right font-mono text-sm h-9 border-slate-200 dark:border-slate-700 w-full min-w-0"
+                      style={{
+                        fontSize: corpusInputStr.length > 13 ? '0.75rem' : corpusInputStr.length > 10 ? '0.8125rem' : '0.875rem',
+                      }}
+                      aria-label="Total Investment Corpus Amount in Rupees"
                     />
+                    {initialCorpus >= 100000 && !isCorpusFocused && (
+                      <span className="text-[11px] text-cyan-600 dark:text-cyan-400 font-semibold block text-right mt-0.5">
+                        ({formatCompactINR(initialCorpus)})
+                      </span>
+                    )}
                   </div>
                 </div>
                 <Slider
-                  value={[initialCorpus]}
-                  min={100000}
-                  max={10000000}
-                  step={50000}
+                  value={[Math.min(initialCorpus, MAX_SWP_CORPUS)]}
+                  min={MIN_SWP_CORPUS}
+                  max={MAX_SWP_CORPUS}
+                  step={10000}
                   onValueChange={(val) => {
                     setInitialCorpus(val[0]);
-                    setCorpusInputStr(val[0].toString());
+                    setCorpusInputStr(val[0].toLocaleString('en-IN'));
                     setErrors((prev) => ({ ...prev, corpus: undefined }));
                   }}
-                  className="py-1"
+                  className="py-1 cursor-pointer"
+                  aria-label="Total Investment Corpus Slider"
                 />
                 <div className="flex justify-between text-[11px] font-mono text-slate-400">
-                  <span>₹1 Lakh</span>
-                  <span>₹50 Lakh</span>
-                  <span>₹1 Crore</span>
+                  <span>₹10,000</span>
+                  <span>₹10 Lakh</span>
+                  <span>₹1 Cr</span>
+                  <span>₹10 Cr</span>
+                  <span>₹100 Cr</span>
                 </div>
                 {errors.corpus && <p className="text-xs text-rose-500">{errors.corpus}</p>}
               </div>
 
               {/* Monthly Withdrawal */}
               <div className="space-y-3">
-                <div className="flex justify-between items-center">
-                  <Label htmlFor="swp-withdrawal" className="text-sm font-semibold flex items-center gap-1.5">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 min-w-0">
+                  <Label htmlFor="swp-withdrawal" className="text-sm font-semibold flex items-center gap-1.5 shrink-0">
                     <ArrowDownRight size={15} className="text-cyan-600 dark:text-cyan-400" />
                     Monthly Withdrawal (SWP)
                   </Label>
-                  <div className="relative w-32">
-                    <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-xs font-semibold text-slate-400 select-none">₹</span>
+                  <div className="relative min-w-[160px] sm:w-52 lg:w-56 max-w-full">
+                    <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-xs font-semibold text-slate-400 select-none pointer-events-none">₹</span>
                     <Input
                       id="swp-withdrawal"
                       type="text"
-                      value={monthlyWithdrawal === 0 ? '' : monthlyWithdrawal.toLocaleString('en-IN')}
+                      value={withdrawalInputStr}
                       onChange={(e) => handleWithdrawalChange(e.target.value)}
-                      className="pl-6 text-right font-mono text-sm h-9 border-slate-200 dark:border-slate-700"
+                      onFocus={handleWithdrawalFocus}
+                      onBlur={handleWithdrawalBlur}
+                      className="pl-6 pr-3 text-right font-mono text-sm h-9 border-slate-200 dark:border-slate-700 w-full min-w-0"
+                      style={{
+                        fontSize: withdrawalInputStr.length > 13 ? '0.75rem' : withdrawalInputStr.length > 10 ? '0.8125rem' : '0.875rem',
+                      }}
+                      aria-label="Monthly Withdrawal Amount in Rupees"
                     />
+                    {monthlyWithdrawal >= 100000 && !isWithdrawalFocused && (
+                      <span className="text-[11px] text-cyan-600 dark:text-cyan-400 font-semibold block text-right mt-0.5">
+                        ({formatCompactINR(monthlyWithdrawal)})
+                      </span>
+                    )}
                   </div>
                 </div>
                 <Slider
-                  value={[monthlyWithdrawal]}
-                  min={1000}
-                  max={100000}
+                  value={[Math.min(monthlyWithdrawal, MAX_SWP_WITHDRAWAL)]}
+                  min={MIN_SWP_WITHDRAWAL}
+                  max={MAX_SWP_WITHDRAWAL}
                   step={1000}
                   onValueChange={(val) => {
                     setMonthlyWithdrawal(val[0]);
-                    setWithdrawalInputStr(val[0].toString());
+                    setWithdrawalInputStr(val[0].toLocaleString('en-IN'));
                     setErrors((prev) => ({ ...prev, withdrawal: undefined }));
                   }}
-                  className="py-1"
+                  className="py-1 cursor-pointer"
+                  aria-label="Monthly Withdrawal Slider"
                 />
                 <div className="flex justify-between text-[11px] font-mono text-slate-400">
-                  <span>₹1,000</span>
-                  <span>₹50,000</span>
-                  <span>₹1 Lakh</span>
+                  <span>₹500</span>
+                  <span>₹10 Lakh</span>
+                  <span>₹1 Cr</span>
+                  <span>₹10 Cr</span>
+                  <span>₹100 Cr</span>
                 </div>
                 {errors.withdrawal && <p className="text-xs text-rose-500">{errors.withdrawal}</p>}
               </div>
@@ -333,45 +396,93 @@ export default function SWPCalculator() {
         {/* Right Results & Visualizations Column (7 Cols) */}
         <div className="lg:col-span-7 space-y-6">
           {/* Key Metric Summary Cards */}
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3.5">
-            <Card className="border-slate-200/80 dark:border-slate-800 bg-white dark:bg-slate-900/60 shadow-sm p-3.5">
-              <span className="text-[11px] font-medium text-slate-500 dark:text-slate-400 block mb-1">
-                Initial Corpus
-              </span>
-              <p className="text-lg sm:text-xl font-bold text-slate-900 dark:text-white font-mono">
-                {formatINR(result.initialCorpus)}
-              </p>
-              <span className="text-[10px] text-slate-400 block mt-0.5">Opening</span>
+          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-3.5 min-w-0">
+            <Card className="border-slate-200/80 dark:border-slate-800 bg-white dark:bg-slate-900/60 shadow-sm p-3.5 min-w-0 overflow-hidden flex flex-col justify-between">
+              <div>
+                <span className="text-[11px] font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 block mb-1">
+                  Initial Corpus
+                </span>
+                <p 
+                  className="text-lg sm:text-xl font-bold text-slate-900 dark:text-white font-mono tracking-tight break-words"
+                  title={formatINR(result.initialCorpus)}
+                >
+                  {result.initialCorpus >= 10000000 
+                    ? formatCompactINR(result.initialCorpus) 
+                    : formatINR(result.initialCorpus)}
+                </p>
+                {result.initialCorpus >= 10000000 && (
+                  <span className="text-[11px] font-mono text-slate-500 dark:text-slate-400 block truncate" title={formatINR(result.initialCorpus)}>
+                    {formatINR(result.initialCorpus)}
+                  </span>
+                )}
+              </div>
+              <span className="text-[10px] text-slate-400 block mt-1">Opening</span>
             </Card>
 
-            <Card className="border-slate-200/80 dark:border-slate-800 bg-white dark:bg-slate-900/60 shadow-sm p-3.5">
-              <span className="text-[11px] font-medium text-slate-500 dark:text-slate-400 block mb-1">
-                Total Withdrawn
-              </span>
-              <p className="text-lg sm:text-xl font-bold text-cyan-600 dark:text-cyan-400 font-mono">
-                {formatINR(result.totalActualWithdrawals)}
-              </p>
-              <span className="text-[10px] text-slate-400 block mt-0.5">Received cash flow</span>
+            <Card className="border-slate-200/80 dark:border-slate-800 bg-white dark:bg-slate-900/60 shadow-sm p-3.5 min-w-0 overflow-hidden flex flex-col justify-between">
+              <div>
+                <span className="text-[11px] font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 block mb-1">
+                  Total Withdrawn
+                </span>
+                <p 
+                  className="text-lg sm:text-xl font-bold text-cyan-600 dark:text-cyan-400 font-mono tracking-tight break-words"
+                  title={formatINR(result.totalActualWithdrawals)}
+                >
+                  {result.totalActualWithdrawals >= 10000000 
+                    ? formatCompactINR(result.totalActualWithdrawals) 
+                    : formatINR(result.totalActualWithdrawals)}
+                </p>
+                {result.totalActualWithdrawals >= 10000000 && (
+                  <span className="text-[11px] font-mono text-slate-500 dark:text-slate-400 block truncate" title={formatINR(result.totalActualWithdrawals)}>
+                    {formatINR(result.totalActualWithdrawals)}
+                  </span>
+                )}
+              </div>
+              <span className="text-[10px] text-slate-400 block mt-1">Received cash flow</span>
             </Card>
 
-            <Card className="border-slate-200/80 dark:border-slate-800 bg-white dark:bg-slate-900/60 shadow-sm p-3.5">
-              <span className="text-[11px] font-medium text-slate-500 dark:text-slate-400 block mb-1">
-                Growth Earned
-              </span>
-              <p className="text-lg sm:text-xl font-bold text-emerald-600 dark:text-emerald-400 font-mono">
-                +{formatINR(result.totalGrowthEarned)}
-              </p>
-              <span className="text-[10px] text-slate-400 block mt-0.5">During tenure</span>
+            <Card className="border-slate-200/80 dark:border-slate-800 bg-white dark:bg-slate-900/60 shadow-sm p-3.5 min-w-0 overflow-hidden flex flex-col justify-between">
+              <div>
+                <span className="text-[11px] font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 block mb-1">
+                  Growth Earned
+                </span>
+                <p 
+                  className="text-lg sm:text-xl font-bold text-emerald-600 dark:text-emerald-400 font-mono tracking-tight break-words"
+                  title={formatINR(result.totalGrowthEarned)}
+                >
+                  {result.totalGrowthEarned >= 10000000 
+                    ? formatCompactINR(result.totalGrowthEarned) 
+                    : formatINR(result.totalGrowthEarned)}
+                </p>
+                {result.totalGrowthEarned >= 10000000 && (
+                  <span className="text-[11px] font-mono text-slate-500 dark:text-slate-400 block truncate" title={formatINR(result.totalGrowthEarned)}>
+                    +{formatINR(result.totalGrowthEarned)}
+                  </span>
+                )}
+              </div>
+              <span className="text-[10px] text-slate-400 block mt-1">During tenure</span>
             </Card>
 
-            <Card className="border-cyan-500/30 dark:border-cyan-500/40 bg-gradient-to-br from-cyan-50/50 via-white to-blue-50/30 dark:from-slate-900 dark:to-cyan-950/30 shadow-sm p-3.5">
-              <span className="text-[11px] font-semibold text-cyan-800 dark:text-cyan-300 block mb-1">
-                Remaining Corpus
-              </span>
-              <p className="text-lg sm:text-xl font-extrabold text-blue-700 dark:text-cyan-300 font-mono">
-                {formatINR(result.remainingCorpus)}
-              </p>
-              <span className="text-[10px] text-slate-500 dark:text-slate-400 block mt-0.5">
+            <Card className="border-cyan-500/30 dark:border-cyan-500/40 bg-gradient-to-br from-cyan-50/50 via-white to-blue-50/30 dark:from-slate-900 dark:to-cyan-950/30 shadow-sm p-3.5 min-w-0 overflow-hidden flex flex-col justify-between">
+              <div>
+                <span className="text-[11px] font-semibold uppercase tracking-wider text-cyan-800 dark:text-cyan-300 block mb-1">
+                  Remaining Corpus
+                </span>
+                <p 
+                  className="text-lg sm:text-xl font-extrabold text-blue-700 dark:text-cyan-300 font-mono tracking-tight break-words"
+                  title={formatINR(result.remainingCorpus)}
+                >
+                  {result.remainingCorpus >= 10000000 
+                    ? formatCompactINR(result.remainingCorpus) 
+                    : formatINR(result.remainingCorpus)}
+                </p>
+                {result.remainingCorpus >= 10000000 && (
+                  <span className="text-[11px] font-mono text-slate-600 dark:text-slate-400 block truncate" title={formatINR(result.remainingCorpus)}>
+                    {formatINR(result.remainingCorpus)}
+                  </span>
+                )}
+              </div>
+              <span className="text-[10px] text-slate-500 dark:text-slate-400 block mt-1">
                 Closing balance
               </span>
             </Card>

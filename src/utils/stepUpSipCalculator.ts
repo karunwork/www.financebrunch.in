@@ -9,6 +9,14 @@
  */
 
 import { formatINR, formatCompactINR } from './sipCalculator';
+import { MAX_CALCULATION_SAFETY_LIMIT } from './calculatorConstants';
+export {
+  MAX_INVESTMENT_AMOUNT,
+  MIN_STEPUP_MONTHLY,
+  MAX_STEPUP_MONTHLY,
+  DEFAULT_STEPUP_MONTHLY,
+  STEPUP_QUICK_PRESETS,
+} from './calculatorConstants';
 
 export interface StepUpSIPCalculatorInputs {
   initialMonthlyInvestment: number;
@@ -89,8 +97,8 @@ export function calculateStepUpSIP(inputs: StepUpSIPCalculatorInputs): StepUpSIP
     };
   }
 
-  // Prevent calculation overflow for unrealistic extremes
-  if (initialMonthlyInvestment > 100000000 || investmentDurationYears > 60 || expectedAnnualReturn > 100 || annualStepUpPercentage > 100) {
+  // Prevent calculation overflow for unrealistic extremes (allows up to ₹100 Cr and beyond safely)
+  if (initialMonthlyInvestment > MAX_CALCULATION_SAFETY_LIMIT || investmentDurationYears > 60 || expectedAnnualReturn > 100 || annualStepUpPercentage > 100) {
     return {
       initialMonthlySIP: initialMonthlyInvestment,
       finalMonthlySIP: initialMonthlyInvestment,
@@ -108,7 +116,7 @@ export function calculateStepUpSIP(inputs: StepUpSIPCalculatorInputs): StepUpSIP
         differenceFV: 0,
       },
       isValid: false,
-      validationError: 'Input values exceed maximum supported limits.',
+      validationError: 'Input values exceed maximum supported limits (₹100 Crore).',
     };
   }
 
@@ -169,6 +177,28 @@ export function calculateStepUpSIP(inputs: StepUpSIPCalculatorInputs): StepUpSIP
     fixedFutureValue = initialMonthlyInvestment * (Math.pow(1 + monthlyRate, totalMonths) - 1) / monthlyRate;
   }
   const fixedReturns = Math.max(0, fixedFutureValue - fixedTotalInvested);
+
+  if (!isFinite(stepUpBalance) || isNaN(stepUpBalance) || stepUpBalance > Number.MAX_SAFE_INTEGER) {
+    return {
+      initialMonthlySIP: Math.round(initialMonthlyInvestment),
+      finalMonthlySIP: Math.round(finalMonthlySIP),
+      investmentDurationYears,
+      expectedAnnualReturn,
+      annualStepUpPercentage,
+      totalInvested: Math.round(stepUpTotalInvested),
+      estimatedReturns: 0,
+      futureValue: 0,
+      annualSchedule: [],
+      fixedSipComparison: {
+        totalInvested: 0,
+        estimatedReturns: 0,
+        futureValue: 0,
+        differenceFV: 0,
+      },
+      isValid: false,
+      validationError: 'Projected value exceeds calculation precision bounds. Please adjust duration or returns.',
+    };
+  }
 
   const roundedFV = Math.round(stepUpBalance);
   const roundedTotalInvested = Math.round(stepUpTotalInvested);

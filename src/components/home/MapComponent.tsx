@@ -5,15 +5,16 @@ import { MapPin, ZoomIn, ZoomOut } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 
-interface OfficeLocation {
+export interface OfficeLocation {
   city: string;
   country: string;
   lat: number;
   lng: number;
+  isMain?: boolean;
 }
 
-const officeLocations: OfficeLocation[] = [
-  { city: "Mumbai", country: "India", lat: 19.076, lng: 72.877 },
+export const officeLocations: OfficeLocation[] = [
+  { city: "Mumbai", country: "India", lat: 19.076, lng: 72.877, isMain: true },
   { city: "New Delhi", country: "India", lat: 28.613, lng: 77.209 },
   { city: "New York", country: "USA", lat: 40.713, lng: -74.006 },
   { city: "London", country: "UK", lat: 51.507, lng: -0.127 },
@@ -21,7 +22,13 @@ const officeLocations: OfficeLocation[] = [
   { city: "Singapore", country: "Singapore", lat: 1.352, lng: 103.820 }
 ];
 
-export default function MapComponent() {
+interface MapComponentProps {
+  selectedCity?: string | null;
+  onSelectCity?: (city: string | null) => void;
+  className?: string;
+}
+
+export default function MapComponent({ selectedCity, onSelectCity, className }: MapComponentProps = {}) {
   const [isVisible, setIsVisible] = useState(false);
   const { ref, inView } = useInView({
     threshold: 0.1,
@@ -104,13 +111,17 @@ export default function MapComponent() {
     isDragging.current = false;
   };
 
+  const currentActiveLocation = selectedCity 
+    ? officeLocations.find(l => l.city === selectedCity) || activeLocation 
+    : activeLocation;
+
   return (
     <div 
-      className="rounded-xl overflow-hidden border border-gray-200 dark:border-gray-800 shadow-md"
+      className={cn("rounded-xl overflow-hidden border border-slate-200 dark:border-slate-800 shadow-sm", className)}
     >
       <div 
         ref={mapContainerRef}
-        className="relative h-[360px] sm:h-[440px] md:h-[500px] w-full bg-blue-50 dark:bg-blue-950 cursor-move overflow-hidden touch-none"
+        className="relative h-[290px] sm:h-[330px] md:h-[360px] w-full bg-slate-50 dark:bg-slate-950 cursor-move overflow-hidden touch-none"
         onMouseDown={handleMouseDown}
         onMouseMove={handleMouseMove}
         onMouseUp={handleMouseUp}
@@ -159,36 +170,46 @@ export default function MapComponent() {
           {officeLocations.map((location, index) => {
             const x = (location.lng + 180) * (1024 / 360);
             const y = (90 - location.lat) * (600 / 180);
+            const isMatch = currentActiveLocation?.city === location.city;
             
             return (
               <div 
                 key={index}
                 className={cn(
-                  "absolute transform -translate-x-1/2 -translate-y-1/2 z-10 transition-all duration-300 ease-in-out",
-                  activeLocation === location ? "scale-125" : "hover:scale-110"
+                  "absolute transform -translate-x-1/2 -translate-y-1/2 z-10 transition-all duration-300 ease-in-out cursor-pointer",
+                  isMatch ? "scale-125 z-20" : "hover:scale-110"
                 )}
                 style={{ 
                   left: `${(x / 1024) * 100}%`, 
                   top: `${(y / 600) * 100}%`,
-                  transitionDelay: `${index * 100}ms`
+                  transitionDelay: `${index * 80}ms`
                 }}
-                onMouseEnter={() => setActiveLocation(location)}
-                onMouseLeave={() => setActiveLocation(null)}
+                onMouseEnter={() => {
+                  setActiveLocation(location);
+                  onSelectCity?.(location.city);
+                }}
+                onMouseLeave={() => {
+                  setActiveLocation(null);
+                  onSelectCity?.(null);
+                }}
+                onClick={() => {
+                  onSelectCity?.(location.city);
+                }}
               >
                 <div className="relative">
                   <MapPin 
                     className={cn(
-                      "h-8 w-8 text-blue-600 dark:text-blue-500",
-                      activeLocation === location && "animate-bounce"
+                      "h-7 w-7 text-blue-600 dark:text-blue-400 transition-transform",
+                      isMatch && "animate-bounce text-blue-700 dark:text-blue-300"
                     )} 
                   />
-                  <div className="absolute -bottom-1 left-1/2 transform -translate-x-1/2 w-3 h-3 bg-blue-500 rounded-full">
+                  <div className="absolute -bottom-1 left-1/2 transform -translate-x-1/2 w-2.5 h-2.5 bg-blue-500 rounded-full">
                     <div className="absolute inset-0 bg-blue-500 rounded-full animate-ping opacity-75"></div>
                   </div>
                   <div 
                     className={cn(
-                      "absolute -bottom-12 left-1/2 transform -translate-x-1/2 bg-white dark:bg-gray-800 text-gray-900 dark:text-white text-sm font-medium py-1 px-3 rounded-lg shadow-md whitespace-nowrap opacity-0 translate-y-2 transition-all duration-300",
-                      activeLocation === location && "opacity-100 translate-y-0"
+                      "absolute -bottom-10 left-1/2 transform -translate-x-1/2 bg-white/95 dark:bg-gray-800/95 backdrop-blur-xs text-gray-900 dark:text-white text-xs font-semibold py-1 px-2.5 rounded-md shadow-md whitespace-nowrap opacity-0 translate-y-1 transition-all duration-200 pointer-events-none",
+                      isMatch && "opacity-100 translate-y-0"
                     )}
                   >
                     {location.city}, {location.country}
@@ -200,31 +221,33 @@ export default function MapComponent() {
         </div>
         
         {/* Zoom Controls */}
-        <div className="absolute bottom-4 right-4 flex flex-col space-y-2 z-20">
+        <div className="absolute bottom-3 right-3 flex flex-col space-y-1.5 z-20">
           <Button 
             variant="secondary" 
             size="icon" 
             onClick={handleZoomIn} 
-            className="bg-white dark:bg-gray-800 shadow-md"
+            className="h-7 w-7 bg-white/95 dark:bg-slate-800/95 shadow-xs border border-slate-200/60 dark:border-slate-700/60 hover:bg-white dark:hover:bg-slate-800"
+            aria-label="Zoom in"
           >
-            <ZoomIn className="h-4 w-4" />
+            <ZoomIn className="h-3.5 w-3.5" />
           </Button>
           <Button 
             variant="secondary" 
             size="icon" 
             onClick={handleZoomOut} 
-            className="bg-white dark:bg-gray-800 shadow-md"
+            className="h-7 w-7 bg-white/95 dark:bg-slate-800/95 shadow-xs border border-slate-200/60 dark:border-slate-700/60 hover:bg-white dark:hover:bg-slate-800"
+            aria-label="Zoom out"
           >
-            <ZoomOut className="h-4 w-4" />
+            <ZoomOut className="h-3.5 w-3.5" />
           </Button>
         </div>
         
         {/* Instructions overlay */}
-        <div className="absolute bottom-4 left-4 bg-white/80 dark:bg-gray-800/80 text-xs text-gray-600 dark:text-gray-300 px-3 py-1.5 rounded-md shadow-sm z-20">
+        <div className="absolute bottom-3 left-3 bg-white/90 dark:bg-slate-900/90 backdrop-blur-xs text-[11px] text-slate-500 dark:text-slate-400 px-2.5 py-1 rounded-md shadow-xs border border-slate-200/50 dark:border-slate-800/50 z-20">
           Drag to pan • Use buttons to zoom
         </div>
         
-        <div className="absolute bottom-0 inset-x-0 h-20 bg-gradient-to-t from-blue-50 dark:from-blue-950 to-transparent pointer-events-none"></div>
+        <div className="absolute bottom-0 inset-x-0 h-6 bg-gradient-to-t from-slate-50/70 dark:from-slate-950/70 to-transparent pointer-events-none"></div>
       </div>
     </div>
   );

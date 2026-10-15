@@ -37,6 +37,9 @@ import {
   formatINR,
   formatCompactINR,
   SIPCalculatorInputs,
+  MAX_SIP_MONTHLY,
+  MIN_SIP_MONTHLY,
+  SIP_QUICK_PRESETS,
 } from '@/utils/sipCalculator';
 import { cn } from '@/lib/utils';
 
@@ -48,7 +51,8 @@ interface SIPCalculatorProps {
 export default function SIPCalculator({ className, showHeading = false }: SIPCalculatorProps) {
   // Input states with sensible defaults
   const [monthlyInvestment, setMonthlyInvestment] = useState<number>(5000);
-  const [monthlyInputStr, setMonthlyInputStr] = useState<string>('5000');
+  const [monthlyInputStr, setMonthlyInputStr] = useState<string>('5,000');
+  const [isMonthlyFocused, setIsMonthlyFocused] = useState<boolean>(false);
 
   const [expectedReturn, setExpectedReturn] = useState<number>(12);
   const [returnInputStr, setReturnInputStr] = useState<string>('12');
@@ -95,15 +99,29 @@ export default function SIPCalculator({ className, showHeading = false }: SIPCal
     if (valStr.trim() === '') {
       setValidationErrors((prev) => ({ ...prev, monthly: 'Monthly investment is required.' }));
       setMonthlyInvestment(0);
-    } else if (isNaN(num) || num < 100) {
-      setValidationErrors((prev) => ({ ...prev, monthly: 'Minimum recommended monthly SIP is ₹100.' }));
+    } else if (isNaN(num) || num < MIN_SIP_MONTHLY) {
+      setValidationErrors((prev) => ({ ...prev, monthly: `Minimum recommended monthly SIP is ₹${MIN_SIP_MONTHLY.toLocaleString('en-IN')}.` }));
       setMonthlyInvestment(num > 0 ? num : 0);
-    } else if (num > 10000000) {
-      setValidationErrors((prev) => ({ ...prev, monthly: 'Maximum allowed input is ₹1 Crore.' }));
-      setMonthlyInvestment(10000000);
+    } else if (num > MAX_SIP_MONTHLY) {
+      setValidationErrors((prev) => ({ ...prev, monthly: 'Maximum allowed input is ₹100 Crore.' }));
+      setMonthlyInvestment(num);
     } else {
       setValidationErrors((prev) => ({ ...prev, monthly: undefined }));
       setMonthlyInvestment(num);
+    }
+  };
+
+  const handleMonthlyBlur = () => {
+    setIsMonthlyFocused(false);
+    if (monthlyInvestment > 0) {
+      setMonthlyInputStr(monthlyInvestment.toLocaleString('en-IN'));
+    }
+  };
+
+  const handleMonthlyFocus = () => {
+    setIsMonthlyFocused(true);
+    if (monthlyInvestment > 0) {
+      setMonthlyInputStr(monthlyInvestment.toString());
     }
   };
 
@@ -158,7 +176,7 @@ export default function SIPCalculator({ className, showHeading = false }: SIPCal
   // Synchronized slider handlers
   const handleMonthlySlider = (val: number) => {
     setMonthlyInvestment(val);
-    setMonthlyInputStr(val.toString());
+    setMonthlyInputStr(val.toLocaleString('en-IN'));
     setValidationErrors((prev) => ({ ...prev, monthly: undefined }));
   };
 
@@ -207,7 +225,7 @@ export default function SIPCalculator({ className, showHeading = false }: SIPCal
   const returnsRatio = Math.max(0, 100 - investedRatio);
 
   return (
-    <div className={cn("w-full max-w-6xl mx-auto space-y-8", className)}>
+    <div className={cn("w-full space-y-8", className)}>
       {showHeading && (
         <div className="text-center max-w-3xl mx-auto mb-8">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50 dark:bg-blue-950/40 text-blue-600 dark:text-blue-400 text-xs font-semibold mb-3 border border-blue-200 dark:border-blue-900/50">
@@ -229,29 +247,39 @@ export default function SIPCalculator({ className, showHeading = false }: SIPCal
         <div className="lg:col-span-6 space-y-6 bg-white dark:bg-gray-900/90 rounded-2xl p-6 sm:p-7 border border-gray-200/80 dark:border-gray-800 shadow-sm backdrop-blur-md">
           {/* 1. Monthly SIP Investment */}
           <div className="space-y-3">
-            <div className="flex items-center justify-between">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
               <Label htmlFor="sip-monthly-amount" className="text-sm sm:text-base font-semibold text-gray-800 dark:text-gray-200 flex items-center gap-2">
-                <IndianRupee className="h-4 w-4 text-blue-600 dark:text-blue-400" />
-                Monthly SIP Investment
+                <IndianRupee className="h-4 w-4 text-blue-600 dark:text-blue-400 shrink-0" />
+                <span>Monthly SIP Investment</span>
               </Label>
-              <div className="relative w-36 sm:w-40">
-                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 font-semibold text-sm">₹</span>
+              <div className="relative min-w-[160px] sm:w-52 lg:w-56 max-w-full">
+                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 font-semibold text-sm pointer-events-none select-none">₹</span>
                 <Input
                   id="sip-monthly-amount"
                   type="text"
                   value={monthlyInputStr}
                   onChange={(e) => handleMonthlyChange(e.target.value)}
-                  className="pl-7 pr-3 text-right font-bold text-gray-900 dark:text-white bg-gray-50/70 dark:bg-gray-800/80 border-gray-300 dark:border-gray-700 h-10 text-base focus-visible:ring-blue-500"
+                  onFocus={handleMonthlyFocus}
+                  onBlur={handleMonthlyBlur}
+                  className="pl-7 pr-3 text-right font-bold text-gray-900 dark:text-white bg-gray-50/70 dark:bg-gray-800/80 border-gray-300 dark:border-gray-700 h-10 w-full min-w-0 focus-visible:ring-blue-500"
+                  style={{
+                    fontSize: monthlyInputStr.length > 13 ? '0.8125rem' : monthlyInputStr.length > 10 ? '0.875rem' : '1rem',
+                  }}
                   aria-label="Monthly SIP Amount in Rupees"
                 />
+                {monthlyInvestment >= 100000 && !isMonthlyFocused && (
+                  <span className="text-[11px] text-blue-600 dark:text-blue-400 font-semibold block text-right mt-0.5">
+                    ({formatCompactINR(monthlyInvestment)})
+                  </span>
+                )}
               </div>
             </div>
 
             <Slider
-              value={[monthlyInvestment]}
-              min={100}
-              max={200000}
-              step={100}
+              value={[Math.min(monthlyInvestment, MAX_SIP_MONTHLY)]}
+              min={MIN_SIP_MONTHLY}
+              max={MAX_SIP_MONTHLY}
+              step={500}
               onValueChange={(vals) => handleMonthlySlider(vals[0])}
               className="py-1 cursor-pointer"
               aria-label="Monthly Investment Slider"
@@ -259,14 +287,15 @@ export default function SIPCalculator({ className, showHeading = false }: SIPCal
 
             <div className="flex justify-between text-xs text-gray-500 dark:text-gray-400 font-medium">
               <span>₹100</span>
-              <span>₹50k</span>
-              <span>₹1 Lakh</span>
-              <span>₹2 Lakhs</span>
+              <span>₹10 Lakh</span>
+              <span>₹1 Cr</span>
+              <span>₹10 Cr</span>
+              <span>₹100 Cr</span>
             </div>
 
             {/* Quick preset buttons */}
             <div className="flex flex-wrap gap-1.5 pt-1">
-              {[500, 1000, 2500, 5000, 10000, 25000].map((preset) => (
+              {SIP_QUICK_PRESETS.map((preset) => (
                 <button
                   key={preset}
                   type="button"
@@ -547,29 +576,32 @@ export default function SIPCalculator({ className, showHeading = false }: SIPCal
           {/* Primary Result Dashboard: 4 Cards */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {/* 1. Featured Primary Result Card: Estimated Future Value */}
-            <Card className="sm:col-span-2 relative overflow-hidden bg-gradient-to-br from-blue-600 via-blue-700 to-indigo-800 text-white rounded-2xl shadow-lg border-0">
+            <Card className="sm:col-span-2 relative overflow-hidden bg-gradient-to-br from-blue-600 via-blue-700 to-indigo-800 text-white rounded-2xl shadow-lg border-0 min-w-0">
               <div className="absolute top-0 right-0 p-8 opacity-10 pointer-events-none">
                 <TrendingUp size={120} />
               </div>
-              <CardContent className="p-6 relative z-10">
-                <div className="flex items-center justify-between mb-2">
+              <CardContent className="p-6 relative z-10 min-w-0">
+                <div className="flex items-center justify-between mb-2 gap-2 flex-wrap">
                   <span className="text-xs uppercase font-bold tracking-widest text-blue-200">
                     Projected Wealth
                   </span>
-                  <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-white/20 backdrop-blur-md text-white border border-white/20">
+                  <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-white/20 backdrop-blur-md text-white border border-white/20 shrink-0">
                     {calculationResult.investmentDurationYears} Years ({calculationResult.investmentDurationMonths} Mo)
                   </span>
                 </div>
                 <div className="text-xs sm:text-sm text-blue-100 font-medium">
                   Estimated Future Value
                 </div>
-                <div className="text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight mt-1 text-white">
+                <div 
+                  className="text-2xl sm:text-3xl lg:text-4xl font-extrabold tracking-tight mt-1 text-white break-words"
+                  title={formatINR(calculationResult.futureValue)}
+                >
                   {formatINR(calculationResult.futureValue)}
                 </div>
-                <div className="mt-2 text-xs text-blue-100 flex items-center gap-2">
+                <div className="mt-2 text-xs text-blue-100 flex items-center gap-2 flex-wrap">
                   <span>Equivalent to: <strong>{formatCompactINR(calculationResult.futureValue)}</strong></span>
                   {isStepUpEnabled && (
-                    <span className="bg-amber-400 text-gray-900 font-bold px-1.5 py-0.2 rounded text-[10px]">
+                    <span className="bg-amber-400 text-gray-900 font-bold px-1.5 py-0.5 rounded text-[10px]">
                       With Step-Up
                     </span>
                   )}
@@ -578,17 +610,27 @@ export default function SIPCalculator({ className, showHeading = false }: SIPCal
             </Card>
 
             {/* 2. Total Invested Amount */}
-            <Card className="rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900/90 shadow-sm">
-              <CardContent className="p-5">
+            <Card className="rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900/90 shadow-sm min-w-0 overflow-hidden">
+              <CardContent className="p-5 min-w-0">
                 <div className="flex items-center justify-between mb-1.5">
-                  <span className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                  <span className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider truncate">
                     Total Invested
                   </span>
-                  <span className="w-2.5 h-2.5 rounded-full bg-blue-600" />
+                  <span className="w-2.5 h-2.5 rounded-full bg-blue-600 shrink-0 ml-2" />
                 </div>
-                <div className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white">
-                  {formatINR(calculationResult.totalInvested)}
+                <div 
+                  className="text-lg sm:text-xl font-bold text-gray-900 dark:text-white break-words"
+                  title={formatINR(calculationResult.totalInvested)}
+                >
+                  {calculationResult.totalInvested >= 10000000 
+                    ? formatCompactINR(calculationResult.totalInvested) 
+                    : formatINR(calculationResult.totalInvested)}
                 </div>
+                {calculationResult.totalInvested >= 10000000 && (
+                  <div className="text-[11px] font-mono text-gray-500 dark:text-gray-400 truncate mt-0.5" title={formatINR(calculationResult.totalInvested)}>
+                    {formatINR(calculationResult.totalInvested)}
+                  </div>
+                )}
                 <div className="mt-1 text-xs text-gray-500 dark:text-gray-400">
                   {investedRatio}% of total corpus
                 </div>
@@ -596,17 +638,27 @@ export default function SIPCalculator({ className, showHeading = false }: SIPCal
             </Card>
 
             {/* 3. Estimated Returns */}
-            <Card className="rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900/90 shadow-sm">
-              <CardContent className="p-5">
+            <Card className="rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900/90 shadow-sm min-w-0 overflow-hidden">
+              <CardContent className="p-5 min-w-0">
                 <div className="flex items-center justify-between mb-1.5">
-                  <span className="text-xs font-semibold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider">
+                  <span className="text-xs font-semibold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider truncate">
                     Estimated Returns
                   </span>
-                  <span className="w-2.5 h-2.5 rounded-full bg-emerald-500" />
+                  <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 shrink-0 ml-2" />
                 </div>
-                <div className="text-xl sm:text-2xl font-bold text-emerald-600 dark:text-emerald-400">
-                  {formatINR(calculationResult.estimatedReturns)}
+                <div 
+                  className="text-lg sm:text-xl font-bold text-emerald-600 dark:text-emerald-400 break-words"
+                  title={formatINR(calculationResult.estimatedReturns)}
+                >
+                  {calculationResult.estimatedReturns >= 10000000 
+                    ? formatCompactINR(calculationResult.estimatedReturns) 
+                    : formatINR(calculationResult.estimatedReturns)}
                 </div>
+                {calculationResult.estimatedReturns >= 10000000 && (
+                  <div className="text-[11px] font-mono text-emerald-600/80 dark:text-emerald-400/80 truncate mt-0.5" title={formatINR(calculationResult.estimatedReturns)}>
+                    +{formatINR(calculationResult.estimatedReturns)}
+                  </div>
+                )}
                 <div className="mt-1 text-xs text-gray-500 dark:text-gray-400">
                   {returnsRatio}% compounding growth
                 </div>

@@ -43,7 +43,13 @@ export const FooterEditorialHeadline: React.FC = () => {
           <img
             src="/images/finance-brunch-logo-nobg.png"
             alt="Finance Brunch – Financial Advisory & Planning"
-            className="h-11 sm:h-12 w-auto object-contain dark:brightness-110"
+            className="h-11 sm:h-12 w-auto object-contain block dark:hidden"
+            style={{ maxWidth: '190px' }}
+          />
+          <img
+            src="/images/finance-brunch-logo-dark.png"
+            alt="Finance Brunch – Financial Advisory & Planning"
+            className="h-11 sm:h-12 w-auto object-contain hidden dark:block"
             style={{ maxWidth: '190px' }}
           />
         </Link>

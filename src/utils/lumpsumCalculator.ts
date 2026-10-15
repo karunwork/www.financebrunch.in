@@ -12,6 +12,14 @@
  */
 
 import { formatINR, formatCompactINR } from './sipCalculator';
+import { MAX_CALCULATION_SAFETY_LIMIT } from './calculatorConstants';
+export {
+  MAX_INVESTMENT_AMOUNT,
+  MIN_LUMPSUM_AMOUNT,
+  MAX_LUMPSUM_AMOUNT,
+  DEFAULT_LUMPSUM_AMOUNT,
+  LUMPSUM_QUICK_PRESETS,
+} from './calculatorConstants';
 
 export interface LumpsumCalculatorInputs {
   initialInvestment: number;
@@ -69,6 +77,21 @@ export function calculateLumpsum(inputs: LumpsumCalculatorInputs): LumpsumCalcul
     };
   }
 
+  // Prevent calculation overflow for unrealistic extremes (allows up to ₹100 Cr and beyond safely)
+  if (initialInvestment > MAX_CALCULATION_SAFETY_LIMIT || investmentDurationYears > 60 || expectedAnnualReturn > 100) {
+    return {
+      initialInvestment,
+      expectedAnnualReturn,
+      investmentDurationYears,
+      totalInvested: 0,
+      estimatedReturns: 0,
+      futureValue: 0,
+      yearlyBreakdown: [],
+      isValid: false,
+      validationError: 'Input values exceed maximum supported limits (₹100 Crore).',
+    };
+  }
+
   const totalMonths = Math.round(investmentDurationYears * 12);
   const monthlyRate = expectedAnnualReturn === 0
     ? 0
@@ -77,6 +100,20 @@ export function calculateLumpsum(inputs: LumpsumCalculatorInputs): LumpsumCalcul
   const futureValue = monthlyRate === 0
     ? initialInvestment
     : initialInvestment * Math.pow(1 + monthlyRate, totalMonths);
+
+  if (!isFinite(futureValue) || isNaN(futureValue) || futureValue > Number.MAX_SAFE_INTEGER) {
+    return {
+      initialInvestment,
+      expectedAnnualReturn,
+      investmentDurationYears,
+      totalInvested: Math.round(initialInvestment),
+      estimatedReturns: 0,
+      futureValue: 0,
+      yearlyBreakdown: [],
+      isValid: false,
+      validationError: 'Projected value exceeds calculation precision bounds. Please adjust duration or returns.',
+    };
+  }
 
   const totalInvested = initialInvestment;
   const estimatedReturns = Math.max(0, futureValue - totalInvested);

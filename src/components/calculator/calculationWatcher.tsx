@@ -27,7 +27,7 @@ export const CalculationWatcher = () => {
             const originalClick = target.onclick;
             target.onclick = (e) => {
               if (originalClick) {
-                // @ts-ignore
+                // @ts-expect-error - Event listener function signature variance
                 originalClick.call(target, e);
               }
               // Dispatch a calculation event after a brief delay to ensure calculation completes

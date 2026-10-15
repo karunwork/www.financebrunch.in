@@ -1,4 +1,5 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
+import { useLocation, useSearchParams } from 'react-router-dom';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import SIPCalculator from './SIPCalculator';
 import StepUpSIPCalculator from './StepUpSIPCalculator';
@@ -16,7 +17,39 @@ import {
 import { useToast } from '@/hooks/use-toast';
 
 const MutualFundCalculator = () => {
-  const [activeTab, setActiveTab] = useState('sip');
+  const location = useLocation();
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  // Resolve active tab from URL query param or specific calculator route path
+  const resolveTab = useCallback(() => {
+    const tabParam = searchParams.get('tab');
+    if (tabParam && ['sip', 'stepup', 'lumpsum', 'swp'].includes(tabParam.toLowerCase())) {
+      return tabParam.toLowerCase();
+    }
+    const path = location.pathname.toLowerCase();
+    if (path.includes('step-up') || path.includes('stepup')) return 'stepup';
+    if (path.includes('lumpsum')) return 'lumpsum';
+    if (path.includes('swp')) return 'swp';
+    if (path.includes('sip')) return 'sip';
+    return 'sip';
+  }, [location.pathname, searchParams]);
+
+  const [activeTab, setActiveTab] = useState(resolveTab);
+
+  // Synchronize when route or query changes
+  useEffect(() => {
+    setActiveTab(resolveTab());
+  }, [resolveTab]);
+
+  const handleTabChange = (newTab: string) => {
+    setActiveTab(newTab);
+    setSearchParams((prev) => {
+      const updated = new URLSearchParams(prev);
+      updated.set('tab', newTab);
+      return updated;
+    }, { replace: true });
+  };
+
   const [calculationCount, setCalculationCount] = useState(0);
   const [showAdvisorPopup, setShowAdvisorPopup] = useState(false);
   const { toast } = useToast();
@@ -52,9 +85,9 @@ const MutualFundCalculator = () => {
   return (
     <>
       <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-lg border border-slate-200/80 dark:border-slate-800 overflow-hidden">
-        <div className="p-2 sm:p-4">
-          <Tabs defaultValue="sip" onValueChange={setActiveTab} value={activeTab}>
-            <div className="px-2 pt-2 sm:pt-4">
+        <div className="p-4 sm:p-6 lg:p-7">
+          <Tabs value={activeTab} onValueChange={handleTabChange}>
+            <div>
               <TabsList className="w-full grid grid-cols-2 md:grid-cols-4 gap-2 h-auto p-1.5 bg-slate-100/80 dark:bg-slate-800/80 rounded-xl">
                 <TabsTrigger 
                   value="sip" 
@@ -87,9 +120,9 @@ const MutualFundCalculator = () => {
               </TabsList>
             </div>
             
-            <div className="mt-6 pb-4">
+            <div className="mt-6">
               <TabsContent value="sip" className="mt-0">
-                <div className="px-2 sm:px-4">
+                <div>
                   <div className="flex items-center mb-6">
                     <h2 className="text-xl font-bold text-slate-900 dark:text-white">Systematic Investment Plan (SIP)</h2>
                     <TooltipProvider>
@@ -110,7 +143,7 @@ const MutualFundCalculator = () => {
               </TabsContent>
               
               <TabsContent value="stepup" className="mt-0">
-                <div className="px-2 sm:px-4">
+                <div>
                   <div className="flex items-center mb-6">
                     <h2 className="text-xl font-bold text-slate-900 dark:text-white">Step-Up SIP Calculator</h2>
                     <TooltipProvider>
@@ -131,7 +164,7 @@ const MutualFundCalculator = () => {
               </TabsContent>
               
               <TabsContent value="lumpsum" className="mt-0">
-                <div className="px-2 sm:px-4">
+                <div>
                   <div className="flex items-center mb-6">
                     <h2 className="text-xl font-bold text-slate-900 dark:text-white">Lumpsum Calculator</h2>
                     <TooltipProvider>
@@ -152,7 +185,7 @@ const MutualFundCalculator = () => {
               </TabsContent>
               
               <TabsContent value="swp" className="mt-0">
-                <div className="px-2 sm:px-4">
+                <div>
                   <div className="flex items-center mb-6">
                     <h2 className="text-xl font-bold text-slate-900 dark:text-white">Systematic Withdrawal Plan (SWP)</h2>
                     <TooltipProvider>

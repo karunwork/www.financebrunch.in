@@ -46,7 +46,7 @@ export interface TaxCalculationResult {
     amount: number;
   }>;
   netIncome: number;
-  country: any;
+  country: unknown;
   currency: string;
   currencySymbol: string;
   taxableIncome: number;

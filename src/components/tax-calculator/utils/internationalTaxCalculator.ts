@@ -3,7 +3,7 @@ import { TaxSlab } from './taxTypes';
 import { findCountryById } from './taxSlabs';
 
 // Helper to get tax rate from a tax slab based on income
-const getTaxRateFromSlabs = (income: number, slabs: any[]) => {
+const getTaxRateFromSlabs = (income: number, slabs: TaxSlab[]) => {
   for (let i = slabs.length - 1; i >= 0; i--) {
     if (income >= slabs[i].min) {
       return {
@@ -29,7 +29,7 @@ interface CountryTaxData {
     "60to80": TaxSlab[];
     above80: TaxSlab[];
   };
-  stateSlabs?: Record<string, any[]>;
+  stateSlabs?: Record<string, TaxSlab[]>;
   flatRate?: number;
   isTaxFree: boolean;
 }
@@ -43,7 +43,7 @@ export interface TaxCalculationResult {
     amount: number;
   }>;
   netIncome: number;
-  country: any;
+  country: unknown;
   currency: string;
   currencySymbol: string;
   taxableIncome: number;

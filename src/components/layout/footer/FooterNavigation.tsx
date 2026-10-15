@@ -3,6 +3,7 @@ import { Link, useLocation } from 'react-router-dom';
 import { ArrowUpRight, ArrowRight } from 'lucide-react';
 import { scrollToSection } from '@/lib/scrollUtils';
 import { useReducedMotion } from 'framer-motion';
+import { cn } from '@/lib/utils';
 
 interface NavItem {
   name: string;
@@ -22,6 +23,7 @@ const NAV_SECTIONS: NavSection[] = [
     title: 'EXPLORE',
     items: [
       { name: 'Investment Planning', href: '/investment-planning' },
+      { name: 'NRI Services', href: '/nri-services' },
       { name: 'Mutual Funds', href: '/mutual-funds' },
       { name: 'Global Tax File', href: '/global-tax-file' },
       { name: 'FIRE Strategy / Early Retirement', href: '/fire-strategy' },
@@ -69,7 +71,11 @@ const NAV_SECTIONS: NavSection[] = [
   },
 ];
 
-export const FooterNavigation: React.FC = () => {
+interface FooterNavigationProps {
+  className?: string;
+}
+
+export const FooterNavigation: React.FC<FooterNavigationProps> = ({ className }) => {
   const [hoveredSection, setHoveredSection] = useState<string | null>(null);
   const [mousePosMap, setMousePosMap] = useState<Record<string, { x: number; y: number }>>({});
   const [isTouchDevice, setIsTouchDevice] = useState(false);
@@ -109,7 +115,7 @@ export const FooterNavigation: React.FC = () => {
   };
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-7 my-14">
+    <div className={cn("grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-7 my-10 sm:my-14", className)}>
       {NAV_SECTIONS.map((section) => {
         const isSectionActive = hoveredSection === section.number;
         const mouse = mousePosMap[section.number] || { x: 150, y: 150 };
@@ -138,6 +144,19 @@ export const FooterNavigation: React.FC = () => {
 
             {/* Restrained Side Edge Highlight */}
             <div className="absolute top-0 left-0 w-[1px] h-full bg-gradient-to-b from-white/70 dark:from-cyan-400/30 via-transparent to-transparent pointer-events-none" />
+
+            {/* Subtle Faint FB Watermark inside panel corner */}
+            <div 
+              aria-hidden="true" 
+              className="absolute -right-3 -bottom-4 pointer-events-none select-none z-0 opacity-[0.035] dark:opacity-[0.05] group-hover/panel:opacity-[0.07] transition-opacity duration-300"
+            >
+              <img
+                src="/images/fb-watermark.png"
+                alt=""
+                className="w-28 h-auto object-contain pointer-events-none select-none"
+                loading="lazy"
+              />
+            </div>
 
             {/* Soft Desktop Pointer-Responsive Radial Glow (Does not interfere with clicks) */}
             {!isTouchDevice && !shouldReduceMotion && (

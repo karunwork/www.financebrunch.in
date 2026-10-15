@@ -22,6 +22,7 @@ const UnlistedShares = lazy(() => import('./pages/UnlistedShares'));
 const InvestmentPlanning = lazy(() => import('./pages/InvestmentPlanning'));
 const InsurancePlanning = lazy(() => import('./pages/InsurancePlanning'));
 const FireStrategy = lazy(() => import('./pages/FireStrategy'));
+const NRIServices = lazy(() => import('./pages/NRIServices'));
 const IPOAnalysis = lazy(() => import('./pages/IPOAnalysis'));
 const PrivacyPolicy = lazy(() => import('./pages/PrivacyPolicy'));
 const TermsOfService = lazy(() => import('./pages/TermsOfService'));
@@ -45,7 +46,7 @@ const queryClient = new QueryClient({
   },
 });
 
-// Helper component to handle in-page section scrolling when navigating to hash URLs
+// Helper component to handle in-page section scrolling when navigating to hash URLs or section routes
 function ScrollToHashElement() {
   const { pathname, hash } = useLocation();
 
@@ -63,6 +64,32 @@ function ScrollToHashElement() {
         clearTimeout(t2);
         clearTimeout(t3);
       };
+    } else {
+      // Map standalone section route paths to in-page section scrolling on the homepage
+      const pathToSectionMap: Record<string, string> = {
+        '/services': 'services',
+        '/products': 'products',
+        '/about': 'about',
+        '/global-presence': 'global',
+        '/testimonials': 'testimonials',
+        '/client-reviews': 'testimonials',
+        '/insights': 'insights-youtube',
+        '/youtube': 'insights-youtube',
+      };
+      const targetSection = pathToSectionMap[pathname];
+      if (targetSection) {
+        const scroll = () => {
+          scrollToSection(targetSection, true);
+        };
+        const t1 = setTimeout(scroll, 100);
+        const t2 = setTimeout(scroll, 350);
+        const t3 = setTimeout(scroll, 750);
+        return () => {
+          clearTimeout(t1);
+          clearTimeout(t2);
+          clearTimeout(t3);
+        };
+      }
     }
   }, [pathname, hash]);
 
@@ -111,35 +138,52 @@ function App() {
               <PageTransition>
                 <Suspense fallback={<RouteLoadingFallback />}>
                   <Routes>
-                  {/* Home - Freely accessible without disclaimer */}
+                  {/* Home & In-Page Sections - Freely accessible without disclaimer */}
                   <Route path="/" element={<Index />} />
+                  <Route path="/services" element={<Index />} />
+                  <Route path="/products" element={<Index />} />
+                  <Route path="/about" element={<Index />} />
+                  <Route path="/global-presence" element={<Index />} />
+                  <Route path="/testimonials" element={<Index />} />
+                  <Route path="/client-reviews" element={<Index />} />
+                  <Route path="/insights" element={<Index />} />
+                  <Route path="/youtube" element={<Index />} />
 
-                  {/* Mutual Funds & Calculators - Protected Financial Services */}
+                  {/* Financial Calculators - Disclaimer Excluded */}
+                  <Route path="/calculator" element={<Calculator />} />
+                  <Route path="/calculators" element={<Calculator />} />
+                  <Route path="/sip-calculator" element={<Calculator />} />
+                  <Route path="/step-up-sip-calculator" element={<Calculator />} />
+                  <Route path="/lumpsum-calculator" element={<Calculator />} />
+                  <Route path="/swp-calculator" element={<Calculator />} />
+
+                  {/* Mutual Funds - Protected Financial Services */}
                   <Route path="/mutual-funds" element={<RegulatoryDisclaimerGuard><MutualFunds /></RegulatoryDisclaimerGuard>} />
-                  <Route path="/calculator" element={<RegulatoryDisclaimerGuard><Calculator /></RegulatoryDisclaimerGuard>} />
-                  <Route path="/calculators" element={<RegulatoryDisclaimerGuard><Calculator /></RegulatoryDisclaimerGuard>} />
 
-                  {/* Insurance Planning - Protected Financial Services */}
-                  <Route path="/insurance-planning" element={<RegulatoryDisclaimerGuard><InsurancePlanning /></RegulatoryDisclaimerGuard>} />
-                  <Route path="/health-insurance" element={<RegulatoryDisclaimerGuard><InsurancePlanning /></RegulatoryDisclaimerGuard>} />
-                  <Route path="/term-insurance" element={<RegulatoryDisclaimerGuard><InsurancePlanning /></RegulatoryDisclaimerGuard>} />
+                  {/* Insurance Planning & Solutions - Disclaimer Excluded */}
+                  <Route path="/insurance-planning" element={<InsurancePlanning />} />
+                  <Route path="/insurance-solutions" element={<InsurancePlanning />} />
+                  <Route path="/health-insurance" element={<InsurancePlanning />} />
+                  <Route path="/term-insurance" element={<InsurancePlanning />} />
 
                   {/* Retirement & FIRE - Protected Financial Services */}
                   <Route path="/fire-strategy" element={<RegulatoryDisclaimerGuard><FireStrategy /></RegulatoryDisclaimerGuard>} />
                   <Route path="/early-retirement" element={<RegulatoryDisclaimerGuard><EarlyRetirement /></RegulatoryDisclaimerGuard>} />
                   <Route path="/retirement-planning" element={<RegulatoryDisclaimerGuard><EarlyRetirement /></RegulatoryDisclaimerGuard>} />
 
-                  {/* Investment Planning - Protected Financial Services */}
+                  {/* Investment Planning & Capital Markets - Protected Financial Services */}
                   <Route path="/investment-planning" element={<RegulatoryDisclaimerGuard><InvestmentPlanning /></RegulatoryDisclaimerGuard>} />
+                  <Route path="/wealth-management" element={<RegulatoryDisclaimerGuard><InvestmentPlanning /></RegulatoryDisclaimerGuard>} />
+                  <Route path="/nri-services" element={<RegulatoryDisclaimerGuard><NRIServices /></RegulatoryDisclaimerGuard>} />
                   <Route path="/indian-stock-analysis" element={<RegulatoryDisclaimerGuard><IndianStockAnalysis /></RegulatoryDisclaimerGuard>} />
                   <Route path="/unlisted-shares" element={<RegulatoryDisclaimerGuard><UnlistedShares /></RegulatoryDisclaimerGuard>} />
                   <Route path="/ipo-analysis" element={<RegulatoryDisclaimerGuard><IPOAnalysis /></RegulatoryDisclaimerGuard>} />
 
-                  {/* Tax Planning & Filing - Protected Financial Services */}
-                  <Route path="/income-tax-filing" element={<RegulatoryDisclaimerGuard><IncomeTaxFiling /></RegulatoryDisclaimerGuard>} />
-                  <Route path="/tax-planning" element={<RegulatoryDisclaimerGuard><IncomeTaxFiling /></RegulatoryDisclaimerGuard>} />
-                  <Route path="/tax-filing" element={<RegulatoryDisclaimerGuard><IncomeTaxFiling /></RegulatoryDisclaimerGuard>} />
-                  <Route path="/global-tax-file" element={<RegulatoryDisclaimerGuard><IncomeTaxFiling /></RegulatoryDisclaimerGuard>} />
+                  {/* Tax Planning & Filing - Disclaimer Excluded */}
+                  <Route path="/income-tax-filing" element={<IncomeTaxFiling />} />
+                  <Route path="/tax-planning" element={<IncomeTaxFiling />} />
+                  <Route path="/tax-filing" element={<IncomeTaxFiling />} />
+                  <Route path="/global-tax-file" element={<IncomeTaxFiling />} />
 
                   {/* Contact & Careers - Freely Accessible Informational */}
                   <Route path="/contact" element={<Contact />} />

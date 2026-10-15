@@ -1,7 +1,5 @@
-
-import { useLocation } from "react-router-dom";
+import { useLocation, Link } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { motion } from "framer-motion";
 import { Home } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
@@ -10,8 +8,8 @@ const NotFound = () => {
   const [isHammering, setIsHammering] = useState(true);
 
   useEffect(() => {
-    console.error(
-      "404 Error: User attempted to access non-existent route:",
+    console.warn(
+      "404 Route Encountered: User attempted to access non-existent route:",
       location.pathname
     );
 
@@ -97,10 +95,10 @@ const NotFound = () => {
         </p>
         
         <Button asChild size="lg" className="button-hover mt-2">
-          <a href="/" className="inline-flex items-center">
+          <Link to="/" className="inline-flex items-center">
             <Home className="mr-2 h-4 w-4" />
             Return to Home
-          </a>
+          </Link>
         </Button>
       </div>
     </div>

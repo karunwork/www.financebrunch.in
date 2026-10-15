@@ -5,8 +5,7 @@ import About from '../components/home/About';
 import Services from '../components/home/Services';
 import GlobalPresence from '../components/home/GlobalPresence';
 import Testimonials from '../components/home/Testimonials';
-import HomeCalculator from '../components/home/HomeCalculator';
-import StaticMarketIndices from '../components/market/StaticMarketIndices';
+import YouTubeShowcase from '../components/home/YouTubeShowcase';
 
 const Index = () => {
   return (
@@ -15,8 +14,8 @@ const Index = () => {
       <About />
       <Services />
       <GlobalPresence />
-      <HomeCalculator />
       <Testimonials />
+      <YouTubeShowcase />
     </div>
   );
 };

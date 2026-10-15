@@ -24,6 +24,7 @@ const navLinks = [
       { name: 'FIRE Strategy', href: '/fire-strategy' },
       { name: 'Retirement Planning', href: '/retirement-planning' },
       { name: 'Investment Planning', href: '/investment-planning' },
+      { name: 'NRI Services', href: '/nri-services' },
       { name: 'Tax Planning', href: '/tax-planning' },
       { name: 'Indian Stock Analysis', href: '/indian-stock-analysis' },
       { name: 'Unlisted Shares', href: '/unlisted-shares' },
@@ -186,7 +187,13 @@ export default function Navbar() {
               <img
                 src="/images/finance-brunch-logo-nobg.png"
                 alt="Finance Brunch – Financial Advisory & Planning"
-                className="h-10 sm:h-12 w-auto object-contain"
+                className="h-9 sm:h-11 md:h-12 w-auto object-contain block dark:hidden max-w-[145px] sm:max-w-[180px]"
+                style={{ maxWidth: '180px' }}
+              />
+              <img
+                src="/images/finance-brunch-logo-dark.png"
+                alt="Finance Brunch – Financial Advisory & Planning"
+                className="h-9 sm:h-11 md:h-12 w-auto object-contain hidden dark:block max-w-[145px] sm:max-w-[180px]"
                 style={{ maxWidth: '180px' }}
               />
             </Link>

@@ -11,14 +11,51 @@ interface RegulatoryDisclaimerGuardProps {
  * State is intentionally kept in component-local state only — no sessionStorage or
  * localStorage — so the dialog reappears on every separate page visit.
  */
+// Explicit route-based exclusion list for pages that do not require the regulatory disclaimer modal
+const EXCLUDED_DISCLAIMER_ROUTES = [
+  // 1. Insurance Solutions / Health Insurance & Term Insurance
+  '/health-insurance',
+  '/insurance-planning',
+  '/insurance-solutions',
+  '/term-insurance',
+
+  // 2. Global Tax File
+  '/global-tax-file',
+
+  // 3. Income Tax Filing & Tax Planning
+  '/income-tax-filing',
+  '/tax-planning',
+  '/tax-filing',
+
+  // 4. Financial Calculators (SIP, Step-Up SIP, Lumpsum, SWP)
+  '/calculator',
+  '/calculators',
+  '/sip-calculator',
+  '/step-up-sip-calculator',
+  '/lumpsum-calculator',
+  '/swp-calculator',
+];
+
 export function RegulatoryDisclaimerGuard({ children }: RegulatoryDisclaimerGuardProps) {
-  // `accepted` tracks whether the user has clicked OK for the CURRENT visit.
-  // Resetting to `false` whenever the location changes means the dialog
-  // will reappear if the user navigates away and returns.
-  const [accepted, setAccepted] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
+  const isExcluded = EXCLUDED_DISCLAIMER_ROUTES.includes(location.pathname);
+
+  // `accepted` tracks whether the user has clicked OK for the CURRENT visit.
+  const [accepted, setAccepted] = useState(false);
   const okButtonRef = useRef<HTMLButtonElement>(null);
+
+  const handleDecline = React.useCallback(() => {
+    if (window.history.length > 2) {
+      navigate(-1);
+    } else {
+      navigate('/', { replace: true });
+    }
+  }, [navigate]);
+
+  const handleAgree = React.useCallback(() => {
+    setAccepted(true);
+  }, []);
 
   // Reset acceptance whenever the protected route is re-entered.
   useEffect(() => {
@@ -27,17 +64,16 @@ export function RegulatoryDisclaimerGuard({ children }: RegulatoryDisclaimerGuar
 
   // Move keyboard focus into the dialog when it opens.
   useEffect(() => {
-    if (!accepted) {
-      const timer = setTimeout(() => {
-        okButtonRef.current?.focus();
-      }, 50);
-      return () => clearTimeout(timer);
-    }
-  }, [accepted]);
+    if (isExcluded || accepted) return;
+    const timer = setTimeout(() => {
+      okButtonRef.current?.focus();
+    }, 50);
+    return () => clearTimeout(timer);
+  }, [accepted, isExcluded]);
 
   // Trap keyboard within the modal while it is open.
   useEffect(() => {
-    if (accepted) return;
+    if (isExcluded || accepted) return;
 
     const handleKeyDown = (e: KeyboardEvent) => {
       // Prevent Escape from dismissing (user must use OK or Decline).
@@ -69,19 +105,12 @@ export function RegulatoryDisclaimerGuard({ children }: RegulatoryDisclaimerGuar
 
     document.addEventListener('keydown', handleKeyDown);
     return () => document.removeEventListener('keydown', handleKeyDown);
-  }, [accepted]);
+  }, [accepted, isExcluded, handleDecline]);
 
-  const handleAgree = () => {
-    setAccepted(true);
-  };
-
-  const handleDecline = () => {
-    if (window.history.length > 2) {
-      navigate(-1);
-    } else {
-      navigate('/', { replace: true });
-    }
-  };
+  // If the current route is in the exclusion list, immediately render children without the disclaimer
+  if (isExcluded) {
+    return <>{children}</>;
+  }
 
   if (!accepted) {
     return (

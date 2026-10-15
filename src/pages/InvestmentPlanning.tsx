@@ -1,44 +1,27 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { useInView } from 'react-intersection-observer';
-import { cn } from '@/lib/utils';
+import { motion, useReducedMotion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { 
-  LineChart, ChevronRight, ExternalLink, TrendingUp, 
-  Info, Globe, FileText, CandlestickChart, DollarSign, Users, HomeIcon, Phone,
-  Bitcoin, Clock, Shield, IndianRupee, Plane, ArrowRight
+  LineChart, ChevronRight, ExternalLink, 
+  Info, Clock, HomeIcon, Phone,
+  ArrowRight, Shield
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import ScrollToTop from '@/components/ui/ScrollToTop';
 import { useIsMobile } from '@/hooks/use-mobile';
-
 import { USAStockPopup } from '@/components/investment/USAStockPopup';
-import SIPCalculator from '@/components/calculator/SIPCalculator';
+import { AppleScrollShowcase } from '@/components/investment/AppleScrollShowcase';
 
 const InvestmentPlanning = () => {
   const { toast } = useToast();
-  const [isLoading, setIsLoading] = useState(true);
   const isMobile = useIsMobile();
+  const shouldReduceMotion = useReducedMotion();
   const [usaStockPopupOpen, setUsaStockPopupOpen] = useState(false);
 
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
-
-  const { ref: headerRef, inView: headerInView } = useInView({
-    triggerOnce: true,
-    threshold: 0.1,
-  });
-
-  const { ref: servicesRef, inView: servicesInView } = useInView({
-    triggerOnce: true,
-    threshold: 0.1,
-  });
-
-  const { ref: nriRef, inView: nriInView } = useInView({
-    triggerOnce: true,
-    threshold: 0.1,
-  });
 
   const handleDigitalGoldClick = () => {
     toast({
@@ -51,7 +34,7 @@ const InvestmentPlanning = () => {
   const handleCryptoClick = () => {
     toast({
       title: "Coming Soon!",
-      description: "We are waiting for Empannelement. Soon we will come up with Good news regarding Crypto Currency Investments!",
+      description: "We are waiting for Empannelment. Soon we will come up with Good news regarding Crypto Currency Investments!",
       duration: 5000,
     });
   };
@@ -66,407 +49,434 @@ const InvestmentPlanning = () => {
       window.open(`https://wa.me/${phoneNumber}?text=${whatsAppMessage}`, '_blank');
     }
   };
-  
-  const handleNRISpecialistClick = () => {
-    const whatsAppMessage = encodeURIComponent('Hi Finance Brunch Team, I\'m an NRI interested in your investment services. Can we connect?');
-    window.open(`https://wa.me/917842494981?text=${whatsAppMessage}`, '_blank');
+
+  // Apple-inspired smooth deceleration bezier
+  const appleEase = [0.16, 1, 0.3, 1] as const;
+
+  // Cinematic dropping headline animation variants
+  const badgeVariants = {
+    hidden: { 
+      opacity: 0, 
+      y: shouldReduceMotion ? 0 : -22, 
+      filter: shouldReduceMotion ? 'blur(0px)' : 'blur(8px)' 
+    },
+    visible: { 
+      opacity: 1, 
+      y: 0, 
+      filter: 'blur(0px)',
+      transition: { duration: 0.65, ease: appleEase, delay: 0.08 } 
+    }
   };
 
-  return (
-    <div className="flex flex-col min-h-screen">
-      <ScrollToTop />
+  const headlineContainerVariants = {
+    hidden: { opacity: 1 },
+    visible: {
+      opacity: 1,
+      transition: {
+        delayChildren: 0.22,
+        staggerChildren: 0.08,
+      }
+    }
+  };
 
+  const wordVariants = {
+    hidden: { 
+      opacity: 0, 
+      y: shouldReduceMotion ? 0 : -32, 
+      filter: shouldReduceMotion ? 'blur(0px)' : 'blur(10px)' 
+    },
+    visible: {
+      opacity: 1,
+      y: 0,
+      filter: 'blur(0px)',
+      transition: { duration: 0.75, ease: appleEase }
+    }
+  };
+
+  const descVariants = {
+    hidden: { 
+      opacity: 0, 
+      y: shouldReduceMotion ? 0 : -18, 
+      filter: shouldReduceMotion ? 'blur(0px)' : 'blur(6px)' 
+    },
+    visible: {
+      opacity: 1,
+      y: 0,
+      filter: 'blur(0px)',
+      transition: { duration: 0.7, ease: appleEase, delay: 0.58 }
+    }
+  };
+
+  const ctaVariants = {
+    hidden: { 
+      opacity: 0, 
+      y: shouldReduceMotion ? 0 : -14, 
+      filter: shouldReduceMotion ? 'blur(0px)' : 'blur(4px)' 
+    },
+    visible: {
+      opacity: 1,
+      y: 0,
+      filter: 'blur(0px)',
+      transition: { duration: 0.65, ease: appleEase, delay: 0.76 }
+    }
+  };
+
+  // Staggered card container for Comprehensive Services
+  const sectionGridVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.1,
+        delayChildren: 0.15,
+      }
+    }
+  };
+
+  const serviceCardVariants = {
+    hidden: { 
+      opacity: 0, 
+      y: shouldReduceMotion ? 0 : 28,
+      filter: shouldReduceMotion ? 'blur(0px)' : 'blur(4px)'
+    },
+    visible: {
+      opacity: 1,
+      y: 0,
+      filter: 'blur(0px)',
+      transition: { duration: 0.65, ease: appleEase }
+    }
+  };
+
+  const headlineWords = ["Maximize", "Your", "Investment", "Potential"];
+
+  return (
+    <div className="flex flex-col min-h-screen selection:bg-cyan-500/20 selection:text-cyan-600">
+      <ScrollToTop />
       <USAStockPopup open={usaStockPopupOpen} onOpenChange={setUsaStockPopupOpen} />
 
-      <main className="flex-grow pt-20">
-        <div className="container mx-auto px-4 py-4">
+      {/* Main Container with reduced top spacing */}
+      <main className="flex-grow pt-16 sm:pt-20">
+        
+        {/* Compact Back-to-Home utility row */}
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 pt-3 pb-1">
           <Link to="/">
-            <Button variant="outline" size="sm" className="flex items-center gap-2">
-              <HomeIcon className="h-4 w-4" />
-              Back to Home
+            <Button 
+              variant="outline" 
+              size="sm" 
+              className="flex items-center gap-1.5 text-xs text-slate-600 dark:text-slate-300 hover:text-blue-600 dark:hover:text-cyan-400 bg-white/70 dark:bg-slate-900/60 border-slate-200/80 dark:border-slate-800/80 backdrop-blur-md rounded-full px-3 py-1.5 transition-all shadow-sm hover:shadow"
+            >
+              <HomeIcon className="h-3.5 w-3.5" />
+              <span>Back to Home</span>
             </Button>
           </Link>
         </div>
         
-        <section className="relative bg-gradient-to-r from-blue-50/50 via-transparent to-indigo-50/30 dark:from-blue-950/20 dark:via-transparent dark:to-indigo-950/20 py-20 overflow-hidden">
+        {/* 1. COMPACT HERO SECTION WITH DROPPING ANIMATION */}
+        <section className="relative pt-4 sm:pt-6 pb-12 sm:pb-16 overflow-hidden bg-gradient-to-b from-blue-50/40 via-transparent to-transparent dark:from-blue-950/20 dark:via-transparent">
+          
+          {/* Centered Translucent FB Watermark complementing the headline */}
           <div 
-            ref={headerRef} 
-            className={cn(
-              "container mx-auto px-4 relative z-10 transition-all duration-1000",
-              headerInView ? "opacity-100 transform-none" : "opacity-0 translate-y-8"
-            )}
+            aria-hidden="true" 
+            className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none select-none z-0 opacity-[0.055] dark:opacity-[0.075] transition-opacity duration-500"
           >
+            <img 
+              src="/images/fb-watermark.png" 
+              alt="" 
+              className="w-[280px] sm:w-[380px] md:w-[460px] lg:w-[540px] h-auto object-contain filter contrast-105 dark:brightness-110" 
+              loading="eager"
+            />
+          </div>
+
+          {/* Ambient Lighting Blooms */}
+          <div className="absolute top-0 right-0 w-1/3 h-full opacity-25 dark:opacity-15 pointer-events-none">
+            <div className="absolute top-[10%] right-[10%] w-64 h-64 rounded-full bg-blue-400/25 filter blur-3xl" />
+            <div className="absolute bottom-[20%] right-[20%] w-48 h-48 rounded-full bg-purple-400/25 filter blur-2xl" />
+          </div>
+          <div className="absolute top-0 left-0 w-1/3 h-full opacity-25 dark:opacity-15 pointer-events-none">
+            <div className="absolute top-[30%] left-[10%] w-56 h-56 rounded-full bg-indigo-400/25 filter blur-3xl" />
+            <div className="absolute bottom-[10%] left-[20%] w-48 h-48 rounded-full bg-cyan-400/25 filter blur-2xl" />
+          </div>
+
+          <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
             <div className="max-w-3xl mx-auto text-center">
-              <div className="inline-flex items-center bg-white/80 dark:bg-gray-800/80 rounded-full py-1 px-3 mb-6 shadow-sm">
-                <LineChart size={16} className="text-blue-500 mr-2" />
-                <span className="text-sm font-medium text-blue-700 dark:text-blue-300">Strategic Investment Solutions</span>
-              </div>
               
-              <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 bg-gradient-to-r from-blue-700 to-purple-700 dark:from-blue-400 dark:to-purple-400 bg-clip-text text-transparent">
-                Maximize Your Investment Potential
-              </h1>
-              
-              <p className="text-lg md:text-xl text-gray-700 dark:text-gray-300 mb-10 max-w-2xl mx-auto">
-                Our expert investment planning services help you navigate financial markets with confidence and build wealth for your future, whether you're in India or abroad.
-              </p>
-            </div>
-          </div>
-          
-          <div className="absolute top-0 right-0 w-1/3 h-full opacity-20 dark:opacity-10">
-            <div className="absolute top-[20%] right-[10%] w-64 h-64 rounded-full bg-blue-400/30 filter blur-3xl"></div>
-            <div className="absolute bottom-[30%] right-[20%] w-40 h-40 rounded-full bg-purple-400/30 filter blur-2xl"></div>
-          </div>
-          
-          <div className="absolute top-0 left-0 w-1/3 h-full opacity-20 dark:opacity-10">
-            <div className="absolute top-[50%] left-[15%] w-56 h-56 rounded-full bg-indigo-400/30 filter blur-3xl"></div>
-            <div className="absolute bottom-[20%] left-[25%] w-48 h-48 rounded-full bg-green-400/30 filter blur-2xl"></div>
-          </div>
-        </section>
-        
-        <section className="py-16 bg-transparent">
-          <div className="container mx-auto px-4">
-            <div className="max-w-5xl mx-auto">
-              <h2 className="text-3xl font-bold mb-8 text-center">
-                <span className="bg-gradient-to-r from-blue-600 to-indigo-600 dark:from-blue-400 dark:to-indigo-400 bg-clip-text text-transparent">
-                  Why Choose Our Investment Services
-                </span>
-              </h2>
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                <div className="bg-blue-50 dark:bg-blue-950/20 rounded-xl p-6 border border-blue-100 dark:border-blue-900 shadow-md hover:shadow-lg transition-all">
-                  <div className="flex items-start mb-4">
-                    <div className="w-12 h-12 rounded-full bg-blue-100 dark:bg-blue-900/40 flex items-center justify-center mr-4 flex-shrink-0">
-                      <TrendingUp className="h-6 w-6 text-blue-600 dark:text-blue-400" />
-                    </div>
-                    <div>
-                      <h3 className="text-xl font-semibold mb-2">Data-Driven Approach</h3>
-                      <p className="text-gray-700 dark:text-gray-300">
-                        Our recommendations are backed by thorough research, data analysis and deep market expertise from seasoned professionals.
-                      </p>
-                    </div>
-                  </div>
-                </div>
-                
-                <div className="bg-purple-50 dark:bg-purple-950/20 rounded-xl p-6 border border-purple-100 dark:border-purple-900 shadow-md hover:shadow-lg transition-all">
-                  <div className="flex items-start mb-4">
-                    <div className="w-12 h-12 rounded-full bg-purple-100 dark:bg-purple-900/40 flex items-center justify-center mr-4 flex-shrink-0">
-                      <Globe className="h-6 w-6 text-purple-600 dark:text-purple-400" />
-                    </div>
-                    <div>
-                      <h3 className="text-xl font-semibold mb-2">Global Diversification</h3>
-                      <p className="text-gray-700 dark:text-gray-300">
-                        Strategic exposure to both Indian and US markets, providing geographical diversification to optimize returns while managing risk.
-                      </p>
-                    </div>
-                  </div>
-                </div>
-                
-                <div className="bg-green-50 dark:bg-green-950/20 rounded-xl p-6 border border-green-100 dark:border-green-900 shadow-md hover:shadow-lg transition-all">
-                  <div className="flex items-start mb-4">
-                    <div className="w-12 h-12 rounded-full bg-green-100 dark:bg-green-900/40 flex items-center justify-center mr-4 flex-shrink-0">
-                      <FileText className="h-6 w-6 text-green-600 dark:text-green-400" />
-                    </div>
-                    <div>
-                      <h3 className="text-xl font-semibold mb-2">Exclusive Opportunities</h3>
-                      <p className="text-gray-700 dark:text-gray-300">
-                        Access to pre-IPO placements and unlisted shares that typically remain inaccessible to retail investors but offer high growth potential.
-                      </p>
-                    </div>
-                  </div>
-                </div>
-                
-                <div className="bg-orange-50 dark:bg-orange-950/20 rounded-xl p-6 border border-orange-100 dark:border-orange-900 shadow-md hover:shadow-lg transition-all">
-                  <div className="flex items-start mb-4">
-                    <div className="w-12 h-12 rounded-full bg-orange-100 dark:bg-orange-900/40 flex items-center justify-center mr-4 flex-shrink-0">
-                      <DollarSign className="h-6 w-6 text-orange-600 dark:text-orange-400" />
-                    </div>
-                    <div>
-                      <h3 className="text-xl font-semibold mb-2">Alternative Investments</h3>
-                      <p className="text-gray-700 dark:text-gray-300">
-                        Innovative investment options such as Digital Gold that serve as effective inflation hedges and portfolio diversifiers.
-                      </p>
-                    </div>
-                  </div>
-                </div>
-                
-                <div className="bg-indigo-50 dark:bg-indigo-950/20 rounded-xl p-6 border border-indigo-100 dark:border-indigo-900 shadow-md hover:shadow-lg transition-all">
-                  <div className="flex items-start mb-4">
-                    <div className="w-12 h-12 rounded-full bg-indigo-100 dark:bg-indigo-900/40 flex items-center justify-center mr-4 flex-shrink-0">
-                      <CandlestickChart className="h-6 w-6 text-indigo-600 dark:text-indigo-400" />
-                    </div>
-                    <div>
-                      <h3 className="text-xl font-semibold mb-2">Technical Expertise</h3>
-                      <p className="text-gray-700 dark:text-gray-300">
-                        Advanced technical analysis tools and methodologies to identify optimal entry and exit points for maximum profit potential.
-                      </p>
-                    </div>
-                  </div>
-                </div>
-                
-                <div className="bg-red-50 dark:bg-red-950/20 rounded-xl p-6 border border-red-100 dark:border-red-900 shadow-md hover:shadow-lg transition-all">
-                  <div className="flex items-start mb-4">
-                    <div className="w-12 h-12 rounded-full bg-red-100 dark:bg-red-900/40 flex items-center justify-center mr-4 flex-shrink-0">
-                      <Users className="h-6 w-6 text-red-600 dark:text-red-400" />
-                    </div>
-                    <div>
-                      <h3 className="text-xl font-semibold mb-2">Strong Client Network</h3>
-                      <p className="text-gray-700 dark:text-gray-300">
-                        Join a thriving community of 1000+ investors who trust our insights to navigate volatile markets and capture emerging opportunities.
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
-        
-        <section 
-          ref={nriRef} 
-          className={cn(
-            "py-16 bg-transparent transition-all duration-1000",
-            nriInView ? "opacity-100 transform-none" : "opacity-0 translate-y-8"
-          )}
-        >
-          <div className="container mx-auto px-4">
-            <div className="max-w-3xl mx-auto text-center mb-12">
-              <span className="inline-block px-3 py-1 bg-blue-100 dark:bg-blue-900/40 text-blue-600 dark:text-blue-400 rounded-full text-sm font-medium mb-4">
-                NRI Services
-              </span>
-              <h2 className="text-3xl md:text-4xl font-bold mb-6">
-                Specialized Investment Solutions for NRIs
-              </h2>
-              <p className="text-lg text-gray-600 dark:text-gray-400">
-                Helping Non-Resident Indians navigate complex financial regulations and build wealth across borders
-              </p>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
-              <div className="bg-white dark:bg-gray-800 rounded-xl overflow-hidden shadow-lg border border-gray-100 dark:border-gray-700 p-6">
-                <div className="flex items-center mb-6">
-                  <div className="w-12 h-12 rounded-full bg-blue-100 dark:bg-blue-900/40 flex items-center justify-center mr-4">
-                    <Plane className="h-6 w-6 text-blue-600 dark:text-blue-400" />
-                  </div>
-                  <h3 className="text-xl font-bold">NRI Investment Benefits</h3>
-                </div>
-                <ul className="space-y-3">
-                  <li className="flex items-start">
-                    <div className="mr-3 mt-1 text-green-500">✓</div>
-                    <p>Specialized NRE/NRO account guidance for optimal tax benefits</p>
-                  </li>
-                  <li className="flex items-start">
-                    <div className="mr-3 mt-1 text-green-500">✓</div>
-                    <p>Assistance with FEMA regulations and RBI compliance</p>
-                  </li>
-                  <li className="flex items-start">
-                    <div className="mr-3 mt-1 text-green-500">✓</div>
-                    <p>Higher returns on investments compared to overseas options</p>
-                  </li>
-                  <li className="flex items-start">
-                    <div className="mr-3 mt-1 text-green-500">✓</div>
-                    <p>Simplified remote account management and documentation</p>
-                  </li>
-                  <li className="flex items-start">
-                    <div className="mr-3 mt-1 text-green-500">✓</div>
-                    <p>Strategic asset allocation across multiple currencies</p>
-                  </li>
-                </ul>
-              </div>
-
-              <div className="bg-white dark:bg-gray-800 rounded-xl overflow-hidden shadow-lg border border-gray-100 dark:border-gray-700 p-6">
-                <div className="flex items-center mb-6">
-                  <div className="w-12 h-12 rounded-full bg-indigo-100 dark:bg-indigo-900/40 flex items-center justify-center mr-4">
-                    <IndianRupee className="h-6 w-6 text-indigo-600 dark:text-indigo-400" />
-                  </div>
-                  <h3 className="text-xl font-bold">Our NRI Services</h3>
-                </div>
-                <ul className="space-y-3">
-                  <li className="flex items-start">
-                    <div className="mr-3 mt-1 text-indigo-500">•</div>
-                    <p>Repatriation-friendly investment strategies with minimal paperwork</p>
-                  </li>
-                  <li className="flex items-start">
-                    <div className="mr-3 mt-1 text-indigo-500">•</div>
-                    <p>Tax-efficient portfolio structuring for NRIs from different countries</p>
-                  </li>
-                  <li className="flex items-start">
-                    <div className="mr-3 mt-1 text-indigo-500">•</div>
-                    <p>Virtual consultations across global time zones</p>
-                  </li>
-                  <li className="flex items-start">
-                    <div className="mr-3 mt-1 text-indigo-500">•</div>
-                    <p>Real estate investment advisory for NRIs looking to invest in India</p>
-                  </li>
-                  <li className="flex items-start">
-                    <div className="mr-3 mt-1 text-indigo-500">•</div>
-                    <p>Retirement planning focused on eventual return to India</p>
-                  </li>
-                </ul>
-              </div>
-            </div>
-
-            <div className="mt-10 text-center">
-              <Button 
-                className="bg-blue-600 hover:bg-blue-700 text-white"
-                onClick={handleNRISpecialistClick}
+              {/* 1. Category Badge dropping from above */}
+              <motion.div 
+                variants={badgeVariants}
+                initial="hidden"
+                animate="visible"
+                className="inline-flex items-center gap-2 bg-white/90 dark:bg-slate-900/90 backdrop-blur-md rounded-full py-1.5 px-4 mb-4 sm:mb-5 border border-blue-200/70 dark:border-blue-900/60 shadow-sm"
               >
-                Connect with NRI Specialist
-                <ExternalLink className="ml-2 h-4 w-4" />
-              </Button>
+                <LineChart size={15} className="text-blue-600 dark:text-cyan-400" />
+                <span className="text-xs sm:text-sm font-semibold tracking-wide text-blue-700 dark:text-cyan-300">
+                  Strategic Investment Solutions
+                </span>
+              </motion.div>
+              
+              {/* 2. Headline dropping into place with word-by-word stagger */}
+              <motion.h1 
+                variants={headlineContainerVariants}
+                initial="hidden"
+                animate="visible"
+                className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black mb-4 sm:mb-5 tracking-tight flex flex-wrap justify-center gap-x-3 gap-y-1"
+              >
+                {headlineWords.map((word, index) => (
+                  <motion.span 
+                    key={index} 
+                    variants={wordVariants}
+                    className="inline-block bg-gradient-to-r from-blue-700 via-indigo-600 to-purple-700 dark:from-blue-400 dark:via-indigo-300 dark:to-purple-400 bg-clip-text text-transparent"
+                  >
+                    {word}
+                  </motion.span>
+                ))}
+              </motion.h1>
+              
+              {/* 3. Description dropping into position */}
+              <motion.p 
+                variants={descVariants}
+                initial="hidden"
+                animate="visible"
+                className="text-base sm:text-lg md:text-xl text-slate-700 dark:text-slate-300 mb-6 sm:mb-8 max-w-2xl mx-auto leading-relaxed font-normal"
+              >
+                Our expert investment planning services help you navigate financial markets with confidence and build wealth for your future, whether you're in India or abroad.
+              </motion.p>
+
+              {/* 4. Action buttons entering last */}
+              <motion.div 
+                variants={ctaVariants}
+                initial="hidden"
+                animate="visible"
+                className="flex flex-wrap items-center justify-center gap-3 sm:gap-4"
+              >
+                <a 
+                  href="#comprehensive-investment-services"
+                  className="inline-flex items-center justify-center px-6 py-2.5 rounded-full text-xs sm:text-sm font-semibold text-white bg-blue-600 hover:bg-blue-700 dark:bg-cyan-500 dark:hover:bg-cyan-400 dark:text-slate-950 transition-all duration-300 shadow-md shadow-blue-500/20 hover:shadow-lg hover:scale-105 active:scale-100"
+                >
+                  <span>Explore Services</span>
+                  <ChevronRight size={15} className="ml-1.5" />
+                </a>
+
+                <Button 
+                  variant="outline"
+                  size="sm"
+                  onClick={handleContactAdvisor}
+                  className="rounded-full px-5 py-2 text-xs sm:text-sm font-semibold bg-white/80 dark:bg-slate-900/80 border-slate-300 dark:border-slate-700 hover:border-blue-500 dark:hover:border-cyan-400 transition-all"
+                >
+                  <span>Talk with an Advisor</span>
+                  <ExternalLink size={14} className="ml-1.5" />
+                </Button>
+              </motion.div>
             </div>
           </div>
         </section>
         
+        {/* 2. WHY CHOOSE OUR INVESTMENT SERVICES CAROUSEL */}
+        <AppleScrollShowcase />
+        
+        {/* 3. COMPREHENSIVE INVESTMENT SERVICES SECTION */}
         <section 
-          ref={servicesRef} 
-          className={cn(
-            "py-20 bg-transparent transition-all duration-1000",
-            servicesInView ? "opacity-100 transform-none" : "opacity-0 translate-y-8"
-          )}
+          className="py-16 sm:py-20 bg-transparent scroll-mt-20"
           id="comprehensive-investment-services"
         >
-          <div className="container mx-auto px-4">
-            <div className="max-w-3xl mx-auto text-center mb-16">
-              <span className="inline-block px-3 py-1 bg-blue-100 dark:bg-blue-900/40 text-blue-600 dark:text-blue-400 rounded-full text-sm font-medium mb-4">
+          <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="max-w-3xl mx-auto text-center mb-12 sm:mb-16">
+              <span className="inline-block px-3.5 py-1 bg-blue-100 dark:bg-blue-950/60 text-blue-600 dark:text-cyan-400 border border-blue-200 dark:border-blue-900/60 rounded-full text-xs font-semibold uppercase tracking-wider mb-3">
                 Investment Solutions
               </span>
-              <h2 className="text-3xl md:text-4xl font-bold mb-6">
+              <h2 className="text-3xl md:text-4xl lg:text-5xl font-black tracking-tight mb-4 text-slate-900 dark:text-white">
                 Comprehensive Investment Services
               </h2>
-              <p className="text-lg text-gray-600 dark:text-gray-400">
+              <p className="text-base md:text-lg text-slate-600 dark:text-slate-400 max-w-2xl mx-auto leading-relaxed">
                 Choose from our range of specialized investment services tailored to meet your financial objectives and risk tolerance.
               </p>
             </div>
             
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
-              <div className="bg-white dark:bg-gray-800 rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 border border-gray-100 dark:border-gray-700 group flex flex-col h-full">
-                <div className="h-48 overflow-hidden relative">
+            {/* 6 Comprehensive Services Cards with Staggered Entrance */}
+            <motion.div 
+              variants={sectionGridVariants}
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true, amount: 0.1 }}
+              className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 max-w-6xl mx-auto"
+            >
+              {/* Card 1: Indian Stock Analysis */}
+              <motion.div 
+                variants={serviceCardVariants}
+                className="bg-white/90 dark:bg-slate-900/90 rounded-2xl sm:rounded-3xl overflow-hidden shadow-lg hover:shadow-2xl hover:-translate-y-1.5 transition-all duration-300 border border-slate-200/90 dark:border-slate-800 group flex flex-col h-full"
+              >
+                <div className="h-48 sm:h-52 overflow-hidden relative bg-slate-950">
                   <img 
                     src="/lovable-uploads/06b665ec-50f4-4f68-b7fe-836df10af649.png" 
                     alt="Indian Stock Analysis - BSE Building" 
-                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                    className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105 filter contrast-[1.05]"
+                    loading="lazy"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent"></div>
-                  <div className="absolute bottom-0 left-0 p-4">
-                    <h3 className="text-xl font-bold text-white">Indian Stock Analysis</h3>
+                  <div className="absolute inset-0 bg-gradient-to-t from-slate-950/85 via-slate-950/20 to-transparent" />
+                  <div className="absolute top-3.5 left-3.5 z-10">
+                    <span className="backdrop-blur-md bg-slate-950/75 text-cyan-400 text-xs font-semibold px-2.5 py-1 rounded-full border border-cyan-400/25 uppercase tracking-wider">
+                      Equity Research
+                    </span>
+                  </div>
+                  <div className="absolute bottom-3 left-3.5 right-3.5">
+                    <h3 className="text-lg sm:text-xl font-bold text-white tracking-tight">Indian Stock Analysis</h3>
                   </div>
                 </div>
-                <div className="p-6 flex flex-col flex-grow">
-                  <p className="text-gray-600 dark:text-gray-400 mb-6 flex-grow">
+                <div className="p-6 flex flex-col flex-grow justify-between">
+                  <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 mb-6 leading-relaxed flex-grow">
                     Expert analysis of Indian equity markets with actionable insights on stocks across various sectors and market capitalizations.
                   </p>
-                  <div className="flex justify-center mt-auto">
-                    <Link to="/indian-stock-analysis" className="w-full">
-                      <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white">
+                  <div className="pt-4 border-t border-slate-100 dark:border-slate-800">
+                    <Link to="/indian-stock-analysis" className="w-full block">
+                      <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl text-xs sm:text-sm shadow-sm transition-all group-hover:shadow-md">
                         Explore Indian Markets
-                        <ChevronRight className="ml-2 h-4 w-4" />
+                        <ChevronRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
                       </Button>
                     </Link>
                   </div>
                 </div>
-              </div>
+              </motion.div>
               
-              <div className="bg-white dark:bg-gray-800 rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 border border-gray-100 dark:border-gray-700 group flex flex-col h-full">
-                <div className="h-48 overflow-hidden relative">
+              {/* Card 2: USA Stock Analysis */}
+              <motion.div 
+                variants={serviceCardVariants}
+                className="bg-white/90 dark:bg-slate-900/90 rounded-2xl sm:rounded-3xl overflow-hidden shadow-lg hover:shadow-2xl hover:-translate-y-1.5 transition-all duration-300 border border-slate-200/90 dark:border-slate-800 group flex flex-col h-full"
+              >
+                <div className="h-48 sm:h-52 overflow-hidden relative bg-slate-950">
                   <img 
                     src="/lovable-uploads/39526ab9-be38-46a7-9a10-857828b19686.png" 
                     alt="USA Stock Analysis - Wall Street" 
-                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                    className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105 filter contrast-[1.05]"
+                    loading="lazy"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent"></div>
-                  <div className="absolute bottom-0 left-0 p-4">
-                    <h3 className="text-xl font-bold text-white">USA Stock Analysis</h3>
+                  <div className="absolute inset-0 bg-gradient-to-t from-slate-950/85 via-slate-950/20 to-transparent" />
+                  <div className="absolute top-3.5 left-3.5 z-10">
+                    <span className="backdrop-blur-md bg-slate-950/75 text-purple-400 text-xs font-semibold px-2.5 py-1 rounded-full border border-purple-400/25 uppercase tracking-wider">
+                      NASDAQ & NYSE
+                    </span>
+                  </div>
+                  <div className="absolute bottom-3 left-3.5 right-3.5">
+                    <h3 className="text-lg sm:text-xl font-bold text-white tracking-tight">USA Stock Analysis</h3>
                   </div>
                 </div>
-                <div className="p-6 flex flex-col flex-grow">
-                  <p className="text-gray-600 dark:text-gray-400 mb-6 flex-grow">
+                <div className="p-6 flex flex-col flex-grow justify-between">
+                  <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 mb-6 leading-relaxed flex-grow">
                     In-depth research on US equities, focusing on growth stocks, tech companies, and dividend-yielding investments across NASDAQ and NYSE.
                   </p>
-                  <div className="flex justify-center mt-auto">
+                  <div className="pt-4 border-t border-slate-100 dark:border-slate-800">
                     <Button 
-                      className="w-full bg-blue-600 hover:bg-blue-700 text-white"
+                      className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl text-xs sm:text-sm shadow-sm transition-all group-hover:shadow-md"
                       onClick={() => setUsaStockPopupOpen(true)}
                     >
-                      Explore
-                      <ExternalLink className="ml-2 h-4 w-4" />
+                      Explore US Equities
+                      <ExternalLink className="ml-2 h-4 w-4 transition-transform group-hover:scale-110" />
                     </Button>
                   </div>
                 </div>
-              </div>
+              </motion.div>
               
-              <div className="bg-white dark:bg-gray-800 rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 border border-gray-100 dark:border-gray-700 group flex flex-col h-full">
-                <div className="h-48 overflow-hidden relative">
+              {/* Card 3: IPO Analysis */}
+              <motion.div 
+                variants={serviceCardVariants}
+                className="bg-white/90 dark:bg-slate-900/90 rounded-2xl sm:rounded-3xl overflow-hidden shadow-lg hover:shadow-2xl hover:-translate-y-1.5 transition-all duration-300 border border-slate-200/90 dark:border-slate-800 group flex flex-col h-full"
+              >
+                <div className="h-48 sm:h-52 overflow-hidden relative bg-slate-950">
                   <img 
                     src="/lovable-uploads/57727f9c-2aca-4226-99e9-efa57dc9848f.png" 
                     alt="IPO Analysis" 
-                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                    className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105 filter contrast-[1.05]"
+                    loading="lazy"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent"></div>
-                  <div className="absolute bottom-0 left-0 p-4">
-                    <h3 className="text-xl font-bold text-white">IPO Analysis</h3>
+                  <div className="absolute inset-0 bg-gradient-to-t from-slate-950/85 via-slate-950/20 to-transparent" />
+                  <div className="absolute top-3.5 left-3.5 z-10">
+                    <span className="backdrop-blur-md bg-slate-950/75 text-emerald-400 text-xs font-semibold px-2.5 py-1 rounded-full border border-emerald-400/25 uppercase tracking-wider">
+                      Primary Market
+                    </span>
+                  </div>
+                  <div className="absolute bottom-3 left-3.5 right-3.5">
+                    <h3 className="text-lg sm:text-xl font-bold text-white tracking-tight">IPO Analysis</h3>
                   </div>
                 </div>
-                <div className="p-6 flex flex-col flex-grow">
-                  <p className="text-gray-600 dark:text-gray-400 mb-6 flex-grow">
+                <div className="p-6 flex flex-col flex-grow justify-between">
+                  <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 mb-6 leading-relaxed flex-grow">
                     Detailed evaluation of upcoming IPOs, including business models, financial health, valuation, and potential for long-term growth.
                   </p>
-                  <div className="flex justify-center mt-auto">
-                    <Link to="/ipo-analysis" className="w-full">
-                      <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white">
+                  <div className="pt-4 border-t border-slate-100 dark:border-slate-800">
+                    <Link to="/ipo-analysis" className="w-full block">
+                      <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl text-xs sm:text-sm shadow-sm transition-all group-hover:shadow-md">
                         View IPO Insights
-                        <ChevronRight className="ml-2 h-4 w-4" />
+                        <ChevronRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
                       </Button>
                     </Link>
                   </div>
                 </div>
-              </div>
+              </motion.div>
               
-              <div className="bg-white dark:bg-gray-800 rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 border border-gray-100 dark:border-gray-700 group flex flex-col h-full">
-                <div className="h-48 overflow-hidden relative">
+              {/* Card 4: Unlisted Shares */}
+              <motion.div 
+                variants={serviceCardVariants}
+                className="bg-white/90 dark:bg-slate-900/90 rounded-2xl sm:rounded-3xl overflow-hidden shadow-lg hover:shadow-2xl hover:-translate-y-1.5 transition-all duration-300 border border-slate-200/90 dark:border-slate-800 group flex flex-col h-full"
+              >
+                <div className="h-48 sm:h-52 overflow-hidden relative bg-slate-950">
                   <img 
                     src="https://images.unsplash.com/photo-1460925895917-afdab827c52f" 
                     alt="Unlisted Shares" 
-                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                    className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105 filter contrast-[1.05]"
+                    loading="lazy"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent"></div>
-                  <div className="absolute bottom-0 left-0 p-4">
-                    <h3 className="text-xl font-bold text-white">Unlisted Shares</h3>
+                  <div className="absolute inset-0 bg-gradient-to-t from-slate-950/85 via-slate-950/20 to-transparent" />
+                  <div className="absolute top-3.5 left-3.5 z-10">
+                    <span className="backdrop-blur-md bg-slate-950/75 text-cyan-400 text-xs font-semibold px-2.5 py-1 rounded-full border border-cyan-400/25 uppercase tracking-wider">
+                      Pre-IPO Equities
+                    </span>
+                  </div>
+                  <div className="absolute bottom-3 left-3.5 right-3.5">
+                    <h3 className="text-lg sm:text-xl font-bold text-white tracking-tight">Unlisted Shares</h3>
                   </div>
                 </div>
-                <div className="p-6 flex flex-col flex-grow">
-                  <p className="text-gray-600 dark:text-gray-400 mb-6 flex-grow">
+                <div className="p-6 flex flex-col flex-grow justify-between">
+                  <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 mb-6 leading-relaxed flex-grow">
                     Access to private equity opportunities in promising companies before they go public, offering potential for significant returns.
                   </p>
-                  <div className="flex justify-center mt-auto">
-                    <Link to="/unlisted-shares" className="w-full">
-                      <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white">
+                  <div className="pt-4 border-t border-slate-100 dark:border-slate-800">
+                    <Link to="/unlisted-shares" className="w-full block">
+                      <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl text-xs sm:text-sm shadow-sm transition-all group-hover:shadow-md">
                         Explore Unlisted Shares
-                        <ArrowRight className="ml-2 h-4 w-4" />
+                        <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
                       </Button>
                     </Link>
                   </div>
                 </div>
-              </div>
+              </motion.div>
               
-              <div className="bg-white dark:bg-gray-800 rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 border border-gray-100 dark:border-gray-700 group flex flex-col h-full">
-                <div className="h-48 overflow-hidden relative">
+              {/* Card 5: Digital Gold */}
+              <motion.div 
+                variants={serviceCardVariants}
+                className="bg-white/90 dark:bg-slate-900/90 rounded-2xl sm:rounded-3xl overflow-hidden shadow-lg hover:shadow-2xl hover:-translate-y-1.5 transition-all duration-300 border border-slate-200/90 dark:border-slate-800 group flex flex-col h-full"
+              >
+                <div className="h-48 sm:h-52 overflow-hidden relative bg-slate-950">
                   <img 
                     src="/lovable-uploads/75e0d2e9-6d50-49f9-abe9-5236913686da.png" 
                     alt="Digital Gold" 
-                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                    className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105 filter contrast-[1.05]"
+                    loading="lazy"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent"></div>
-                  <div className="absolute bottom-0 left-0 p-4">
-                    <h3 className="text-xl font-bold text-white">Digital Gold</h3>
+                  <div className="absolute inset-0 bg-gradient-to-t from-slate-950/85 via-slate-950/20 to-transparent" />
+                  <div className="absolute top-3.5 left-3.5 z-10">
+                    <span className="backdrop-blur-md bg-slate-950/75 text-amber-400 text-xs font-semibold px-2.5 py-1 rounded-full border border-amber-400/25 uppercase tracking-wider">
+                      24K Pure Gold
+                    </span>
+                  </div>
+                  <div className="absolute bottom-3 left-3.5 right-3.5">
+                    <h3 className="text-lg sm:text-xl font-bold text-white tracking-tight">Digital Gold</h3>
                   </div>
                 </div>
-                <div className="p-6 flex flex-col flex-grow">
-                  <p className="text-gray-600 dark:text-gray-400 mb-6 flex-grow">
+                <div className="p-6 flex flex-col flex-grow justify-between">
+                  <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 mb-6 leading-relaxed flex-grow">
                     Invest in 99.9% pure gold electronically without worrying about storage, security, or authenticity issues.
                   </p>
-                  <div className="flex justify-center mt-auto">
+                  <div className="pt-4 border-t border-slate-100 dark:border-slate-800">
                     <Button 
-                      className="w-full bg-blue-600 hover:bg-blue-700 text-white"
+                      className="w-full bg-slate-800 hover:bg-slate-700 text-amber-300 font-semibold rounded-xl text-xs sm:text-sm shadow-sm transition-all"
                       onClick={handleDigitalGoldClick}
                     >
                       Coming Soon
@@ -474,27 +484,37 @@ const InvestmentPlanning = () => {
                     </Button>
                   </div>
                 </div>
-              </div>
+              </motion.div>
               
-              <div className="bg-white dark:bg-gray-800 rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 border border-gray-100 dark:border-gray-700 group flex flex-col h-full">
-                <div className="h-48 overflow-hidden relative">
+              {/* Card 6: Crypto Currency Investments */}
+              <motion.div 
+                variants={serviceCardVariants}
+                className="bg-white/90 dark:bg-slate-900/90 rounded-2xl sm:rounded-3xl overflow-hidden shadow-lg hover:shadow-2xl hover:-translate-y-1.5 transition-all duration-300 border border-slate-200/90 dark:border-slate-800 group flex flex-col h-full"
+              >
+                <div className="h-48 sm:h-52 overflow-hidden relative bg-slate-950">
                   <img 
                     src="/lovable-uploads/b7af595c-860c-4bed-8735-64391a005af9.png" 
                     alt="Crypto Currency" 
-                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                    className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105 filter contrast-[1.05]"
+                    loading="lazy"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent"></div>
-                  <div className="absolute bottom-0 left-0 p-4">
-                    <h3 className="text-xl font-bold text-white">Crypto Currency Investments</h3>
+                  <div className="absolute inset-0 bg-gradient-to-t from-slate-950/85 via-slate-950/20 to-transparent" />
+                  <div className="absolute top-3.5 left-3.5 z-10">
+                    <span className="backdrop-blur-md bg-slate-950/75 text-rose-400 text-xs font-semibold px-2.5 py-1 rounded-full border border-rose-400/25 uppercase tracking-wider">
+                      Blockchain Assets
+                    </span>
+                  </div>
+                  <div className="absolute bottom-3 left-3.5 right-3.5">
+                    <h3 className="text-lg sm:text-xl font-bold text-white tracking-tight">Crypto Currency Investments</h3>
                   </div>
                 </div>
-                <div className="p-6 flex flex-col flex-grow">
-                  <p className="text-gray-600 dark:text-gray-400 mb-6 flex-grow">
+                <div className="p-6 flex flex-col flex-grow justify-between">
+                  <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 mb-6 leading-relaxed flex-grow">
                     Strategic guidance on blockchain assets and cryptocurrencies, helping you navigate this emerging investment class with confidence.
                   </p>
-                  <div className="flex justify-center mt-auto">
+                  <div className="pt-4 border-t border-slate-100 dark:border-slate-800">
                     <Button 
-                      className="w-full bg-blue-600 hover:bg-blue-700 text-white"
+                      className="w-full bg-slate-800 hover:bg-slate-700 text-purple-300 font-semibold rounded-xl text-xs sm:text-sm shadow-sm transition-all"
                       onClick={handleCryptoClick}
                     >
                       Coming Soon
@@ -502,52 +522,40 @@ const InvestmentPlanning = () => {
                     </Button>
                   </div>
                 </div>
-              </div>
-            </div>
-          </div>
-        </section>
-        
-        {/* Interactive Mutual Fund SIP Calculator */}
-        <section id="sip-calculator" className="py-20 bg-gradient-to-b from-blue-50/50 via-transparent to-indigo-50/30 dark:from-blue-950/20 dark:via-transparent dark:to-indigo-950/20 scroll-mt-24 border-y border-gray-100 dark:border-gray-800/80">
-          <div className="container mx-auto px-4">
-            <div className="max-w-3xl mx-auto text-center mb-12">
-              <span className="inline-block px-3 py-1 bg-blue-100 dark:bg-blue-900/40 text-blue-600 dark:text-blue-400 rounded-full text-sm font-semibold mb-4">
-                Interactive Wealth Simulator
-              </span>
-              <h2 className="text-3xl md:text-4xl font-bold mb-4 tracking-tight text-gray-900 dark:text-white">
-                Mutual Fund SIP Calculator
-              </h2>
-              <p className="text-base sm:text-lg text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
-                Calculate your estimated mutual fund returns through disciplined monthly Systematic Investment Plans with real-time compounding and optional annual step-up.
-              </p>
-            </div>
-
-            <SIPCalculator />
+              </motion.div>
+            </motion.div>
           </div>
         </section>
 
-        <section className="py-16 bg-gradient-to-r from-blue-600 to-indigo-600 dark:from-blue-800 dark:to-indigo-800 text-white">
-          <div className="container mx-auto px-4">
+        {/* 4. CALL TO ACTION SECTION */}
+        <section className="py-16 sm:py-20 bg-gradient-to-r from-blue-700 via-indigo-700 to-purple-800 text-white relative overflow-hidden">
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_30%,rgba(255,255,255,0.12),transparent_60%)] pointer-events-none" />
+          
+          <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
             <div className="max-w-4xl mx-auto text-center">
-              <h2 className="text-3xl md:text-4xl font-bold mb-6">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-xs font-medium text-blue-100 mb-4">
+                <Shield className="w-3.5 h-3.5 text-cyan-300" />
+                <span>Personalized Wealth Advisory</span>
+              </div>
+              <h2 className="text-3xl sm:text-4xl md:text-5xl font-black mb-5 tracking-tight text-white leading-tight">
                 Ready to Elevate Your Investment Strategy?
               </h2>
-              <p className="text-xl opacity-90 mb-10 max-w-2xl mx-auto">
+              <p className="text-base sm:text-lg md:text-xl text-blue-100/90 mb-8 max-w-2xl mx-auto leading-relaxed">
                 Our team of expert advisors is ready to guide you toward financial success with personalized investment solutions.
               </p>
               <Button 
                 size="lg" 
-                className="bg-white text-blue-700 hover:bg-blue-50"
+                className="bg-white text-slate-950 hover:bg-blue-50 font-bold rounded-full px-8 py-3 text-sm sm:text-base shadow-xl shadow-blue-950/20 hover:scale-105 active:scale-100 transition-all duration-300"
                 onClick={handleContactAdvisor}
               >
                 {isMobile ? (
                   <>
-                    Call an Advisor
+                    <span>Call an Advisor</span>
                     <Phone className="ml-2 h-4 w-4" />
                   </>
                 ) : (
                   <>
-                    Connect with an Advisor
+                    <span>Connect with an Advisor</span>
                     <ExternalLink className="ml-2 h-4 w-4" />
                   </>
                 )}
@@ -556,11 +564,15 @@ const InvestmentPlanning = () => {
           </div>
         </section>
         
-        <div className="container mx-auto px-4 py-8 flex justify-center">
+        {/* Bottom Back-to-Home button */}
+        <div className="container mx-auto px-4 py-10 flex justify-center">
           <Link to="/">
-            <Button variant="outline" className="flex items-center gap-2">
+            <Button 
+              variant="outline" 
+              className="flex items-center gap-2 rounded-full px-6 py-2.5 text-xs sm:text-sm text-slate-600 dark:text-slate-300 hover:text-blue-600 dark:hover:text-cyan-400 bg-white/70 dark:bg-slate-900/60 border-slate-200/80 dark:border-slate-800/80 backdrop-blur-md shadow-sm hover:shadow"
+            >
               <HomeIcon className="h-4 w-4" />
-              Back to Home
+              <span>Back to Home</span>
             </Button>
           </Link>
         </div>

@@ -6,6 +6,14 @@ import { Button } from '@/components/ui/button';
 
 const Calculator = () => {
   const navigate = useNavigate();
+
+  const handleBack = () => {
+    if (window.history.length > 2) {
+      navigate(-1);
+    } else {
+      navigate('/');
+    }
+  };
   
   return (
     <main className="flex-grow pt-24 pb-24 min-h-screen">
@@ -13,7 +21,7 @@ const Calculator = () => {
         <div className="mb-8 flex items-center">
           <Button
             variant="ghost"
-            onClick={() => navigate(-1)}
+            onClick={handleBack}
             className="mr-4 text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-darkblue-800"
             aria-label="Go back"
           >

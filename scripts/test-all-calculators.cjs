@@ -64,6 +64,18 @@ function testSIPCalculator() {
   assert.strictEqual(standardSIP.totalInvested, 600000);
   assert(standardSIP.futureValue > 1100000);
   console.log(`✓ PASS: SIP ₹5,000/mo @ 12% for 10y = Invested: ₹${standardSIP.totalInvested}, FV: ₹${standardSIP.futureValue}`);
+
+  // Test ₹1 Crore monthly SIP
+  const sip1Cr = calculateSIP({ monthlyInvestment: 10000000, expectedAnnualReturn: 12, investmentDurationYears: 5 });
+  assert.strictEqual(sip1Cr.totalInvested, 600000000);
+  assert(sip1Cr.futureValue > 800000000);
+  console.log(`✓ PASS: SIP ₹1 Cr/mo @ 12% for 5y = Invested: ₹${sip1Cr.totalInvested}, FV: ₹${sip1Cr.futureValue}`);
+
+  // Test ₹100 Crore monthly SIP
+  const sip100Cr = calculateSIP({ monthlyInvestment: 1000000000, expectedAnnualReturn: 12, investmentDurationYears: 5 });
+  assert.strictEqual(sip100Cr.totalInvested, 60000000000);
+  assert(sip100Cr.futureValue > 80000000000);
+  console.log(`✓ PASS: SIP ₹100 Cr/mo @ 12% for 5y = Invested: ₹${sip100Cr.totalInvested}, FV: ₹${sip100Cr.futureValue}`);
 }
 
 // 2. Step-Up SIP Calculator Test
@@ -86,7 +98,7 @@ function testStepUpSIPCalculator() {
       typeof annualStepUpPercentage !== 'number' ||
       isNaN(annualStepUpPercentage) ||
       annualStepUpPercentage < 0 ||
-      initialMonthlyInvestment > 100000000 ||
+      initialMonthlyInvestment > 5000000000 ||
       investmentDurationYears > 60 ||
       expectedAnnualReturn > 100 ||
       annualStepUpPercentage > 100
@@ -199,6 +211,17 @@ function testStepUpSIPCalculator() {
 
   console.log(`✓ PASS: Reference Case (₹1,000/mo, 10% step-up, 12% p.a., 10y): Total Invested: ₹${refCase.totalInvested}, FV: ₹${refCase.futureValue}, Returns: ₹${refCase.estimatedReturns}, Advantage: +₹${refCase.fixedSipComparison.differenceFV}`);
 
+  // High Value Test: ₹100 Crore starting monthly Step-Up SIP
+  const highValueStepUp = calculateStepUpSIP({
+    initialMonthlyInvestment: 1000000000,
+    expectedAnnualReturn: 12,
+    investmentDurationYears: 5,
+    annualStepUpPercentage: 10,
+  });
+  assert(highValueStepUp.isValid, '₹100 Cr starting monthly Step-Up SIP must be valid');
+  assert(highValueStepUp.totalInvested > 1000000000, 'Total invested must exceed initial monthly investment');
+  console.log(`✓ PASS: Step-Up SIP ₹100 Cr starting SIP (Invested: ₹${highValueStepUp.totalInvested}, FV: ₹${highValueStepUp.futureValue})`);
+
   // 2. ZERO ANNUAL RETURN TEST:
   const zeroReturn = calculateStepUpSIP({
     initialMonthlyInvestment: 1000,
@@ -254,7 +277,7 @@ function testStepUpSIPCalculator() {
   assert.strictEqual(invalidNaN.isValid, false);
   const invalidZeroDuration = calculateStepUpSIP({ initialMonthlyInvestment: 1000, expectedAnnualReturn: 12, investmentDurationYears: 0 });
   assert.strictEqual(invalidZeroDuration.isValid, false);
-  const excessivelyLarge = calculateStepUpSIP({ initialMonthlyInvestment: 500000000, expectedAnnualReturn: 12, investmentDurationYears: 10 });
+  const excessivelyLarge = calculateStepUpSIP({ initialMonthlyInvestment: 6000000000, expectedAnnualReturn: 12, investmentDurationYears: 10 });
   assert.strictEqual(excessivelyLarge.isValid, false);
   console.log('✓ PASS: Step-Up SIP invalid and excessively large inputs safely rejected');
 }
@@ -287,6 +310,11 @@ function testLumpsumCalculator() {
   assert.strictEqual(fiveYear.futureValue, 176234);
   assert.strictEqual(fiveYear.estimatedReturns, 76234);
   console.log(`✓ PASS: Lumpsum ₹1,00,000 @ 12% for 5y = FV: ₹${fiveYear.futureValue}`);
+  // Compounding test (₹1,00,00,00,000 @ 12% for 5 years: ₹100 Cr)
+  const highLumpsum = calculateLumpsum({ initialInvestment: 1000000000, expectedAnnualReturn: 12, investmentDurationYears: 5 });
+  assert.strictEqual(highLumpsum.totalInvested, 1000000000);
+  assert(highLumpsum.futureValue > 1700000000, 'FV should exceed ₹170 Cr');
+  console.log(`✓ PASS: Lumpsum ₹100 Cr @ 12% for 5y = FV: ₹${highLumpsum.futureValue}`);
 }
 
 // 4. SWP Calculator Test
@@ -346,6 +374,18 @@ function testSWPCalculator() {
   assert.strictEqual(sustainable.totalActualWithdrawals, 600000); // 10 * 12 * 5000
   console.log(`✓ PASS: Sustainable SWP (Remaining Corpus: ₹${sustainable.remainingCorpus})`);
 
+  // ₹100 Crore Corpus SWP test: ₹50 Lakh/month withdrawal @ 8% for 10y
+  const highSWP = calculateSWP({
+    initialCorpus: 1000000000,
+    monthlyWithdrawal: 5000000,
+    expectedAnnualReturn: 8,
+    withdrawalDurationYears: 10,
+  });
+  assert.strictEqual(highSWP.isExhausted, false);
+  assert(highSWP.remainingCorpus > 1000000000, 'With 8% return and 6% withdrawal, corpus grows');
+  assert.strictEqual(highSWP.totalActualWithdrawals, 600000000);
+  console.log(`✓ PASS: SWP ₹100 Cr Corpus with ₹50L/mo withdrawal: Remaining = ₹${highSWP.remainingCorpus}`);
+
   // Depleting SWP test: ₹1,00,000 corpus with high ₹20,000/mo withdrawal @ 0% return
   // Should exhaust in month 5 exactly!
   const depletingZeroReturn = calculateSWP({
@@ -376,12 +416,44 @@ function testSWPCalculator() {
   console.log('✓ PASS: SWP Partial final withdrawal capped at available balance');
 }
 
+// 5. Test Formatters
+function testFormatters() {
+  console.log('\n--- Testing Currency Formatters ---');
+  function formatCompactINR(value) {
+    if (isNaN(value) || !isFinite(value) || value === 0) return '₹0';
+    const absValue = Math.abs(value);
+    const sign = value < 0 ? '-' : '';
+
+    if (absValue >= 10000000) {
+      const crValue = absValue / 10000000;
+      const formattedCr = crValue >= 1000
+        ? crValue.toLocaleString('en-IN', { maximumFractionDigits: 2, minimumFractionDigits: 0 })
+        : crValue.toFixed(2);
+      return `${sign}₹${formattedCr} Cr`;
+    }
+    if (absValue >= 100000) {
+      return `${sign}₹${(absValue / 100000).toFixed(2)} Lakh`;
+    }
+    if (absValue >= 1000) {
+      return `${sign}₹${(absValue / 1000).toFixed(1)}k`;
+    }
+    return `₹${value}`;
+  }
+
+  assert.strictEqual(formatCompactINR(1000000000), '₹100.00 Cr');
+  assert.strictEqual(formatCompactINR(1496542881), '₹149.65 Cr');
+  assert.strictEqual(formatCompactINR(10000000), '₹1.00 Cr');
+  assert.strictEqual(formatCompactINR(500000), '₹5.00 Lakh');
+  console.log('✓ PASS: Compact INR formatting correctly handles Multi-Crore and ₹100 Cr figures');
+}
+
 // Run all test suites
 try {
   testSIPCalculator();
   testStepUpSIPCalculator();
   testLumpsumCalculator();
   testSWPCalculator();
+  testFormatters();
   console.log('\n========================================');
   console.log('🎉 ALL 4 CALCULATORS VERIFIED AND PASSED!');
   console.log('========================================\n');

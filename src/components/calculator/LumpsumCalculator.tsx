@@ -30,12 +30,17 @@ import {
   calculateLumpsum,
   formatINR,
   formatCompactINR,
+  MAX_LUMPSUM_AMOUNT,
+  MIN_LUMPSUM_AMOUNT,
+  LUMPSUM_QUICK_PRESETS,
 } from '@/utils/lumpsumCalculator';
 import { CalculatorDisclaimer } from './CalculatorDisclaimer';
+import { cn } from '@/lib/utils';
 
 export default function LumpsumCalculator() {
   const [initialInvestment, setInitialInvestment] = useState<number>(100000);
-  const [investmentInputStr, setInvestmentInputStr] = useState<string>('100000');
+  const [investmentInputStr, setInvestmentInputStr] = useState<string>('1,00,000');
+  const [isInvestmentFocused, setIsInvestmentFocused] = useState<boolean>(false);
 
   const [expectedReturn, setExpectedReturn] = useState<number>(12);
   const [returnInputStr, setReturnInputStr] = useState<string>('12');
@@ -64,15 +69,29 @@ export default function LumpsumCalculator() {
     if (valStr.trim() === '') {
       setErrors((prev) => ({ ...prev, investment: 'Investment amount is required.' }));
       setInitialInvestment(0);
-    } else if (isNaN(num) || num < 1000) {
-      setErrors((prev) => ({ ...prev, investment: 'Minimum lumpsum investment is ₹1,000.' }));
+    } else if (isNaN(num) || num < MIN_LUMPSUM_AMOUNT) {
+      setErrors((prev) => ({ ...prev, investment: `Minimum lumpsum investment is ₹${MIN_LUMPSUM_AMOUNT.toLocaleString('en-IN')}.` }));
       setInitialInvestment(num > 0 ? num : 0);
-    } else if (num > 50000000) {
-      setErrors((prev) => ({ ...prev, investment: 'Maximum investment supported is ₹5 Crore.' }));
-      setInitialInvestment(50000000);
+    } else if (num > MAX_LUMPSUM_AMOUNT) {
+      setErrors((prev) => ({ ...prev, investment: 'Maximum investment supported is ₹100 Crore.' }));
+      setInitialInvestment(num);
     } else {
       setErrors((prev) => ({ ...prev, investment: undefined }));
       setInitialInvestment(num);
+    }
+  };
+
+  const handleInvestmentBlur = () => {
+    setIsInvestmentFocused(false);
+    if (initialInvestment > 0) {
+      setInvestmentInputStr(initialInvestment.toLocaleString('en-IN'));
+    }
+  };
+
+  const handleInvestmentFocus = () => {
+    setIsInvestmentFocused(true);
+    if (initialInvestment > 0) {
+      setInvestmentInputStr(initialInvestment.toString());
     }
   };
 
@@ -129,39 +148,77 @@ export default function LumpsumCalculator() {
             <CardContent className="p-6 space-y-6">
               {/* Initial Investment */}
               <div className="space-y-3">
-                <div className="flex justify-between items-center">
-                  <Label htmlFor="lumpsum-amount" className="text-sm font-semibold flex items-center gap-1.5">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 min-w-0">
+                  <Label htmlFor="lumpsum-amount" className="text-sm font-semibold flex items-center gap-1.5 shrink-0">
                     <IndianRupee size={15} className="text-cyan-600 dark:text-cyan-400" />
                     Total Investment
                   </Label>
-                  <div className="relative w-36">
-                    <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-xs font-semibold text-slate-400 select-none">₹</span>
+                  <div className="relative min-w-[160px] sm:w-52 lg:w-56 max-w-full">
+                    <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-xs font-semibold text-slate-400 select-none pointer-events-none">₹</span>
                     <Input
                       id="lumpsum-amount"
                       type="text"
-                      value={initialInvestment === 0 ? '' : initialInvestment.toLocaleString('en-IN')}
+                      value={investmentInputStr}
                       onChange={(e) => handleInvestmentChange(e.target.value)}
-                      className="pl-6 text-right font-mono text-sm h-9 border-slate-200 dark:border-slate-700"
+                      onFocus={handleInvestmentFocus}
+                      onBlur={handleInvestmentBlur}
+                      className="pl-6 pr-3 text-right font-mono text-sm h-9 border-slate-200 dark:border-slate-700 w-full min-w-0"
+                      style={{
+                        fontSize: investmentInputStr.length > 13 ? '0.75rem' : investmentInputStr.length > 10 ? '0.8125rem' : '0.875rem',
+                      }}
+                      aria-label="Total Investment Amount in Rupees"
                     />
+                    {initialInvestment >= 100000 && !isInvestmentFocused && (
+                      <span className="text-[11px] text-cyan-600 dark:text-cyan-400 font-semibold block text-right mt-0.5">
+                        ({formatCompactINR(initialInvestment)})
+                      </span>
+                    )}
                   </div>
                 </div>
                 <Slider
-                  value={[initialInvestment]}
-                  min={1000}
-                  max={5000000}
+                  value={[Math.min(initialInvestment, MAX_LUMPSUM_AMOUNT)]}
+                  min={MIN_LUMPSUM_AMOUNT}
+                  max={MAX_LUMPSUM_AMOUNT}
                   step={5000}
                   onValueChange={(val) => {
                     setInitialInvestment(val[0]);
-                    setInvestmentInputStr(val[0].toString());
+                    setInvestmentInputStr(val[0].toLocaleString('en-IN'));
                     setErrors((prev) => ({ ...prev, investment: undefined }));
                   }}
-                  className="py-1"
+                  className="py-1 cursor-pointer"
+                  aria-label="Total Investment Slider"
                 />
                 <div className="flex justify-between text-[11px] font-mono text-slate-400">
                   <span>₹1,000</span>
-                  <span>₹25 Lakh</span>
-                  <span>₹50 Lakh</span>
+                  <span>₹10 Lakh</span>
+                  <span>₹1 Cr</span>
+                  <span>₹10 Cr</span>
+                  <span>₹100 Cr</span>
                 </div>
+
+                {/* Quick preset buttons */}
+                <div className="flex flex-wrap gap-1.5 pt-1">
+                  {LUMPSUM_QUICK_PRESETS.map((preset) => (
+                    <button
+                      key={preset}
+                      type="button"
+                      onClick={() => {
+                        setInitialInvestment(preset);
+                        setInvestmentInputStr(preset.toLocaleString('en-IN'));
+                        setErrors((prev) => ({ ...prev, investment: undefined }));
+                      }}
+                      className={cn(
+                        "px-2.5 py-1 text-xs rounded-lg font-medium transition-all duration-150 border",
+                        initialInvestment === preset
+                          ? "bg-cyan-600 text-white border-cyan-600 shadow-sm"
+                          : "bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700 hover:border-cyan-400 hover:text-cyan-600 dark:hover:text-cyan-400"
+                      )}
+                    >
+                      ₹{preset.toLocaleString('en-IN')}
+                    </button>
+                  ))}
+                </div>
+
                 {errors.investment && <p className="text-xs text-rose-500">{errors.investment}</p>}
               </div>
 
@@ -248,24 +305,48 @@ export default function LumpsumCalculator() {
         {/* Right Results & Visualizations Column (7 Cols) */}
         <div className="lg:col-span-7 space-y-6">
           {/* Key Metric Summary Cards */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            <Card className="border-slate-200/80 dark:border-slate-800 bg-white dark:bg-slate-900/60 shadow-sm p-4">
-              <span className="text-xs font-medium text-slate-500 dark:text-slate-400 block mb-1">
-                Invested Amount
-              </span>
-              <p className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white font-mono">
-                {formatINR(result.totalInvested)}
-              </p>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 min-w-0">
+            <Card className="border-slate-200/80 dark:border-slate-800 bg-white dark:bg-slate-900/60 shadow-sm p-4 min-w-0 overflow-hidden flex flex-col justify-between">
+              <div>
+                <span className="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 block mb-1">
+                  Invested Amount
+                </span>
+                <p 
+                  className="text-lg sm:text-xl lg:text-2xl font-bold text-slate-900 dark:text-white font-mono tracking-tight break-words"
+                  title={formatINR(result.totalInvested)}
+                >
+                  {result.totalInvested >= 10000000 
+                    ? formatCompactINR(result.totalInvested) 
+                    : formatINR(result.totalInvested)}
+                </p>
+                {result.totalInvested >= 10000000 && (
+                  <span className="text-[11px] font-mono text-slate-500 dark:text-slate-400 block truncate" title={formatINR(result.totalInvested)}>
+                    {formatINR(result.totalInvested)}
+                  </span>
+                )}
+              </div>
               <span className="text-[11px] text-slate-400 mt-1 block">One-time capital</span>
             </Card>
 
-            <Card className="border-slate-200/80 dark:border-slate-800 bg-white dark:bg-slate-900/60 shadow-sm p-4">
-              <span className="text-xs font-medium text-slate-500 dark:text-slate-400 block mb-1">
-                Estimated Returns
-              </span>
-              <p className="text-xl sm:text-2xl font-bold text-cyan-600 dark:text-cyan-400 font-mono">
-                {formatINR(result.estimatedReturns)}
-              </p>
+            <Card className="border-slate-200/80 dark:border-slate-800 bg-white dark:bg-slate-900/60 shadow-sm p-4 min-w-0 overflow-hidden flex flex-col justify-between">
+              <div>
+                <span className="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 block mb-1">
+                  Estimated Returns
+                </span>
+                <p 
+                  className="text-lg sm:text-xl lg:text-2xl font-bold text-cyan-600 dark:text-cyan-400 font-mono tracking-tight break-words"
+                  title={formatINR(result.estimatedReturns)}
+                >
+                  {result.estimatedReturns >= 10000000 
+                    ? formatCompactINR(result.estimatedReturns) 
+                    : formatINR(result.estimatedReturns)}
+                </p>
+                {result.estimatedReturns >= 10000000 && (
+                  <span className="text-[11px] font-mono text-slate-500 dark:text-slate-400 block truncate" title={formatINR(result.estimatedReturns)}>
+                    +{formatINR(result.estimatedReturns)}
+                  </span>
+                )}
+              </div>
               <span className="text-[11px] text-slate-400 mt-1 block">
                 {result.totalInvested > 0
                   ? `+${((result.estimatedReturns / result.totalInvested) * 100).toFixed(0)}% total gain`
@@ -273,13 +354,25 @@ export default function LumpsumCalculator() {
               </span>
             </Card>
 
-            <Card className="border-cyan-500/30 dark:border-cyan-500/40 bg-gradient-to-br from-cyan-50/50 via-white to-blue-50/30 dark:from-slate-900 dark:to-cyan-950/30 shadow-sm p-4">
-              <span className="text-xs font-semibold text-cyan-800 dark:text-cyan-300 block mb-1">
-                Total Future Value
-              </span>
-              <p className="text-xl sm:text-2xl font-extrabold text-blue-700 dark:text-cyan-300 font-mono">
-                {formatINR(result.futureValue)}
-              </p>
+            <Card className="border-cyan-500/30 dark:border-cyan-500/40 bg-gradient-to-br from-cyan-50/50 via-white to-blue-50/30 dark:from-slate-900 dark:to-cyan-950/30 shadow-sm p-4 min-w-0 overflow-hidden flex flex-col justify-between">
+              <div>
+                <span className="text-xs font-semibold uppercase tracking-wider text-cyan-800 dark:text-cyan-300 block mb-1">
+                  Total Future Value
+                </span>
+                <p 
+                  className="text-lg sm:text-xl lg:text-2xl font-extrabold text-blue-700 dark:text-cyan-300 font-mono tracking-tight break-words"
+                  title={formatINR(result.futureValue)}
+                >
+                  {result.futureValue >= 10000000 
+                    ? formatCompactINR(result.futureValue) 
+                    : formatINR(result.futureValue)}
+                </p>
+                {result.futureValue >= 10000000 && (
+                  <span className="text-[11px] font-mono text-slate-600 dark:text-slate-400 block truncate" title={formatINR(result.futureValue)}>
+                    {formatINR(result.futureValue)}
+                  </span>
+                )}
+              </div>
               <span className="text-[11px] text-slate-500 dark:text-slate-400 mt-1 block">
                 After {result.investmentDurationYears} years
               </span>

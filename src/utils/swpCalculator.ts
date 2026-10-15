@@ -14,6 +14,16 @@
  */
 
 import { formatINR, formatCompactINR } from './sipCalculator';
+import { MAX_CALCULATION_SAFETY_LIMIT } from './calculatorConstants';
+export {
+  MAX_INVESTMENT_AMOUNT,
+  MIN_SWP_CORPUS,
+  MAX_SWP_CORPUS,
+  DEFAULT_SWP_CORPUS,
+  MIN_SWP_WITHDRAWAL,
+  MAX_SWP_WITHDRAWAL,
+  DEFAULT_SWP_WITHDRAWAL,
+} from './calculatorConstants';
 
 export interface SWPCalculatorInputs {
   initialCorpus: number;
@@ -83,6 +93,30 @@ export function calculateSWP(inputs: SWPCalculatorInputs): SWPCalculationResult 
       yearlySchedule: [],
       isValid: false,
       validationError: 'Please provide valid non-negative numbers for all inputs.',
+    };
+  }
+
+  // Prevent calculation overflow for unrealistic extremes (allows up to ₹100 Cr and beyond safely)
+  if (
+    initialCorpus > MAX_CALCULATION_SAFETY_LIMIT ||
+    monthlyWithdrawal > MAX_CALCULATION_SAFETY_LIMIT ||
+    withdrawalDurationYears > 60 ||
+    expectedAnnualReturn > 100
+  ) {
+    return {
+      initialCorpus,
+      scheduledMonthlyWithdrawal: monthlyWithdrawal,
+      expectedAnnualReturn,
+      withdrawalDurationYears,
+      totalActualWithdrawals: 0,
+      remainingCorpus: 0,
+      totalGrowthEarned: 0,
+      isExhausted: false,
+      exhaustionMonthNumber: null,
+      exhaustionYear: null,
+      yearlySchedule: [],
+      isValid: false,
+      validationError: 'Input values exceed maximum supported limits (₹100 Crore).',
     };
   }
 

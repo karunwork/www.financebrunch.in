@@ -32,13 +32,18 @@ import {
   calculateStepUpSIP,
   formatINR,
   formatCompactINR,
+  MAX_STEPUP_MONTHLY,
+  MIN_STEPUP_MONTHLY,
+  STEPUP_QUICK_PRESETS,
 } from '@/utils/stepUpSipCalculator';
 import { CalculatorCTAButtons } from './CalculatorCTAButtons';
 import { CalculatorDisclaimer } from './CalculatorDisclaimer';
+import { cn } from '@/lib/utils';
 
 export default function StepUpSIPCalculator() {
   const [initialMonthly, setInitialMonthly] = useState<number>(5000);
-  const [monthlyInputStr, setMonthlyInputStr] = useState<string>('5000');
+  const [monthlyInputStr, setMonthlyInputStr] = useState<string>('5,000');
+  const [isMonthlyFocused, setIsMonthlyFocused] = useState<boolean>(false);
 
   const [expectedReturn, setExpectedReturn] = useState<number>(12);
   const [returnInputStr, setReturnInputStr] = useState<string>('12');
@@ -76,15 +81,29 @@ export default function StepUpSIPCalculator() {
     if (valStr.trim() === '') {
       setErrors((prev) => ({ ...prev, monthly: 'Monthly investment is required.' }));
       setInitialMonthly(0);
-    } else if (isNaN(num) || num < 100) {
-      setErrors((prev) => ({ ...prev, monthly: 'Minimum recommended monthly SIP is ₹100.' }));
+    } else if (isNaN(num) || num < MIN_STEPUP_MONTHLY) {
+      setErrors((prev) => ({ ...prev, monthly: `Minimum recommended monthly SIP is ₹${MIN_STEPUP_MONTHLY.toLocaleString('en-IN')}.` }));
       setInitialMonthly(num > 0 ? num : 0);
-    } else if (num > 5000000) {
-      setErrors((prev) => ({ ...prev, monthly: 'Maximum monthly SIP supported is ₹50 Lakh.' }));
-      setInitialMonthly(5000000);
+    } else if (num > MAX_STEPUP_MONTHLY) {
+      setErrors((prev) => ({ ...prev, monthly: 'Maximum monthly SIP supported is ₹100 Crore.' }));
+      setInitialMonthly(num);
     } else {
       setErrors((prev) => ({ ...prev, monthly: undefined }));
       setInitialMonthly(num);
+    }
+  };
+
+  const handleMonthlyBlur = () => {
+    setIsMonthlyFocused(false);
+    if (initialMonthly > 0) {
+      setMonthlyInputStr(initialMonthly.toLocaleString('en-IN'));
+    }
+  };
+
+  const handleMonthlyFocus = () => {
+    setIsMonthlyFocused(true);
+    if (initialMonthly > 0) {
+      setMonthlyInputStr(initialMonthly.toString());
     }
   };
 
@@ -155,39 +174,77 @@ export default function StepUpSIPCalculator() {
             <CardContent className="p-6 space-y-6">
               {/* Initial Monthly Investment */}
               <div className="space-y-3">
-                <div className="flex justify-between items-center">
-                  <Label htmlFor="stepup-monthly" className="text-sm font-semibold flex items-center gap-1.5">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 min-w-0">
+                  <Label htmlFor="stepup-monthly" className="text-sm font-semibold flex items-center gap-1.5 shrink-0">
                     <IndianRupee size={15} className="text-cyan-600 dark:text-cyan-400" />
                     Starting Monthly SIP
                   </Label>
-                  <div className="relative w-36">
-                    <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-xs font-semibold text-slate-400 select-none">₹</span>
+                  <div className="relative min-w-[160px] sm:w-52 lg:w-56 max-w-full">
+                    <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-xs font-semibold text-slate-400 select-none pointer-events-none">₹</span>
                     <Input
                       id="stepup-monthly"
                       type="text"
-                      value={initialMonthly === 0 ? '' : initialMonthly.toLocaleString('en-IN')}
+                      value={monthlyInputStr}
                       onChange={(e) => handleMonthlyChange(e.target.value)}
-                      className="pl-6 text-right font-mono text-sm h-9 border-slate-200 dark:border-slate-700"
+                      onFocus={handleMonthlyFocus}
+                      onBlur={handleMonthlyBlur}
+                      className="pl-6 pr-3 text-right font-mono text-sm h-9 border-slate-200 dark:border-slate-700 w-full min-w-0"
+                      style={{
+                        fontSize: monthlyInputStr.length > 13 ? '0.75rem' : monthlyInputStr.length > 10 ? '0.8125rem' : '0.875rem',
+                      }}
+                      aria-label="Starting Monthly SIP Amount in Rupees"
                     />
+                    {initialMonthly >= 100000 && !isMonthlyFocused && (
+                      <span className="text-[11px] text-cyan-600 dark:text-cyan-400 font-semibold block text-right mt-0.5">
+                        ({formatCompactINR(initialMonthly)})
+                      </span>
+                    )}
                   </div>
                 </div>
                 <Slider
-                  value={[initialMonthly]}
-                  min={100}
-                  max={200000}
-                  step={100}
+                  value={[Math.min(initialMonthly, MAX_STEPUP_MONTHLY)]}
+                  min={MIN_STEPUP_MONTHLY}
+                  max={MAX_STEPUP_MONTHLY}
+                  step={500}
                   onValueChange={(val) => {
                     setInitialMonthly(val[0]);
-                    setMonthlyInputStr(val[0].toString());
+                    setMonthlyInputStr(val[0].toLocaleString('en-IN'));
                     setErrors((prev) => ({ ...prev, monthly: undefined }));
                   }}
-                  className="py-1"
+                  className="py-1 cursor-pointer"
+                  aria-label="Starting Monthly SIP Slider"
                 />
                 <div className="flex justify-between text-[11px] font-mono text-slate-400">
                   <span>₹100</span>
-                  <span>₹1 Lakh</span>
-                  <span>₹2 Lakh</span>
+                  <span>₹10 Lakh</span>
+                  <span>₹1 Cr</span>
+                  <span>₹10 Cr</span>
+                  <span>₹100 Cr</span>
                 </div>
+
+                {/* Quick preset buttons */}
+                <div className="flex flex-wrap gap-1.5 pt-1">
+                  {STEPUP_QUICK_PRESETS.map((preset) => (
+                    <button
+                      key={preset}
+                      type="button"
+                      onClick={() => {
+                        setInitialMonthly(preset);
+                        setMonthlyInputStr(preset.toLocaleString('en-IN'));
+                        setErrors((prev) => ({ ...prev, monthly: undefined }));
+                      }}
+                      className={cn(
+                        "px-2.5 py-1 text-xs rounded-lg font-medium transition-all duration-150 border",
+                        initialMonthly === preset
+                          ? "bg-cyan-600 text-white border-cyan-600 shadow-sm"
+                          : "bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700 hover:border-cyan-400 hover:text-cyan-600 dark:hover:text-cyan-400"
+                      )}
+                    >
+                      ₹{preset.toLocaleString('en-IN')}
+                    </button>
+                  ))}
+                </div>
+
                 {errors.monthly && <p className="text-xs text-rose-500">{errors.monthly}</p>}
               </div>
 
@@ -315,7 +372,7 @@ export default function StepUpSIPCalculator() {
               <Sparkles size={14} className="text-cyan-500" />
               <span>Step-Up Advantage vs Fixed SIP</span>
             </div>
-            <p className="text-xs text-slate-600 dark:text-slate-400">
+            <p className="text-xs text-slate-600 dark:text-slate-400 break-words">
               A regular fixed SIP of {formatINR(result.initialMonthlySIP)}/mo yields{' '}
               <strong className="text-slate-900 dark:text-white font-mono">{formatINR(result.fixedSipComparison.futureValue)}</strong>.
               Stepping up by {result.annualStepUpPercentage}% yearly adds an extra{' '}
@@ -327,46 +384,94 @@ export default function StepUpSIPCalculator() {
         {/* Right Results & Visualizations Column (7 Cols) */}
         <div className="lg:col-span-7 space-y-6">
           {/* Key Metric Summary Cards */}
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3.5">
-            <Card className="border-slate-200/80 dark:border-slate-800 bg-white dark:bg-slate-900/60 shadow-sm p-3.5">
-              <span className="text-[11px] font-medium text-slate-500 dark:text-slate-400 block mb-1">
-                Starting SIP
-              </span>
-              <p className="text-lg sm:text-xl font-bold text-slate-900 dark:text-white font-mono">
-                {formatINR(result.initialMonthlySIP)}
-              </p>
-              <span className="text-[10px] text-slate-400 block mt-0.5">Month 1</span>
+          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-3.5 min-w-0">
+            <Card className="border-slate-200/80 dark:border-slate-800 bg-white dark:bg-slate-900/60 shadow-sm p-3.5 min-w-0 overflow-hidden flex flex-col justify-between">
+              <div>
+                <span className="text-[11px] font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 block mb-1">
+                  Starting SIP
+                </span>
+                <p 
+                  className="text-lg sm:text-xl font-bold text-slate-900 dark:text-white font-mono tracking-tight break-words"
+                  title={formatINR(result.initialMonthlySIP)}
+                >
+                  {result.initialMonthlySIP >= 10000000 
+                    ? formatCompactINR(result.initialMonthlySIP) 
+                    : formatINR(result.initialMonthlySIP)}
+                </p>
+                {result.initialMonthlySIP >= 10000000 && (
+                  <span className="text-[11px] font-mono text-slate-500 dark:text-slate-400 block truncate" title={formatINR(result.initialMonthlySIP)}>
+                    {formatINR(result.initialMonthlySIP)}
+                  </span>
+                )}
+              </div>
+              <span className="text-[10px] text-slate-400 block mt-1">Month 1</span>
             </Card>
 
-            <Card className="border-slate-200/80 dark:border-slate-800 bg-white dark:bg-slate-900/60 shadow-sm p-3.5">
-              <span className="text-[11px] font-medium text-slate-500 dark:text-slate-400 block mb-1">
-                Final Monthly SIP
-              </span>
-              <p className="text-lg sm:text-xl font-bold text-cyan-600 dark:text-cyan-400 font-mono">
-                {formatINR(result.finalMonthlySIP)}
-              </p>
-              <span className="text-[10px] text-slate-400 block mt-0.5">Year {result.investmentDurationYears}</span>
+            <Card className="border-slate-200/80 dark:border-slate-800 bg-white dark:bg-slate-900/60 shadow-sm p-3.5 min-w-0 overflow-hidden flex flex-col justify-between">
+              <div>
+                <span className="text-[11px] font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 block mb-1">
+                  Final Monthly SIP
+                </span>
+                <p 
+                  className="text-lg sm:text-xl font-bold text-cyan-600 dark:text-cyan-400 font-mono tracking-tight break-words"
+                  title={formatINR(result.finalMonthlySIP)}
+                >
+                  {result.finalMonthlySIP >= 10000000 
+                    ? formatCompactINR(result.finalMonthlySIP) 
+                    : formatINR(result.finalMonthlySIP)}
+                </p>
+                {result.finalMonthlySIP >= 10000000 && (
+                  <span className="text-[11px] font-mono text-slate-500 dark:text-slate-400 block truncate" title={formatINR(result.finalMonthlySIP)}>
+                    {formatINR(result.finalMonthlySIP)}
+                  </span>
+                )}
+              </div>
+              <span className="text-[10px] text-slate-400 block mt-1">Year {result.investmentDurationYears}</span>
             </Card>
 
-            <Card className="border-slate-200/80 dark:border-slate-800 bg-white dark:bg-slate-900/60 shadow-sm p-3.5">
-              <span className="text-[11px] font-medium text-slate-500 dark:text-slate-400 block mb-1">
-                Total Invested
-              </span>
-              <p className="text-lg sm:text-xl font-bold text-slate-900 dark:text-white font-mono">
-                {formatINR(result.totalInvested)}
-              </p>
-              <span className="text-[10px] text-slate-400 block mt-0.5">Cumulative</span>
+            <Card className="border-slate-200/80 dark:border-slate-800 bg-white dark:bg-slate-900/60 shadow-sm p-3.5 min-w-0 overflow-hidden flex flex-col justify-between">
+              <div>
+                <span className="text-[11px] font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 block mb-1">
+                  Total Invested
+                </span>
+                <p 
+                  className="text-lg sm:text-xl font-bold text-slate-900 dark:text-white font-mono tracking-tight break-words"
+                  title={formatINR(result.totalInvested)}
+                >
+                  {result.totalInvested >= 10000000 
+                    ? formatCompactINR(result.totalInvested) 
+                    : formatINR(result.totalInvested)}
+                </p>
+                {result.totalInvested >= 10000000 && (
+                  <span className="text-[11px] font-mono text-slate-500 dark:text-slate-400 block truncate" title={formatINR(result.totalInvested)}>
+                    {formatINR(result.totalInvested)}
+                  </span>
+                )}
+              </div>
+              <span className="text-[10px] text-slate-400 block mt-1">Cumulative</span>
             </Card>
 
-            <Card className="border-cyan-500/30 dark:border-cyan-500/40 bg-gradient-to-br from-cyan-50/50 via-white to-blue-50/30 dark:from-slate-900 dark:to-cyan-950/30 shadow-sm p-3.5">
-              <span className="text-[11px] font-semibold text-cyan-800 dark:text-cyan-300 block mb-1">
-                Estimated FV
-              </span>
-              <p className="text-lg sm:text-xl font-extrabold text-blue-700 dark:text-cyan-300 font-mono">
-                {formatINR(result.futureValue)}
-              </p>
-              <span className="text-[10px] text-slate-500 dark:text-slate-400 block mt-0.5">
-                +{formatINR(result.estimatedReturns)} return
+            <Card className="border-cyan-500/30 dark:border-cyan-500/40 bg-gradient-to-br from-cyan-50/50 via-white to-blue-50/30 dark:from-slate-900 dark:to-cyan-950/30 shadow-sm p-3.5 min-w-0 overflow-hidden flex flex-col justify-between">
+              <div>
+                <span className="text-[11px] font-semibold uppercase tracking-wider text-cyan-800 dark:text-cyan-300 block mb-1">
+                  Estimated FV
+                </span>
+                <p 
+                  className="text-lg sm:text-xl font-extrabold text-blue-700 dark:text-cyan-300 font-mono tracking-tight break-words"
+                  title={formatINR(result.futureValue)}
+                >
+                  {result.futureValue >= 10000000 
+                    ? formatCompactINR(result.futureValue) 
+                    : formatINR(result.futureValue)}
+                </p>
+                {result.futureValue >= 10000000 && (
+                  <span className="text-[11px] font-mono text-slate-600 dark:text-slate-400 block truncate" title={formatINR(result.futureValue)}>
+                    {formatINR(result.futureValue)}
+                  </span>
+                )}
+              </div>
+              <span className="text-[10px] text-slate-500 dark:text-slate-400 block mt-1 truncate" title={`+${formatINR(result.estimatedReturns)} return`}>
+                +{formatCompactINR(result.estimatedReturns)} return
               </span>
             </Card>
           </div>

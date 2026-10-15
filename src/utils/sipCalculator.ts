@@ -21,6 +21,19 @@
  *   Calculations strictly operate locally without external APIs.
  */
 
+import {
+  MAX_INVESTMENT_AMOUNT,
+  MAX_CALCULATION_SAFETY_LIMIT,
+} from './calculatorConstants';
+
+export {
+  MAX_INVESTMENT_AMOUNT,
+  MIN_SIP_MONTHLY,
+  MAX_SIP_MONTHLY,
+  DEFAULT_SIP_MONTHLY,
+  SIP_QUICK_PRESETS,
+} from './calculatorConstants';
+
 export interface SIPCalculatorInputs {
   monthlyInvestment: number;
   expectedAnnualReturn: number; // In percent, e.g., 12 for 12%
@@ -68,8 +81,8 @@ export function formatINR(value: number, includeDecimals = false): string {
 }
 
 /**
- * Compact Indian currency formatting for charts and badges.
- * Example: 1150000 -> "₹11.50 Lakh"
+ * Compact Indian currency formatting for charts, badges, and primary figures.
+ * Example: 1150000 -> "₹11.50 Lakh", 1000000000 -> "₹100.00 Cr"
  */
 export function formatCompactINR(value: number): string {
   if (isNaN(value) || !isFinite(value) || value === 0) return '₹0';
@@ -77,7 +90,11 @@ export function formatCompactINR(value: number): string {
   const sign = value < 0 ? '-' : '';
 
   if (absValue >= 10000000) {
-    return `${sign}₹${(absValue / 10000000).toFixed(2)} Cr`;
+    const crValue = absValue / 10000000;
+    const formattedCr = crValue >= 1000
+      ? crValue.toLocaleString('en-IN', { maximumFractionDigits: 2, minimumFractionDigits: 0 })
+      : crValue.toFixed(2);
+    return `${sign}₹${formattedCr} Cr`;
   }
   if (absValue >= 100000) {
     return `${sign}₹${(absValue / 100000).toFixed(2)} Lakh`;
@@ -130,8 +147,8 @@ export function calculateSIP(inputs: SIPCalculatorInputs): SIPCalculationResult 
     };
   }
 
-  // Prevent calculation overflow for unrealistic extremes
-  if (monthlyInvestment > 100000000 || investmentDurationYears > 60 || expectedAnnualReturn > 100) {
+  // Prevent calculation overflow for unrealistic extremes (allows up to ₹100 Cr and beyond safely)
+  if (monthlyInvestment > MAX_CALCULATION_SAFETY_LIMIT || investmentDurationYears > 60 || expectedAnnualReturn > 100) {
     return {
       monthlyInvestment,
       investmentDurationYears,
@@ -144,7 +161,7 @@ export function calculateSIP(inputs: SIPCalculatorInputs): SIPCalculationResult 
       stepUpPercentage,
       yearlyBreakdown: [],
       isValid: false,
-      validationError: 'Input values exceed maximum supported limits.',
+      validationError: 'Input values exceed maximum supported limits (₹100 Crore).',
     };
   }
 
@@ -229,6 +246,23 @@ export function calculateSIP(inputs: SIPCalculatorInputs): SIPCalculationResult 
       });
       currentYearInvested = 0;
     }
+  }
+
+  if (!isFinite(currentBalance) || isNaN(currentBalance) || currentBalance > Number.MAX_SAFE_INTEGER) {
+    return {
+      monthlyInvestment,
+      investmentDurationYears,
+      investmentDurationMonths: totalMonths,
+      expectedAnnualReturn,
+      totalInvested: Math.round(totalInvested),
+      estimatedReturns: 0,
+      futureValue: 0,
+      isStepUpEnabled,
+      stepUpPercentage,
+      yearlyBreakdown: [],
+      isValid: false,
+      validationError: 'Projected value exceeds calculation precision bounds. Please adjust duration or returns.',
+    };
   }
 
   const roundedFV = Math.round(currentBalance);

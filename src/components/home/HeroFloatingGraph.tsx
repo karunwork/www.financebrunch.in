@@ -466,7 +466,7 @@ export default function HeroFloatingGraph() {
         {/* 3. Floating Glass Lens Badges (Matching Translucent Glass Language) */}
         {/* Top-Right Translucent Glass Investment Lens */}
         <div 
-          className="absolute -top-5 -right-5 w-18 sm:w-22 h-18 sm:h-22 p-3 bg-white/35 dark:bg-white/5 backdrop-blur-xl rounded-2xl flex items-center justify-center animate-float border border-white/70 dark:border-cyan-400/30 shadow-[0_12px_30px_rgba(6,182,212,0.18)] hover:scale-110 transition-all duration-300 cursor-pointer [transform:translateZ(35px)]"
+          className="absolute -top-3 -right-2 sm:-top-5 sm:-right-5 w-14 sm:w-22 h-14 sm:h-22 p-2 sm:p-3 bg-white/35 dark:bg-white/5 backdrop-blur-xl rounded-2xl flex items-center justify-center animate-float border border-white/70 dark:border-cyan-400/30 shadow-[0_12px_30px_rgba(6,182,212,0.18)] hover:scale-110 transition-all duration-300 cursor-pointer [transform:translateZ(35px)]"
           title="Diversified Asset Allocation Strategy"
         >
           <img 
@@ -478,7 +478,7 @@ export default function HeroFloatingGraph() {
 
         {/* Bottom-Left Translucent Glass Shield Lens */}
         <div 
-          className="absolute -bottom-4 -left-4 w-16 sm:w-18 h-16 sm:h-18 p-2.5 bg-white/35 dark:bg-white/5 backdrop-blur-xl rounded-2xl flex items-center justify-center animate-float-reverse border border-white/70 dark:border-cyan-400/30 shadow-[0_12px_30px_rgba(6,182,212,0.18)] hover:scale-110 transition-all duration-300 cursor-pointer [transform:translateZ(30px)]"
+          className="absolute -bottom-3 -left-2 sm:-bottom-4 sm:-left-4 w-12 sm:w-18 h-12 sm:h-18 p-1.5 sm:p-2.5 bg-white/35 dark:bg-white/5 backdrop-blur-xl rounded-2xl flex items-center justify-center animate-float-reverse border border-white/70 dark:border-cyan-400/30 shadow-[0_12px_30px_rgba(6,182,212,0.18)] hover:scale-110 transition-all duration-300 cursor-pointer [transform:translateZ(30px)]"
           title="Capital Protection & Risk Governance"
         >
           <img 
