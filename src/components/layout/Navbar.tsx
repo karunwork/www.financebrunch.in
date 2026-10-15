@@ -33,8 +33,6 @@ const navLinks = [
     ]
   },
   { name: 'About', href: '/#about' },
-  { name: 'Careers', href: '/careers' },
-  { name: 'Global Presence', href: '/#global' },
   { name: 'Contact', href: '/contact' }
 ];
 
@@ -200,7 +198,7 @@ export default function Navbar() {
           </div>
 
           {/* Desktop Navigation */}
-          <nav className="hidden md:flex space-x-1 lg:space-x-4">
+          <nav className="hidden md:flex items-center space-x-1 md:space-x-2 lg:space-x-5 xl:space-x-6">
             {navLinks.map((link) => (
               <div 
                 key={link.name} 

@@ -28,9 +28,9 @@ const Hero = () => {
       </div>
       
       <div className="w-full max-w-7xl 2xl:max-w-[1536px] 3xl:max-w-[1680px] px-4 sm:px-6 lg:px-8 mx-auto relative z-10">
-        <div className="flex flex-col lg:flex-row items-center justify-between py-10 lg:py-16 xl:py-20 min-h-[calc(100vh-5rem)] gap-8 lg:gap-12 xl:gap-16">
+        <div className="flex flex-col lg:flex-row items-center justify-between py-6 sm:py-10 lg:py-16 xl:py-20 min-h-[calc(100vh-5rem)] gap-6 lg:gap-12 xl:gap-16">
           {/* Left content */}
-          <div className="flex-1 max-w-2xl xl:max-w-3xl text-center lg:text-left lg:pr-6 xl:pr-10 mb-10 lg:mb-0">
+          <div className="flex-1 max-w-2xl xl:max-w-3xl text-center lg:text-left lg:pr-6 xl:pr-10 mb-6 lg:mb-0">
             {/* Heading with subtle reveal */}
             <motion.h1 
               initial={shouldReduceMotion ? { opacity: 1 } : { opacity: 0, y: 16 }}
@@ -48,7 +48,7 @@ const Hero = () => {
               initial={shouldReduceMotion ? { opacity: 1 } : { opacity: 0, y: 14 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: DURATIONS.normal, delay: 0.12, ease: EASING.decelerate }}
-              className="mt-6 text-lg md:text-xl text-gray-600 dark:text-gray-400 max-w-xl mx-auto lg:mx-0"
+              className="mt-5 md:mt-6 text-base sm:text-lg md:text-xl text-gray-600 dark:text-gray-400 max-w-xl mx-auto lg:mx-0"
             >
               Your trusted partner in financial planning with <span className="font-medium">7+ years</span> of experience. We provide personalized investment solutions to achieve your financial goals.
             </motion.p>
@@ -58,7 +58,7 @@ const Hero = () => {
               initial={shouldReduceMotion ? { opacity: 1 } : { opacity: 0, y: 14 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: DURATIONS.normal, delay: 0.22, ease: EASING.decelerate }}
-              className="mt-8 md:mt-10 flex flex-col sm:flex-row justify-center lg:justify-start gap-4"
+              className="mt-6 sm:mt-8 md:mt-10 flex flex-col sm:flex-row justify-center lg:justify-start gap-3 sm:gap-4"
             >
               <Button 
                 onClick={handleConsultantClick}
@@ -71,35 +71,35 @@ const Hero = () => {
                 <Button 
                   size="lg" 
                   variant="outline" 
-                  className="shadow-sm border border-gray-200 dark:border-gray-800 hover:border-primary/50 transition-all duration-200 hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98] hover:shadow-md focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-darkblue-950"
+                  className="w-full sm:w-auto shadow-sm border border-gray-200 dark:border-gray-800 hover:border-primary/50 transition-all duration-200 hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98] hover:shadow-md focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-darkblue-950"
                 >
                   Try Our Calculators
                 </Button>
               </Link>
             </motion.div>
             
-            {/* Key stats with sequenced appearance and hover micro-interaction */}
+            {/* Key stats with sequenced appearance and responsive 3-column mobile layout */}
             <motion.div 
               initial={shouldReduceMotion ? { opacity: 1 } : { opacity: 0, y: 12 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: DURATIONS.normal, delay: 0.32, ease: EASING.decelerate }}
-              className="mt-10 flex flex-wrap justify-center lg:justify-start gap-6"
+              className="mt-8 sm:mt-10 grid grid-cols-3 gap-2 sm:gap-4 md:flex md:flex-wrap md:justify-center lg:justify-start md:gap-6 max-w-lg mx-auto lg:mx-0"
             >
-              <div className="text-center group p-2.5 rounded-xl border border-transparent hover:border-primary/20 hover:shadow-sm hover:bg-white/60 dark:hover:bg-darkblue-900/60 transition-all duration-200 cursor-default">
-                <div className="text-3xl font-bold text-primary transition-transform duration-200 group-hover:scale-105">
+              <div className="text-center group p-1.5 sm:p-2.5 rounded-xl border border-transparent hover:border-primary/20 hover:shadow-sm hover:bg-white/60 dark:hover:bg-darkblue-900/60 transition-all duration-200 cursor-default">
+                <div className="text-2xl sm:text-3xl font-bold text-primary transition-transform duration-200 group-hover:scale-105">
                   <AnimatedNumber value={5000} suffix="+" duration={1200} />
                 </div>
-                <div className="text-sm text-gray-600 dark:text-gray-400">Happy Clients</div>
+                <div className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 leading-tight mt-0.5">Happy Clients</div>
               </div>
-              <div className="text-center group p-2.5 rounded-xl border border-transparent hover:border-primary/20 hover:shadow-sm hover:bg-white/60 dark:hover:bg-darkblue-900/60 transition-all duration-200 cursor-default">
-                <div className="text-3xl font-bold text-primary transition-transform duration-200 group-hover:scale-105">
+              <div className="text-center group p-1.5 sm:p-2.5 rounded-xl border border-transparent hover:border-primary/20 hover:shadow-sm hover:bg-white/60 dark:hover:bg-darkblue-900/60 transition-all duration-200 cursor-default">
+                <div className="text-2xl sm:text-3xl font-bold text-primary transition-transform duration-200 group-hover:scale-105">
                   <AnimatedNumber value={15} prefix="₹" suffix="Cr+" duration={1000} />
                 </div>
-                <div className="text-sm text-gray-600 dark:text-gray-400">Assets Under Management</div>
+                <div className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 leading-tight mt-0.5">Assets Under Management</div>
               </div>
-              <div className="text-center group p-2.5 rounded-xl border border-transparent hover:border-primary/20 hover:shadow-sm hover:bg-white/60 dark:hover:bg-darkblue-900/60 transition-all duration-200 cursor-default">
-                <div className="text-3xl font-bold text-primary transition-transform duration-200 group-hover:scale-105">Global</div>
-                <div className="text-sm text-gray-600 dark:text-gray-400">Financial Presence</div>
+              <div className="text-center group p-1.5 sm:p-2.5 rounded-xl border border-transparent hover:border-primary/20 hover:shadow-sm hover:bg-white/60 dark:hover:bg-darkblue-900/60 transition-all duration-200 cursor-default">
+                <div className="text-2xl sm:text-3xl font-bold text-primary transition-transform duration-200 group-hover:scale-105">Global</div>
+                <div className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 leading-tight mt-0.5">Financial Presence</div>
               </div>
             </motion.div>
           </div>
