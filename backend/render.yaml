@@ -1,0 +1,24 @@
+services:
+  - type: web
+    name: finance-brunch-api
+    runtime: node
+    plan: free
+    region: oregon
+    rootDir: backend
+    buildCommand: npm install
+    startCommand: node src/index.js
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 10000
+      - key: ALLOWED_ORIGINS
+        value: https://arasadaanishkarthik.github.io,http://localhost:8080
+      - key: YOUTUBE_CHANNEL_ID
+        value: UCgtssmXPtGcirH61m0MjrLQ
+      - key: YOUTUBE_API_KEY
+        sync: false
+      - key: GOOGLE_PLACES_API_KEY
+        sync: false
+      - key: GOOGLE_PLACE_ID
+        sync: false

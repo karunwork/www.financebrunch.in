@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { FadeIn } from '@/components/ui/animation';
 import { youtubeVideos, YouTubeVideo, YOUTUBE_CHANNEL } from '@/data/youtubeVideos';
+import { fetchLiveYouTubeVideos } from '@/services/api';
 import { YouTubeModal } from './YouTubeModal';
 
 export default function YouTubeShowcase() {
@@ -16,9 +17,26 @@ export default function YouTubeShowcase() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
   const [autoplayKey, setAutoplayKey] = useState(0);
+  const [videos, setVideos] = useState<YouTubeVideo[]>(youtubeVideos);
+  const [lastUpdated, setLastUpdated] = useState<string | undefined>();
 
-  const maxIndex = youtubeVideos.length - 1;
+  const maxIndex = videos.length - 1;
   const touchStartXRef = useRef<number | null>(null);
+
+  useEffect(() => {
+    let mounted = true;
+
+    fetchLiveYouTubeVideos().then((result) => {
+      if (!mounted || result.videos.length === 0) return;
+      setVideos(result.videos);
+      setLastUpdated(result.lastUpdated);
+      setCurrentIndex(0);
+    });
+
+    return () => {
+      mounted = false;
+    };
+  }, []);
 
   // Helper to restart the 6-second timer on user interaction
   const resetAutoplay = () => {
@@ -148,6 +166,11 @@ export default function YouTubeShowcase() {
           <p className="text-lg text-gray-600 dark:text-gray-400">
             Explore financial insights, investment education, market perspectives, and practical guidance from our YouTube channel.
           </p>
+          {lastUpdated && (
+            <p className="mt-2 text-xs text-gray-500 dark:text-gray-500">
+              Latest channel data checked {new Intl.DateTimeFormat(undefined, { dateStyle: 'medium' }).format(new Date(lastUpdated))}
+            </p>
+          )}
         </FadeIn>
 
         {/* Carousel Container - Restored & Significantly Enlarged */}
@@ -168,7 +191,7 @@ export default function YouTubeShowcase() {
               className="flex transition-transform duration-500 ease-in-out" 
               style={{ transform: `translateX(-${currentIndex * 100}%)` }}
             >
-              {youtubeVideos.map((video) => (
+              {videos.map((video) => (
                 <div key={video.id} className="w-full flex-shrink-0 px-1 sm:px-2">
                   <div
                     onClick={() => handlePlayVideo(video)}
@@ -303,7 +326,7 @@ export default function YouTubeShowcase() {
 
           {/* Pagination Indicators Below Card */}
           <div className="flex justify-center mt-10">
-            {youtubeVideos.map((_, index) => (
+            {videos.map((_, index) => (
               <button
                 type="button"
                 key={index}
