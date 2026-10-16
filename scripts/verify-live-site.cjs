@@ -204,7 +204,11 @@ async function runLiveVerification() {
         const comprehensiveHeading = Array.from(document.querySelectorAll('h2, h3, span')).some(el => el.textContent.includes('Comprehensive Financial Solutions'));
         const incomeTaxInServices = Array.from(document.querySelectorAll('#services h3, #products h3')).some(el => el.textContent.trim() === 'Income Tax Filing');
 
-        if (ytCard && ytThumb) {
+        const testimonialsSec = document.querySelector('#testimonials');
+        const testimonialsText = testimonialsSec ? testimonialsSec.innerText : '';
+        const testimonialsLink = testimonialsSec ? testimonialsSec.querySelector('a')?.href : null;
+
+        if (ytCard && ytThumb && testimonialsSec) {
           const ytRect = ytCard.getBoundingClientRect();
           const thumbRect = ytThumb.getBoundingClientRect();
           resolve({
@@ -213,6 +217,12 @@ async function runLiveVerification() {
             logoFound: !!logo,
             hasComprehensiveHeading: comprehensiveHeading,
             incomeTaxCardRemovedFromServices: !incomeTaxInServices,
+            testimonialsSection: {
+              found: true,
+              hasGoogleReviewsBadge: testimonialsText.includes('Google Reviews'),
+              hasVerifiedLink: !!testimonialsLink,
+              linkUrl: testimonialsLink
+            },
             youtubeCard: {
               width: Math.round(ytRect.width),
               height: Math.round(ytRect.height),

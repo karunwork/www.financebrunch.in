@@ -50,7 +50,13 @@ app.get('/api/health', (req, res) => {
     status: 'ok',
     uptimeSeconds: Math.round(process.uptime()),
     timestamp: new Date().toISOString(),
-    environment: config.nodeEnv
+    environment: config.nodeEnv,
+    integrations: {
+      googleReviews: {
+        configured: Boolean(config.google.placesApiKey && config.google.placeId),
+        requiredEnv: ['GOOGLE_PLACES_API_KEY', 'GOOGLE_PLACE_ID']
+      }
+    }
   });
 });
 
@@ -127,6 +133,16 @@ if (process.env.NODE_ENV !== 'test') {
       console.error('[Finance Brunch Backend] Scheduled YouTube refresh failed:', error.message);
     });
   }, refreshIntervalMs);
+
+  // Warm and refresh the Google reviews cache periodically when configured
+  if (config.google.placesApiKey && config.google.placeId) {
+    const reviewsIntervalMs = Math.max(config.google.cacheTtlMs, 60 * 60 * 1000);
+    setInterval(() => {
+      getGoogleReviews(true).catch((error) => {
+        console.error('[Finance Brunch Backend] Scheduled Google Reviews refresh failed:', error.message);
+      });
+    }, reviewsIntervalMs);
+  }
 }
 
 export default app;

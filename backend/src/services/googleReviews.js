@@ -42,7 +42,7 @@ async function fetchGooglePlaceReviews(apiKey, placeId) {
   const reviews = rawReviews.map((r, index) => ({
     id: `google_${r.time || index}_${index}`,
     authorName: r.author_name || 'Verified Client',
-    authorPhoto: r.profile_photo_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(r.author_name || 'Client')}&background=0D8ABC&color=fff`,
+    authorPhoto: r.profile_photo_url || null,
     rating: typeof r.rating === 'number' ? r.rating : 5,
     relativeTime: r.relative_time_description || 'Recently',
     text: r.text || '',
@@ -50,11 +50,14 @@ async function fetchGooglePlaceReviews(apiKey, placeId) {
     authorUrl: r.author_url || null
   }));
 
+  // Sort by recency (newest first)
+  reviews.sort((a, b) => (b.time || 0) - (a.time || 0));
+
   return {
     placeName: result.name || 'Finance Brunch',
     rating: result.rating || 5.0,
     userRatingsTotal: result.user_ratings_total || reviews.length,
-    googleMapsUrl: result.url || 'https://maps.google.com',
+    googleMapsUrl: result.url || 'https://www.google.com/maps/search/?api=1&query=Finance+Brunch+Hyderabad',
     reviews
   };
 }
@@ -75,7 +78,7 @@ export async function getGoogleReviews(forceRefresh = false) {
       placeName: 'Finance Brunch',
       rating: null,
       userRatingsTotal: 0,
-      googleMapsUrl: null,
+      googleMapsUrl: 'https://www.google.com/maps/search/?api=1&query=Finance+Brunch+Hyderabad',
       reviews: []
     };
   }

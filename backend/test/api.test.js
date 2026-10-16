@@ -42,6 +42,14 @@ async function runTests() {
     } else {
       console.log(`✓ PASS: Google Reviews configured, retrieved ${reviewsResult.reviews.length} reviews`);
     }
+
+    // 3. Google Reviews Refresh Flag Test
+    console.log('\nTest 3: Testing Google Reviews with refresh=true...');
+    const refreshResult = await getGoogleReviews(true);
+    if (!refreshResult || typeof refreshResult.configured !== 'boolean') {
+      throw new Error('Refresh request failed to return valid response structure');
+    }
+    console.log('✓ PASS: Google Reviews refresh=true executed successfully');
   } catch (e) {
     console.error('✗ FAIL: Google Reviews Test:', e.message);
     failures++;

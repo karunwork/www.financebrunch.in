@@ -20,9 +20,12 @@ function formatReviewDate(review: GoogleReview) {
 export default function Testimonials() {
   const [reviews, setReviews] = useState<GoogleReview[]>([]);
   const [googleMapsUrl, setGoogleMapsUrl] = useState<string | null>(null);
+  const [overallRating, setOverallRating] = useState<number | null>(null);
+  const [userRatingsTotal, setUserRatingsTotal] = useState<number | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isAnimating, setIsAnimating] = useState(false);
+  const [isHovered, setIsHovered] = useState(false);
 
   useEffect(() => {
     let mounted = true;
@@ -33,9 +36,13 @@ export default function Testimonials() {
         if (response.success && response.configured && response.reviews.length > 0) {
           setReviews(response.reviews);
           setGoogleMapsUrl(response.googleMapsUrl || null);
+          setOverallRating(response.rating || null);
+          setUserRatingsTotal(response.userRatingsTotal || null);
         } else {
           setReviews([]);
           setGoogleMapsUrl(response.googleMapsUrl || null);
+          setOverallRating(response.rating || null);
+          setUserRatingsTotal(response.userRatingsTotal || null);
         }
       })
       .catch(() => {
@@ -51,14 +58,14 @@ export default function Testimonials() {
   }, []);
 
   useEffect(() => {
-    if (reviews.length < 2) return;
+    if (reviews.length < 2 || isHovered) return;
 
     const timer = setInterval(() => {
       setCurrentIndex((previous) => (previous === reviews.length - 1 ? 0 : previous + 1));
     }, 6000);
 
     return () => clearInterval(timer);
-  }, [reviews.length]);
+  }, [reviews.length, isHovered]);
 
   const changeReview = (index: number) => {
     if (isAnimating || index === currentIndex) return;
@@ -81,9 +88,20 @@ export default function Testimonials() {
     <section id="testimonials" className="py-24 bg-transparent overflow-hidden">
       <div className="w-full max-w-7xl 2xl:max-w-[1536px] 3xl:max-w-[1680px] px-4 sm:px-6 lg:px-8 mx-auto">
         <FadeIn direction="up" className="max-w-3xl mx-auto text-center mb-16">
-          <span className="inline-block px-3 py-1 bg-primary/10 text-primary rounded-full text-sm font-medium mb-4">
-            Google Reviews
-          </span>
+          <div className="flex items-center justify-center gap-2 mb-4">
+            <span className="inline-block px-3 py-1 bg-primary/10 text-primary rounded-full text-sm font-medium">
+              Google Reviews
+            </span>
+            {overallRating && (
+              <span className="inline-flex items-center gap-1 px-3 py-1 bg-amber-500/10 text-amber-700 dark:text-amber-400 rounded-full text-sm font-semibold">
+                <Star size={14} className="fill-amber-500 text-amber-500" />
+                {overallRating.toFixed(1)}
+                {userRatingsTotal ? (
+                  <span className="text-xs font-normal opacity-80">({userRatingsTotal} reviews)</span>
+                ) : null}
+              </span>
+            )}
+          </div>
           <h2 className="text-3xl md:text-4xl font-bold mb-6">
             What Our Clients Say About Us
           </h2>
@@ -92,7 +110,13 @@ export default function Testimonials() {
           </p>
         </FadeIn>
 
-        <FadeIn direction="up" delay={0.15} className="relative max-w-4xl mx-auto min-h-[340px]">
+        <FadeIn
+          direction="up"
+          delay={0.15}
+          className="relative max-w-4xl mx-auto min-h-[340px]"
+          onMouseEnter={() => setIsHovered(true)}
+          onMouseLeave={() => setIsHovered(false)}
+        >
           {isLoading ? (
             <div className="flex min-h-[300px] items-center justify-center rounded-2xl border border-gray-100 bg-white/70 p-8 text-center shadow-md dark:border-gray-800 dark:bg-gray-900/70">
               <p className="text-gray-600 dark:text-gray-400" role="status">Loading Google reviews...</p>
@@ -129,12 +153,21 @@ export default function Testimonials() {
                           “{review.text}”
                         </p>
                         <div className="flex items-center">
-                          <img
-                            src={review.authorPhoto}
-                            alt=""
-                            className="mr-4 h-14 w-14 rounded-full border-2 border-primary/20 object-cover transition-all duration-300 group-hover:border-primary/50 group-hover:scale-105"
-                            loading="lazy"
-                          />
+                          {review.authorPhoto ? (
+                            <img
+                              src={review.authorPhoto}
+                              alt=""
+                              className="mr-4 h-14 w-14 rounded-full border-2 border-primary/20 object-cover transition-all duration-300 group-hover:border-primary/50 group-hover:scale-105"
+                              loading="lazy"
+                            />
+                          ) : (
+                            <div
+                              className="mr-4 flex h-14 w-14 items-center justify-center rounded-full border-2 border-primary/20 bg-primary/10 text-lg font-semibold text-primary"
+                              aria-hidden="true"
+                            >
+                              {review.authorName.charAt(0).toUpperCase()}
+                            </div>
+                          )}
                           <div>
                             <h3 className="text-lg font-semibold">{review.authorName}</h3>
                             <p className="text-sm text-gray-600 dark:text-gray-400">{formatReviewDate(review)}</p>

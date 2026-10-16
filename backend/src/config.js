@@ -16,6 +16,6 @@ export const config = {
   google: {
     placesApiKey: process.env.GOOGLE_PLACES_API_KEY || '',
     placeId: process.env.GOOGLE_PLACE_ID || '',
-    cacheTtlMs: parseInt(process.env.REVIEWS_CACHE_TTL_MS || '86400000', 10), // 24 hours default
+    cacheTtlMs: parseInt(process.env.REVIEWS_CACHE_TTL_MS || '3600000', 10), // 1 hour default
   }
 };

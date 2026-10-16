@@ -3,7 +3,7 @@ import { YouTubeVideo, youtubeVideos as fallbackVideos } from '@/data/youtubeVid
 export interface GoogleReview {
   id: string;
   authorName: string;
-  authorPhoto: string;
+  authorPhoto: string | null;
   rating: number;
   relativeTime: string;
   text: string;
@@ -38,14 +38,32 @@ const API_BASE_URL = (
   (typeof window !== 'undefined' && window.location.hostname === 'localhost' ? 'http://localhost:5000' : '')
 ).replace(/\/$/, '');
 
+function getApiEndpoint(path: string): string | null {
+  if (API_BASE_URL) {
+    return `${API_BASE_URL}${path}`;
+  }
+  // On GitHub Pages static hosting without a configured backend URL,
+  // do not make an invalid request to the static Pages origin.
+  if (typeof window !== 'undefined' && window.location.hostname.endsWith('github.io')) {
+    return null;
+  }
+  return path;
+}
+
 /**
  * Fetch genuine YouTube uploads from the backend.
  * Automatically falls back to the baseline cached dataset if the backend is unreachable.
  */
 export async function fetchLiveYouTubeVideos(): Promise<{ videos: YouTubeVideo[]; isLive: boolean; lastUpdated?: string }> {
+  const endpoint = getApiEndpoint('/api/youtube');
+  if (!endpoint) {
+    return {
+      videos: fallbackVideos,
+      isLive: false
+    };
+  }
+
   try {
-    // If an API base is configured or on localhost
-    const endpoint = API_BASE_URL ? `${API_BASE_URL}/api/youtube` : '/api/youtube';
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 6000);
 
@@ -68,8 +86,7 @@ export async function fetchLiveYouTubeVideos(): Promise<{ videos: YouTubeVideo[]
       }
     }
   } catch (err) {
-    // Log softly and fallback smoothly
-    console.info('[Finance Brunch API] Live YouTube feed backend unreachable, using verified channel dataset.');
+    console.info('[Finance Brunch API] Live YouTube feed unavailable; using the verified channel dataset.');
   }
 
   // Graceful fallback to verified channel videos
@@ -83,8 +100,9 @@ export async function fetchLiveYouTubeVideos(): Promise<{ videos: YouTubeVideo[]
  * Fetch authentic Google reviews from the backend.
  */
 export async function fetchLiveGoogleReviews(): Promise<GoogleReviewsResponse> {
+  const endpoint = getApiEndpoint('/api/reviews');
+
   try {
-    const endpoint = API_BASE_URL ? `${API_BASE_URL}/api/reviews` : '/api/reviews';
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 6000);
 
@@ -96,12 +114,37 @@ export async function fetchLiveGoogleReviews(): Promise<GoogleReviewsResponse> {
     });
     clearTimeout(timeoutId);
 
-    if (res.ok) {
-      const data: GoogleReviewsResponse = await res.json();
-      return data;
+    if (!res.ok) {
+      console.warn(`[Finance Brunch API] Google reviews request failed (${res.status}) at ${endpoint}.`);
+      return {
+        success: false,
+        configured: false,
+        message: 'The local review service returned an error.',
+        reviews: []
+      };
     }
-  } catch (err) {
-    console.info('[Finance Brunch API] Google reviews backend unreachable.');
+
+    const data: GoogleReviewsResponse = await res.json();
+    if (!Array.isArray(data.reviews)) {
+      console.warn(`[Finance Brunch API] Google reviews response has an invalid shape at ${endpoint}.`);
+      return {
+        success: false,
+        configured: false,
+        message: 'The local review service returned an invalid response.',
+        reviews: []
+      };
+    }
+
+    if (!data.configured) {
+      console.info('[Finance Brunch API] Google reviews service is reachable but not configured.');
+    }
+
+    return data;
+  } catch (error) {
+    const reason = error instanceof Error && error.name === 'AbortError'
+      ? 'request timed out'
+      : 'backend is unreachable';
+    console.warn(`[Finance Brunch API] Google reviews ${reason} at ${endpoint}.`);
   }
 
   return {

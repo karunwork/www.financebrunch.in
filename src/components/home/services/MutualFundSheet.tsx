@@ -95,55 +95,77 @@ export function MutualFundSheet() {
               We have empanelment with both platforms below. You can choose either one to open your account.
             </p>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-              <Card className="overflow-hidden border-0 shadow-xl hover:shadow-2xl transition-all duration-300 group">
-                <div className="h-3 bg-gradient-to-r from-blue-500 to-purple-600"></div>
-                <CardContent className="p-8">
-                  <div className="flex flex-col items-center">
-                    <div className="w-full h-48 mb-4 flex items-center justify-center bg-white rounded-lg p-4">
-                      <img 
-                        src="/lovable-uploads/3a5fcbd0-7610-456b-b056-3607bd6b15e2.png" 
-                        alt="Angel One" 
-                        className="h-full object-contain"
-                      />
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-stretch">
+              {/* Angel One Card - Authentic Logo */}
+              <Card className="overflow-hidden border border-gray-100 dark:border-gray-800 shadow-xl hover:shadow-2xl transition-all duration-300 group flex flex-col justify-between">
+                <div>
+                  <div className="h-3 bg-gradient-to-r from-blue-500 to-purple-600"></div>
+                  <CardContent className="p-8">
+                    <div className="flex flex-col items-center">
+                      <div className="w-full h-48 mb-4 flex items-center justify-center bg-white rounded-lg p-6 shadow-sm border border-gray-100">
+                        <img 
+                          src="/images/angel-one-logo.svg" 
+                          alt="Angel One" 
+                          className="h-16 w-auto max-w-[85%] object-contain"
+                        />
+                      </div>
+                      <h4 className="text-xl font-semibold mb-3 text-center">Angel One</h4>
+                      <p className="text-gray-600 dark:text-gray-400 mb-6 text-center text-sm leading-relaxed">
+                        Trade with India's No.1 stock broking house with cutting-edge technology and expert research support.
+                      </p>
                     </div>
-                    <h4 className="text-xl font-semibold mb-3 text-center">Angel One</h4>
-                    <p className="text-gray-600 dark:text-gray-400 mb-6 text-center">
-                      Trade with India's No.1 stock broking house with cutting-edge technology and expert research support.
-                    </p>
-                    <Button 
-                      className="w-full group-hover:bg-blue-600 transition-colors"
-                      onClick={() => window.open('https://angel-one.onelink.me/Wjgr/f6agg88z', '_blank')}
-                    >
-                      Open Account <ChevronRight className="ml-1 h-4 w-4 transition-transform group-hover:translate-x-1" />
-                    </Button>
-                  </div>
-                </CardContent>
+                  </CardContent>
+                </div>
+                <div className="p-8 pt-0">
+                  <Button 
+                    className="w-full group-hover:bg-blue-600 transition-colors"
+                    onClick={() => window.open('https://angel-one.onelink.me/Wjgr/f6agg88z', '_blank')}
+                  >
+                    Open Account <ChevronRight className="ml-1 h-4 w-4 transition-transform group-hover:translate-x-1" />
+                  </Button>
+                </div>
               </Card>
               
-              <Card className="overflow-hidden border-0 shadow-xl hover:shadow-2xl transition-all duration-300 group">
-                <div className="h-3 bg-gradient-to-r from-red-500 to-red-600"></div>
-                <CardContent className="p-8">
-                  <div className="flex flex-col items-center">
-                    <div className="w-full h-48 mb-4 flex items-center justify-center bg-white rounded-lg p-4">
-                      <img 
-                        src="/lovable-uploads/3a5fcbd0-7610-456b-b056-3607bd6b15e2.png" 
-                        alt="NJ E-Wealth" 
-                        className="h-full object-contain"
-                      />
+              {/* NJ E-Wealth Card - Top Pick with authentic logo & premium highlight */}
+              <Card className="relative overflow-hidden border-2 border-primary/50 dark:border-cyan-500/50 shadow-2xl hover:shadow-[0_0_30px_rgba(59,130,246,0.25)] transition-all duration-300 group flex flex-col justify-between ring-1 ring-primary/20">
+                <div>
+                  <div className="h-3 bg-gradient-to-r from-blue-600 via-indigo-600 to-cyan-500"></div>
+                  <CardContent className="p-8">
+                    <div className="flex flex-col items-center">
+                      {/* Logo Container with Top Pick Badge */}
+                      <div className="relative w-full h-48 mb-4 flex items-center justify-center bg-white rounded-lg p-6 shadow-sm border border-gray-100">
+                        {/* Prominent ⭐ Top Pick badge positioned at top-right without covering logo */}
+                        <div className="absolute top-2.5 right-2.5 z-10">
+                          <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold tracking-wide bg-gradient-to-r from-amber-500 to-orange-500 text-white shadow-md border border-amber-300/60 uppercase">
+                            ⭐ Top Pick
+                          </span>
+                        </div>
+                        <img 
+                          src="/images/nj-ewealth-logo.png" 
+                          alt="NJ E-Wealth" 
+                          className="h-28 w-auto max-w-[85%] object-contain"
+                        />
+                      </div>
+                      <div className="inline-flex items-center gap-1.5 mb-1.5">
+                        <h4 className="text-xl font-bold text-center text-gray-900 dark:text-white">NJ E-Wealth</h4>
+                        <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-blue-100 dark:bg-blue-900/60 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-800">
+                          Recommended
+                        </span>
+                      </div>
+                      <p className="text-gray-600 dark:text-gray-400 mb-6 text-center text-sm leading-relaxed">
+                        Access comprehensive wealth management solutions through NJ E-Wealth's diverse investment products and advisory services.
+                      </p>
                     </div>
-                    <h4 className="text-xl font-semibold mb-3 text-center">NJ E-Wealth</h4>
-                    <p className="text-gray-600 dark:text-gray-400 mb-6 text-center">
-                      Access comprehensive wealth management solutions through NJ E-Wealth's diverse investment products and advisory services.
-                    </p>
-                    <Button 
-                      className="w-full group-hover:bg-red-600 transition-colors"
-                      onClick={() => window.open('https://njwealth.in/', '_blank')}
-                    >
-                      Open Account <ChevronRight className="ml-1 h-4 w-4 transition-transform group-hover:translate-x-1" />
-                    </Button>
-                  </div>
-                </CardContent>
+                  </CardContent>
+                </div>
+                <div className="p-8 pt-0">
+                  <Button 
+                    className="w-full bg-primary hover:bg-primary/90 text-white font-semibold transition-colors shadow-md"
+                    onClick={() => window.open('https://njwealth.in/', '_blank')}
+                  >
+                    Open Account <ChevronRight className="ml-1 h-4 w-4 transition-transform group-hover:translate-x-1" />
+                  </Button>
+                </div>
               </Card>
             </div>
           </div>
