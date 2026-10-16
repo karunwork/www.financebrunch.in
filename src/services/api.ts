@@ -101,6 +101,15 @@ export async function fetchLiveYouTubeVideos(): Promise<{ videos: YouTubeVideo[]
  */
 export async function fetchLiveGoogleReviews(): Promise<GoogleReviewsResponse> {
   const endpoint = getApiEndpoint('/api/reviews');
+  if (!endpoint) {
+    return {
+      success: true,
+      configured: false,
+      message: 'Google reviews API backend is not configured for static hosting.',
+      googleMapsUrl: 'https://www.google.com/maps/search/?api=1&query=Finance+Brunch+Hyderabad',
+      reviews: []
+    };
+  }
 
   try {
     const controller = new AbortController();
