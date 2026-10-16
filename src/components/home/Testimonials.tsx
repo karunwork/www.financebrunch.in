@@ -1,213 +1,207 @@
-
-import { useState, useEffect } from 'react';
-import { ChevronLeft, ChevronRight, Quote } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { ChevronLeft, ChevronRight, ExternalLink, Quote, Star } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { FadeIn } from '@/components/ui/animation';
+import { fetchLiveGoogleReviews, type GoogleReview } from '@/services/api';
 
-interface Testimonial {
-  id: number;
-  name: string;
-  position: string;
-  company: string;
-  avatar: string;
-  content: string;
-  rating: number;
+function formatReviewDate(review: GoogleReview) {
+  if (review.time) {
+    return new Intl.DateTimeFormat(undefined, {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+    }).format(review.time);
+  }
+
+  return review.relativeTime || 'Google review';
 }
 
 export default function Testimonials() {
-  const testimonials: Testimonial[] = [
-    {
-      id: 1,
-      name: "Priya Sharma",
-      position: "Entrepreneur",
-      company: "Innovate Solutions",
-      avatar: "https://randomuser.me/api/portraits/women/32.jpg",
-      content: "Finance Brunch transformed my investment strategy. Their expert guidance helped me create a diversified portfolio that's yielded incredible returns. The team is always responsive and provides personalized attention.",
-      rating: 5,
-    },
-    {
-      id: 2,
-      name: "Rajesh Kumar",
-      position: "IT Professional",
-      company: "TechCore Systems",
-      avatar: "https://randomuser.me/api/portraits/men/45.jpg",
-      content: "I've been working with Finance Brunch for my mutual fund investments for over 5 years. Their deep market knowledge and personalized approach has helped me achieve my financial goals faster than I expected.",
-      rating: 5,
-    },
-    {
-      id: 3,
-      name: "Ananya Patel",
-      position: "Doctor",
-      company: "Metro Hospitals",
-      avatar: "https://randomuser.me/api/portraits/women/63.jpg",
-      content: "The health insurance solutions provided by Finance Brunch offer comprehensive coverage at competitive rates. Their team guided me through the entire process and found the perfect plan for my family's needs.",
-      rating: 4,
-    },
-    {
-      id: 4,
-      name: "Vikram Singh",
-      position: "Business Owner",
-      company: "Frontier Exports",
-      avatar: "https://randomuser.me/api/portraits/men/72.jpg",
-      content: "Finance Brunch has been instrumental in helping me secure my family's future with the right term insurance policy. Their attention to detail and understanding of my requirements was impressive.",
-      rating: 5,
-    },
-    {
-      id: 5,
-      name: "Meera Reddy",
-      position: "Marketing Director",
-      company: "Creative Solutions",
-      avatar: "https://randomuser.me/api/portraits/women/17.jpg",
-      content: "The financial planning services offered by Finance Brunch are exceptional. They created a roadmap that aligned perfectly with my goals, and their regular reviews ensure I stay on track.",
-      rating: 5,
-    },
-  ];
-
+  const [reviews, setReviews] = useState<GoogleReview[]>([]);
+  const [googleMapsUrl, setGoogleMapsUrl] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isAnimating, setIsAnimating] = useState(false);
-  const maxIndex = testimonials.length - 1;
+
   useEffect(() => {
+    let mounted = true;
+
+    fetchLiveGoogleReviews()
+      .then((response) => {
+        if (!mounted) return;
+        if (response.success && response.configured && response.reviews.length > 0) {
+          setReviews(response.reviews);
+          setGoogleMapsUrl(response.googleMapsUrl || null);
+        } else {
+          setReviews([]);
+          setGoogleMapsUrl(response.googleMapsUrl || null);
+        }
+      })
+      .catch(() => {
+        if (mounted) setReviews([]);
+      })
+      .finally(() => {
+        if (mounted) setIsLoading(false);
+      });
+
+    return () => {
+      mounted = false;
+    };
+  }, []);
+
+  useEffect(() => {
+    if (reviews.length < 2) return;
+
     const timer = setInterval(() => {
-      setCurrentIndex(prev => (prev === maxIndex ? 0 : prev + 1));
+      setCurrentIndex((previous) => (previous === reviews.length - 1 ? 0 : previous + 1));
     }, 6000);
 
     return () => clearInterval(timer);
-  }, [maxIndex]);
+  }, [reviews.length]);
 
-  const goToPrev = () => {
-    if (isAnimating) return;
-    setIsAnimating(true);
-    setCurrentIndex(prev => (prev === 0 ? maxIndex : prev - 1));
-    setTimeout(() => setIsAnimating(false), 500);
-  };
-
-  const goToNext = () => {
-    if (isAnimating) return;
-    setIsAnimating(true);
-    setCurrentIndex(prev => (prev === maxIndex ? 0 : prev + 1));
-    setTimeout(() => setIsAnimating(false), 500);
-  };
-
-  const goToIndex = (index: number) => {
+  const changeReview = (index: number) => {
     if (isAnimating || index === currentIndex) return;
     setIsAnimating(true);
     setCurrentIndex(index);
-    setTimeout(() => setIsAnimating(false), 500);
+    window.setTimeout(() => setIsAnimating(false), 500);
   };
 
+  const goToPrevious = () => {
+    if (!reviews.length) return;
+    changeReview(currentIndex === 0 ? reviews.length - 1 : currentIndex - 1);
+  };
+
+  const goToNext = () => {
+    if (!reviews.length) return;
+    changeReview(currentIndex === reviews.length - 1 ? 0 : currentIndex + 1);
+  };
 
   return (
     <section id="testimonials" className="py-24 bg-transparent overflow-hidden">
       <div className="w-full max-w-7xl 2xl:max-w-[1536px] 3xl:max-w-[1680px] px-4 sm:px-6 lg:px-8 mx-auto">
         <FadeIn direction="up" className="max-w-3xl mx-auto text-center mb-16">
           <span className="inline-block px-3 py-1 bg-primary/10 text-primary rounded-full text-sm font-medium mb-4">
-            Client Testimonials
+            Google Reviews
           </span>
           <h2 className="text-3xl md:text-4xl font-bold mb-6">
             What Our Clients Say About Us
           </h2>
           <p className="text-lg text-gray-600 dark:text-gray-400">
-            Discover why thousands of clients trust Finance Brunch with their financial future.
+            Read feedback from clients on our Google Business Profile.
           </p>
         </FadeIn>
 
-        <FadeIn direction="up" delay={0.15} className="relative max-w-4xl mx-auto">
-
-          <div className="relative overflow-hidden">
-            <div 
-              className="flex transition-transform duration-500 ease-in-out" 
-              style={{ transform: `translateX(-${currentIndex * 100}%)` }}
-            >
-              {testimonials.map((testimonial) => (
-                <div key={testimonial.id} className="w-full flex-shrink-0 px-4">
-                  <div className="group bg-white dark:bg-gray-900 rounded-2xl shadow-md hover:shadow-lg p-8 md:p-10 border border-gray-100 dark:border-gray-800 hover:border-primary/25 transition-all duration-300">
-                    <div className="flex flex-col h-full">
-                      <div className="mb-6 flex-shrink-0">
-                        <Quote size={48} className="text-primary/20 transition-all duration-300 group-hover:text-primary/40 group-hover:scale-105" />
-                      </div>
-                      
-                      <p className="text-lg md:text-xl text-gray-700 dark:text-gray-300 mb-8 flex-grow">
-                        "{testimonial.content}"
-                      </p>
-                      
-                      <div className="flex items-center mt-auto">
-                        <img 
-                          src={testimonial.avatar} 
-                          alt={testimonial.name} 
-                          className="w-14 h-14 rounded-full object-cover mr-4 border-2 border-primary/20 transition-all duration-300 group-hover:scale-105 group-hover:border-primary/50"
-                        />
-                        <div>
-                          <h4 className="font-semibold text-lg">{testimonial.name}</h4>
-                          <p className="text-gray-600 dark:text-gray-400 text-sm">
-                            {testimonial.position}, {testimonial.company}
-                          </p>
-                          <div className="flex mt-1">
-                            {[...Array(5)].map((_, i) => (
-                              <svg 
-                                key={i}
-                                xmlns="http://www.w3.org/2000/svg" 
-                                className={cn(
-                                  "h-4 w-4", 
-                                  i < testimonial.rating ? "text-yellow-500" : "text-gray-300"
-                                )}
-                                fill="currentColor"
-                                viewBox="0 0 24 24"
-                              >
-                                <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z" />
-                              </svg>
-                            ))}
+        <FadeIn direction="up" delay={0.15} className="relative max-w-4xl mx-auto min-h-[340px]">
+          {isLoading ? (
+            <div className="flex min-h-[300px] items-center justify-center rounded-2xl border border-gray-100 bg-white/70 p-8 text-center shadow-md dark:border-gray-800 dark:bg-gray-900/70">
+              <p className="text-gray-600 dark:text-gray-400" role="status">Loading Google reviews...</p>
+            </div>
+          ) : reviews.length === 0 ? (
+            <div className="flex min-h-[300px] flex-col items-center justify-center rounded-2xl border border-gray-100 bg-white/70 p-8 text-center shadow-md dark:border-gray-800 dark:bg-gray-900/70">
+              <Quote size={48} className="mb-6 text-primary/20" aria-hidden="true" />
+              <p className="max-w-lg text-lg text-gray-600 dark:text-gray-400">
+                Google reviews are temporarily unavailable. Please visit our Google profile to read the latest reviews.
+              </p>
+              {googleMapsUrl && (
+                <a
+                  href={googleMapsUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="mt-6 inline-flex items-center gap-2 font-semibold text-primary hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+                >
+                  View Google reviews <ExternalLink size={16} aria-hidden="true" />
+                </a>
+              )}
+            </div>
+          ) : (
+            <>
+              <div className="relative overflow-hidden">
+                <div
+                  className="flex transition-transform duration-500 ease-in-out"
+                  style={{ transform: `translateX(-${currentIndex * 100}%)` }}
+                >
+                  {reviews.map((review) => (
+                    <div key={review.id} className="w-full flex-shrink-0 px-4">
+                      <article className="group rounded-2xl border border-gray-100 bg-white p-8 shadow-md transition-all duration-300 hover:border-primary/25 hover:shadow-lg dark:border-gray-800 dark:bg-gray-900 md:p-10">
+                        <Quote size={48} className="mb-6 text-primary/20 transition-all duration-300 group-hover:scale-105 group-hover:text-primary/40" aria-hidden="true" />
+                        <p className="mb-8 text-lg text-gray-700 dark:text-gray-300 md:text-xl">
+                          “{review.text}”
+                        </p>
+                        <div className="flex items-center">
+                          <img
+                            src={review.authorPhoto}
+                            alt=""
+                            className="mr-4 h-14 w-14 rounded-full border-2 border-primary/20 object-cover transition-all duration-300 group-hover:border-primary/50 group-hover:scale-105"
+                            loading="lazy"
+                          />
+                          <div>
+                            <h3 className="text-lg font-semibold">{review.authorName}</h3>
+                            <p className="text-sm text-gray-600 dark:text-gray-400">{formatReviewDate(review)}</p>
+                            <div className="mt-1 flex" aria-label={`${review.rating} out of 5 stars`}>
+                              {[1, 2, 3, 4, 5].map((star) => (
+                                <Star
+                                  key={star}
+                                  size={16}
+                                  className={cn(star <= review.rating ? 'fill-yellow-500 text-yellow-500' : 'text-gray-300')}
+                                  aria-hidden="true"
+                                />
+                              ))}
+                            </div>
                           </div>
                         </div>
-                      </div>
+                      </article>
                     </div>
-                  </div>
+                  ))}
                 </div>
-              ))}
-            </div>
-          </div>
+              </div>
 
-          {/* Navigation arrows */}
-          <div className="absolute top-1/2 left-1 sm:-left-3 lg:-left-5 transform -translate-y-1/2 z-20">
-            <Button 
-              variant="outline" 
-              size="icon" 
-              className="rounded-full bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm shadow-md hover:bg-white dark:hover:bg-gray-900 hover:scale-110 active:scale-95 transition-all duration-200 focus-visible:ring-2 focus-visible:ring-primary"
-              onClick={goToPrev}
-              aria-label="Previous testimonial"
-            >
-              <ChevronLeft size={20} className="transition-transform duration-200 hover:-translate-x-0.5" />
-            </Button>
-          </div>
-          <div className="absolute top-1/2 right-1 sm:-right-3 lg:-right-5 transform -translate-y-1/2 z-20">
-            <Button 
-              variant="outline" 
-              size="icon" 
-              className="rounded-full bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm shadow-md hover:bg-white dark:hover:bg-gray-900 hover:scale-110 active:scale-95 transition-all duration-200 focus-visible:ring-2 focus-visible:ring-primary"
-              onClick={goToNext}
-              aria-label="Next testimonial"
-            >
-              <ChevronRight size={20} className="transition-transform duration-200 hover:translate-x-0.5" />
-            </Button>
-          </div>
+              {reviews.length > 1 && (
+                <>
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    className="absolute left-1 top-1/2 z-20 -translate-y-1/2 rounded-full bg-white/80 shadow-md backdrop-blur-sm transition-all duration-200 hover:scale-110 dark:bg-gray-900/80 sm:-left-3 lg:-left-5"
+                    onClick={goToPrevious}
+                    aria-label="Previous Google review"
+                  >
+                    <ChevronLeft size={20} aria-hidden="true" />
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    className="absolute right-1 top-1/2 z-20 -translate-y-1/2 rounded-full bg-white/80 shadow-md backdrop-blur-sm transition-all duration-200 hover:scale-110 dark:bg-gray-900/80 sm:-right-3 lg:-right-5"
+                    onClick={goToNext}
+                    aria-label="Next Google review"
+                  >
+                    <ChevronRight size={20} aria-hidden="true" />
+                  </Button>
+                  <div className="mt-10 flex justify-center">
+                    {reviews.map((review, index) => (
+                      <button
+                        type="button"
+                        key={review.id}
+                        className={cn(
+                          'mx-1 h-3 rounded-full transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary',
+                          index === currentIndex ? 'w-8 bg-primary' : 'w-3 bg-gray-300 hover:bg-primary/50 dark:bg-gray-700'
+                        )}
+                        onClick={() => changeReview(index)}
+                        aria-label={`Go to Google review ${index + 1}`}
+                      />
+                    ))}
+                  </div>
+                </>
+              )}
 
-          {/* Indicators */}
-          <div className="flex justify-center mt-10">
-            {testimonials.map((_, index) => (
-              <button
-                type="button"
-                key={index}
-                className={cn(
-                  "w-3 h-3 mx-1 rounded-full transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary",
-                  index === currentIndex 
-                    ? "bg-primary w-8" 
-                    : "bg-gray-300 dark:bg-gray-700 hover:bg-primary/50 hover:scale-125"
-                )}
-                onClick={() => goToIndex(index)}
-                aria-label={`Go to testimonial ${index + 1}`}
-              />
-            ))}
-          </div>
+              {googleMapsUrl && (
+                <div className="mt-8 text-center">
+                  <a href={googleMapsUrl} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 text-sm font-semibold text-primary hover:underline">
+                    See all reviews on Google <ExternalLink size={15} aria-hidden="true" />
+                  </a>
+                </div>
+              )}
+            </>
+          )}
         </FadeIn>
       </div>
     </section>
