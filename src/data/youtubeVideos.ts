@@ -1,6 +1,7 @@
 export interface YouTubeVideo {
   id: string;
   title: string;
+  description: string;
   published: string;
   publishedFormatted: string;
   views: number;
@@ -33,6 +34,7 @@ export const youtubeVideos: YouTubeVideo[] = [
   {
     id: "7krdh7k7XYY",
     title: "RBI 5.50% Repo Rate 🚨 సామాన్యుడిపై ప్రభావం ఏంటి? | EMI, Loans, FD Explained",
+    description: "An analysis of the RBI repo rate announcement and its immediate impact on home loan EMIs, borrowing costs, and fixed deposit returns for retail investors.",
     published: "2026-10-07T11:08:58+00:00",
     publishedFormatted: "October 2026",
     views: 40,
@@ -51,6 +53,7 @@ export const youtubeVideos: YouTubeVideo[] = [
   {
     id: "sVPYpoMRayA",
     title: "LUMINO IPO 2026 🚨 భారీ Opportunityనా? అసలు Risk ఇదే!",
+    description: "A detailed review of the Lumino IPO, breaking down the business fundamentals, financial valuation, growth catalysts, and key investment risks.",
     published: "2026-08-29T03:30:17+00:00",
     publishedFormatted: "August 2026",
     views: 27,
@@ -69,6 +72,7 @@ export const youtubeVideos: YouTubeVideo[] = [
   {
     id: "TB8gp5-L-eI",
     title: "ESDS Software Solutions IPO: అసలు విషయం ఇదే! 🔥 | IPO పూర్తి వివరాలు",
+    description: "Complete fundamental breakdown of the ESDS Software Solutions IPO, reviewing financials, cloud industry growth, issue size, and long-term viability.",
     published: "2026-08-28T07:38:30+00:00",
     publishedFormatted: "August 2026",
     views: 89,
@@ -87,6 +91,7 @@ export const youtubeVideos: YouTubeVideo[] = [
   {
     id: "XZ9Y6pYOHkg",
     title: "Hy-Tech Engineers IPO | కొనాలా? వద్దా? 🚀 | IPO Dates, GMP, Issue Size & పూర్తి విశ్లేషణ",
+    description: "Comprehensive analysis of Hy-Tech Engineers IPO exploring Grey Market Premium (GMP) indicators, issue valuation, and subscription guidance.",
     published: "2026-08-26T12:30:01+00:00",
     publishedFormatted: "August 2026",
     views: 36,
@@ -105,6 +110,7 @@ export const youtubeVideos: YouTubeVideo[] = [
   {
     id: "VgcywbIbiYg",
     title: "ఎమర్జెన్సీ ఫండ్ అంటే ఏమిటి? | 6-12 నెలల రూల్ | Financial Planning Telugu | Finance Brunch",
+    description: "Practical guide explaining the 6-12 months emergency fund rule, why liquid contingency savings are essential, and where to safely invest them.",
     published: "2026-07-25T04:30:30+00:00",
     publishedFormatted: "July 2026",
     views: 50,
@@ -123,6 +129,7 @@ export const youtubeVideos: YouTubeVideo[] = [
   {
     id: "5_cZYhvQjQk",
     title: "🔥 95% మంది Job చేస్తూనే ఉంటారు! ₹10,000 Salaryతో Financial Freedom? | FIRE Telugu",
+    description: "Learn how the Financial Independence, Retire Early (FIRE) framework works, and how disciplined monthly investing builds substantial wealth on any salary.",
     published: "2026-07-18T04:30:32+00:00",
     publishedFormatted: "July 2026",
     views: 23,
@@ -141,6 +148,7 @@ export const youtubeVideos: YouTubeVideo[] = [
   {
     id: "BgerokDBsYs",
     title: "IPO లో పెట్టుబడి పెట్టేముందు తప్పక చూడండి! | IPO Explained in Telugu | Stock Market for Beginners",
+    description: "Step-by-step masterclass covering everything beginners need to know about IPO bidding, price bands, allotment probabilities, and red flags.",
     published: "2026-07-04T04:30:26+00:00",
     publishedFormatted: "July 2026",
     views: 75,
@@ -159,6 +167,7 @@ export const youtubeVideos: YouTubeVideo[] = [
   {
     id: "3t42oCUnEU8",
     title: "Financial Planning లేకపోతే... డబ్బు సంపాదించినా ప్రయోజనం లేదు! 💸",
+    description: "Discover why disciplined financial planning and strategic asset allocation protect your hard-earned money and secure long-term family wealth.",
     published: "2026-06-26T07:28:31+00:00",
     publishedFormatted: "June 2026",
     views: 60,

@@ -33,8 +33,18 @@ import {
   MIN_SWP_CORPUS,
   MAX_SWP_WITHDRAWAL,
   MIN_SWP_WITHDRAWAL,
+  SWP_CORPUS_QUICK_PRESETS,
+  SWP_WITHDRAWAL_QUICK_PRESETS,
 } from '@/utils/swpCalculator';
+import {
+  valueToSliderPos,
+  sliderPosToValue,
+  SWP_CORPUS_SCALE,
+  SWP_WITHDRAWAL_SCALE,
+} from '@/utils/sliderScaleUtils';
+import { CalculatorCTAButtons } from './CalculatorCTAButtons';
 import { CalculatorDisclaimer } from './CalculatorDisclaimer';
+import { VpfVsPpfComparison } from './VpfVsPpfComparison';
 import { cn } from '@/lib/utils';
 
 export default function SWPCalculator() {
@@ -45,6 +55,12 @@ export default function SWPCalculator() {
   const [monthlyWithdrawal, setMonthlyWithdrawal] = useState<number>(6000);
   const [withdrawalInputStr, setWithdrawalInputStr] = useState<string>('6,000');
   const [isWithdrawalFocused, setIsWithdrawalFocused] = useState<boolean>(false);
+
+  // Dual percentage entry state (% of initial corpus)
+  const [withdrawalPercentage, setWithdrawalPercentage] = useState<number>(0.6);
+  const [percentInputStr, setPercentInputStr] = useState<string>('0.6');
+  const [isPercentFocused, setIsPercentFocused] = useState<boolean>(false);
+  const [withdrawalMode, setWithdrawalMode] = useState<'rupee' | 'percent'>('rupee');
 
   const [expectedReturn, setExpectedReturn] = useState<number>(8);
   const [returnInputStr, setReturnInputStr] = useState<string>('8');
@@ -75,24 +91,47 @@ export default function SWPCalculator() {
     const cleaned = valStr.replace(/[^0-9]/g, '');
     const num = Number(cleaned);
 
+    let effectiveCorpus = num;
     if (valStr.trim() === '') {
       setErrors((prev) => ({ ...prev, corpus: 'Initial corpus is required.' }));
+      effectiveCorpus = 0;
       setInitialCorpus(0);
-    } else if (isNaN(num) || num < MIN_SWP_CORPUS) {
+    } else if (isNaN(num) || num < 0) {
+      setErrors((prev) => ({ ...prev, corpus: 'Please enter a valid positive number.' }));
+      effectiveCorpus = 0;
+      setInitialCorpus(0);
+    } else if (num < MIN_SWP_CORPUS) {
       setErrors((prev) => ({ ...prev, corpus: `Minimum corpus is ₹${MIN_SWP_CORPUS.toLocaleString('en-IN')}.` }));
       setInitialCorpus(num > 0 ? num : 0);
     } else if (num > MAX_SWP_CORPUS) {
-      setErrors((prev) => ({ ...prev, corpus: 'Maximum corpus supported is ₹100 Crore.' }));
-      setInitialCorpus(num);
+      setErrors((prev) => ({ ...prev, corpus: 'Maximum corpus supported is ₹100 Crore (₹1,00,00,00,000).' }));
+      effectiveCorpus = MAX_SWP_CORPUS;
+      setInitialCorpus(MAX_SWP_CORPUS);
     } else {
       setErrors((prev) => ({ ...prev, corpus: undefined }));
       setInitialCorpus(num);
+    }
+
+    // Synchronize withdrawal amount / percentage when corpus changes
+    if (withdrawalMode === 'percent') {
+      const newRupee = Math.round((effectiveCorpus * withdrawalPercentage) / 100);
+      const clampedRupee = Math.min(MAX_SWP_WITHDRAWAL, Math.max(0, newRupee));
+      setMonthlyWithdrawal(clampedRupee);
+      setWithdrawalInputStr(clampedRupee > 0 ? clampedRupee.toLocaleString('en-IN') : '0');
+    } else {
+      const newPct = effectiveCorpus > 0 ? (monthlyWithdrawal / effectiveCorpus) * 100 : 0;
+      setWithdrawalPercentage(newPct);
+      setPercentInputStr(newPct > 0 ? (newPct < 0.1 ? newPct.toFixed(3) : newPct.toFixed(2)) : '0');
     }
   };
 
   const handleCorpusBlur = () => {
     setIsCorpusFocused(false);
-    if (initialCorpus > 0) {
+    if (initialCorpus > MAX_SWP_CORPUS) {
+      setInitialCorpus(MAX_SWP_CORPUS);
+      setCorpusInputStr(MAX_SWP_CORPUS.toLocaleString('en-IN'));
+      setErrors((prev) => ({ ...prev, corpus: undefined }));
+    } else if (initialCorpus > 0) {
       setCorpusInputStr(initialCorpus.toLocaleString('en-IN'));
     }
   };
@@ -105,36 +144,92 @@ export default function SWPCalculator() {
   };
 
   const handleWithdrawalChange = (valStr: string) => {
+    setWithdrawalMode('rupee');
     setWithdrawalInputStr(valStr);
     const cleaned = valStr.replace(/[^0-9]/g, '');
     const num = Number(cleaned);
 
+    let effectiveRupee = num;
     if (valStr.trim() === '') {
       setErrors((prev) => ({ ...prev, withdrawal: 'Monthly withdrawal is required.' }));
+      effectiveRupee = 0;
       setMonthlyWithdrawal(0);
-    } else if (isNaN(num) || num < MIN_SWP_WITHDRAWAL) {
+    } else if (isNaN(num) || num < 0) {
+      setErrors((prev) => ({ ...prev, withdrawal: 'Please enter a valid positive number.' }));
+      effectiveRupee = 0;
+      setMonthlyWithdrawal(0);
+    } else if (num < MIN_SWP_WITHDRAWAL) {
       setErrors((prev) => ({ ...prev, withdrawal: `Minimum withdrawal is ₹${MIN_SWP_WITHDRAWAL.toLocaleString('en-IN')}.` }));
       setMonthlyWithdrawal(num > 0 ? num : 0);
     } else if (num > MAX_SWP_WITHDRAWAL) {
-      setErrors((prev) => ({ ...prev, withdrawal: 'Maximum monthly withdrawal is ₹100 Crore.' }));
-      setMonthlyWithdrawal(num);
+      setErrors((prev) => ({ ...prev, withdrawal: 'Maximum monthly withdrawal is ₹100 Crore (₹1,00,00,00,000).' }));
+      effectiveRupee = MAX_SWP_WITHDRAWAL;
+      setMonthlyWithdrawal(MAX_SWP_WITHDRAWAL);
     } else {
       setErrors((prev) => ({ ...prev, withdrawal: undefined }));
       setMonthlyWithdrawal(num);
     }
+
+    const newPct = initialCorpus > 0 ? (effectiveRupee / initialCorpus) * 100 : 0;
+    setWithdrawalPercentage(newPct);
+    setPercentInputStr(newPct > 0 ? (newPct < 0.1 ? newPct.toFixed(3) : newPct.toFixed(2)) : '0');
   };
 
   const handleWithdrawalBlur = () => {
     setIsWithdrawalFocused(false);
-    if (monthlyWithdrawal > 0) {
+    if (monthlyWithdrawal > MAX_SWP_WITHDRAWAL) {
+      setMonthlyWithdrawal(MAX_SWP_WITHDRAWAL);
+      setWithdrawalInputStr(MAX_SWP_WITHDRAWAL.toLocaleString('en-IN'));
+      setErrors((prev) => ({ ...prev, withdrawal: undefined }));
+    } else if (monthlyWithdrawal > 0) {
       setWithdrawalInputStr(monthlyWithdrawal.toLocaleString('en-IN'));
     }
   };
 
   const handleWithdrawalFocus = () => {
     setIsWithdrawalFocused(true);
+    setWithdrawalMode('rupee');
     if (monthlyWithdrawal > 0) {
       setWithdrawalInputStr(monthlyWithdrawal.toString());
+    }
+  };
+
+  const handlePercentageChange = (valStr: string) => {
+    setWithdrawalMode('percent');
+    setPercentInputStr(valStr);
+    const num = parseFloat(valStr);
+
+    if (valStr.trim() === '' || isNaN(num)) {
+      setErrors((prev) => ({ ...prev, withdrawal: 'Withdrawal percentage is required.' }));
+      setWithdrawalPercentage(0);
+      setMonthlyWithdrawal(0);
+      setWithdrawalInputStr('0');
+    } else if (num < 0) {
+      setErrors((prev) => ({ ...prev, withdrawal: 'Withdrawal percentage cannot be negative.' }));
+      setWithdrawalPercentage(0);
+      setMonthlyWithdrawal(0);
+      setWithdrawalInputStr('0');
+    } else if (num > 100) {
+      setErrors((prev) => ({ ...prev, withdrawal: 'Withdrawal percentage cannot exceed 100% of initial corpus.' }));
+      setWithdrawalPercentage(100);
+      const calculatedRupee = Math.round((initialCorpus * 100) / 100);
+      const effectiveRupee = Math.min(MAX_SWP_WITHDRAWAL, Math.max(0, calculatedRupee));
+      setMonthlyWithdrawal(effectiveRupee);
+      setWithdrawalInputStr(effectiveRupee.toLocaleString('en-IN'));
+    } else {
+      setErrors((prev) => ({ ...prev, withdrawal: undefined }));
+      setWithdrawalPercentage(num);
+      const calculatedRupee = Math.round((initialCorpus * num) / 100);
+      const effectiveRupee = Math.min(MAX_SWP_WITHDRAWAL, Math.max(0, calculatedRupee));
+      setMonthlyWithdrawal(effectiveRupee);
+      setWithdrawalInputStr(effectiveRupee.toLocaleString('en-IN'));
+    }
+  };
+
+  const handlePercentBlur = () => {
+    setIsPercentFocused(false);
+    if (withdrawalPercentage > 0) {
+      setPercentInputStr(withdrawalPercentage < 0.1 ? withdrawalPercentage.toFixed(3) : withdrawalPercentage.toFixed(2));
     }
   };
 
@@ -212,76 +307,233 @@ export default function SWPCalculator() {
                   </div>
                 </div>
                 <Slider
-                  value={[Math.min(initialCorpus, MAX_SWP_CORPUS)]}
-                  min={MIN_SWP_CORPUS}
-                  max={MAX_SWP_CORPUS}
-                  step={10000}
+                  value={[valueToSliderPos(initialCorpus, SWP_CORPUS_SCALE)]}
+                  min={0}
+                  max={100}
+                  step={0.5}
                   onValueChange={(val) => {
-                    setInitialCorpus(val[0]);
-                    setCorpusInputStr(val[0].toLocaleString('en-IN'));
+                    const snapped = sliderPosToValue(val[0], SWP_CORPUS_SCALE);
+                    setInitialCorpus(snapped);
+                    setCorpusInputStr(snapped.toLocaleString('en-IN'));
                     setErrors((prev) => ({ ...prev, corpus: undefined }));
+
+                    if (withdrawalMode === 'percent') {
+                      const newRupee = Math.round((snapped * withdrawalPercentage) / 100);
+                      const clampedRupee = Math.min(MAX_SWP_WITHDRAWAL, Math.max(0, newRupee));
+                      setMonthlyWithdrawal(clampedRupee);
+                      setWithdrawalInputStr(clampedRupee > 0 ? clampedRupee.toLocaleString('en-IN') : '0');
+                    } else {
+                      const newPct = snapped > 0 ? (monthlyWithdrawal / snapped) * 100 : 0;
+                      setWithdrawalPercentage(newPct);
+                      setPercentInputStr(newPct > 0 ? (newPct < 0.1 ? newPct.toFixed(3) : newPct.toFixed(2)) : '0');
+                    }
                   }}
                   className="py-1 cursor-pointer"
                   aria-label="Total Investment Corpus Slider"
                 />
                 <div className="flex justify-between text-[11px] font-mono text-slate-400">
-                  <span>₹10,000</span>
-                  <span>₹10 Lakh</span>
-                  <span>₹1 Cr</span>
-                  <span>₹10 Cr</span>
-                  <span>₹100 Cr</span>
+                  {SWP_CORPUS_SCALE.labels.map((item, idx) => (
+                    <span key={idx}>{item.label}</span>
+                  ))}
+                </div>
+
+                {/* Quick preset buttons for Corpus */}
+                <div className="flex flex-wrap gap-1.5 pt-1">
+                  {SWP_CORPUS_QUICK_PRESETS.map((preset) => (
+                    <button
+                      key={preset}
+                      type="button"
+                      onClick={() => {
+                        setInitialCorpus(preset);
+                        setCorpusInputStr(preset.toLocaleString('en-IN'));
+                        setErrors((prev) => ({ ...prev, corpus: undefined }));
+
+                        if (withdrawalMode === 'percent') {
+                          const newRupee = Math.round((preset * withdrawalPercentage) / 100);
+                          const clampedRupee = Math.min(MAX_SWP_WITHDRAWAL, Math.max(0, newRupee));
+                          setMonthlyWithdrawal(clampedRupee);
+                          setWithdrawalInputStr(clampedRupee > 0 ? clampedRupee.toLocaleString('en-IN') : '0');
+                        } else {
+                          const newPct = preset > 0 ? (monthlyWithdrawal / preset) * 100 : 0;
+                          setWithdrawalPercentage(newPct);
+                          setPercentInputStr(newPct > 0 ? (newPct < 0.1 ? newPct.toFixed(3) : newPct.toFixed(2)) : '0');
+                        }
+                      }}
+                      className={cn(
+                        "px-2.5 py-1 text-xs rounded-lg font-medium transition-all duration-150 border",
+                        initialCorpus === preset
+                          ? "bg-cyan-600 text-white border-cyan-600 shadow-sm"
+                          : "bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700 hover:border-cyan-400 hover:text-cyan-600 dark:hover:text-cyan-400"
+                      )}
+                    >
+                      {preset >= 100000 ? formatCompactINR(preset) : `₹${preset.toLocaleString('en-IN')}`}
+                    </button>
+                  ))}
                 </div>
                 {errors.corpus && <p className="text-xs text-rose-500">{errors.corpus}</p>}
               </div>
 
-              {/* Monthly Withdrawal */}
+              {/* Monthly Withdrawal (Rupee & % of Initial Corpus Dual Entry) */}
               <div className="space-y-3">
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 min-w-0">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                   <Label htmlFor="swp-withdrawal" className="text-sm font-semibold flex items-center gap-1.5 shrink-0">
                     <ArrowDownRight size={15} className="text-cyan-600 dark:text-cyan-400" />
-                    Monthly Withdrawal (SWP)
+                    <span>Monthly Withdrawal</span>
                   </Label>
-                  <div className="relative min-w-[160px] sm:w-52 lg:w-56 max-w-full">
-                    <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-xs font-semibold text-slate-400 select-none pointer-events-none">₹</span>
-                    <Input
-                      id="swp-withdrawal"
-                      type="text"
-                      value={withdrawalInputStr}
-                      onChange={(e) => handleWithdrawalChange(e.target.value)}
-                      onFocus={handleWithdrawalFocus}
-                      onBlur={handleWithdrawalBlur}
-                      className="pl-6 pr-3 text-right font-mono text-sm h-9 border-slate-200 dark:border-slate-700 w-full min-w-0"
-                      style={{
-                        fontSize: withdrawalInputStr.length > 13 ? '0.75rem' : withdrawalInputStr.length > 10 ? '0.8125rem' : '0.875rem',
-                      }}
-                      aria-label="Monthly Withdrawal Amount in Rupees"
-                    />
+                  <div className="flex items-center bg-slate-100 dark:bg-slate-800 p-0.5 rounded-lg text-xs font-medium border border-slate-200/80 dark:border-slate-700/60">
+                    <button
+                      type="button"
+                      onClick={() => setWithdrawalMode('rupee')}
+                      className={cn(
+                        "px-2.5 py-1 rounded-md transition-all font-medium flex items-center gap-1",
+                        withdrawalMode === 'rupee'
+                          ? "bg-white dark:bg-slate-700 text-blue-600 dark:text-cyan-300 shadow-xs"
+                          : "text-slate-500 hover:text-slate-900 dark:hover:text-white"
+                      )}
+                    >
+                      <span>₹ Rupee</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setWithdrawalMode('percent')}
+                      className={cn(
+                        "px-2.5 py-1 rounded-md transition-all font-medium flex items-center gap-1",
+                        withdrawalMode === 'percent'
+                          ? "bg-white dark:bg-slate-700 text-blue-600 dark:text-cyan-300 shadow-xs"
+                          : "text-slate-500 hover:text-slate-900 dark:hover:text-white"
+                      )}
+                    >
+                      <span>% of Corpus</span>
+                    </button>
+                  </div>
+                </div>
+
+                {/* Side-by-Side Dual Editable Inputs */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  {/* Rupee Input */}
+                  <div className="space-y-1">
+                    <span className="text-[11px] font-semibold text-slate-500 dark:text-slate-400 flex items-center justify-between">
+                      <span>Monthly Rupee Amount</span>
+                      {withdrawalMode === 'rupee' && (
+                        <span className="text-[10px] text-blue-600 dark:text-cyan-400 font-medium">Active</span>
+                      )}
+                    </span>
+                    <div className="relative">
+                      <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-xs font-semibold text-slate-400 select-none pointer-events-none">₹</span>
+                      <Input
+                        id="swp-withdrawal"
+                        type="text"
+                        value={withdrawalInputStr}
+                        onChange={(e) => handleWithdrawalChange(e.target.value)}
+                        onFocus={handleWithdrawalFocus}
+                        onBlur={handleWithdrawalBlur}
+                        className={cn(
+                          "pl-6 pr-3 text-right font-mono text-sm h-9 border-slate-200 dark:border-slate-700 w-full min-w-0 transition-all",
+                          withdrawalMode === 'rupee' && "ring-1 ring-blue-500/50 dark:ring-cyan-500/50"
+                        )}
+                        style={{
+                          fontSize: withdrawalInputStr.length > 13 ? '0.75rem' : withdrawalInputStr.length > 10 ? '0.8125rem' : '0.875rem',
+                        }}
+                        aria-label="Monthly Withdrawal Amount in Rupees"
+                      />
+                    </div>
                     {monthlyWithdrawal >= 100000 && !isWithdrawalFocused && (
                       <span className="text-[11px] text-cyan-600 dark:text-cyan-400 font-semibold block text-right mt-0.5">
                         ({formatCompactINR(monthlyWithdrawal)})
                       </span>
                     )}
                   </div>
+
+                  {/* Percentage Input */}
+                  <div className="space-y-1">
+                    <span className="text-[11px] font-semibold text-slate-500 dark:text-slate-400 flex items-center justify-between">
+                      <span title="Monthly Withdrawal (% of Initial Corpus)">Monthly Withdrawal (% of Initial Corpus)</span>
+                      {withdrawalMode === 'percent' && (
+                        <span className="text-[10px] text-blue-600 dark:text-cyan-400 font-medium">Active</span>
+                      )}
+                    </span>
+                    <div className="relative">
+                      <Input
+                        id="swp-withdrawal-pct"
+                        type="number"
+                        step="0.01"
+                        min="0"
+                        max="100"
+                        value={percentInputStr}
+                        onChange={(e) => handlePercentageChange(e.target.value)}
+                        onFocus={() => { setIsPercentFocused(true); setWithdrawalMode('percent'); }}
+                        onBlur={handlePercentBlur}
+                        className={cn(
+                          "pr-7 pl-3 text-right font-mono text-sm h-9 border-slate-200 dark:border-slate-700 w-full min-w-0 transition-all",
+                          withdrawalMode === 'percent' && "ring-1 ring-blue-500/50 dark:ring-cyan-500/50"
+                        )}
+                        aria-label="Monthly Withdrawal (% of Initial Corpus)"
+                      />
+                      <span className="absolute right-2.5 top-1/2 -translate-y-1/2 text-xs font-semibold text-slate-400 select-none pointer-events-none">%</span>
+                    </div>
+                    <span className="text-[11px] text-slate-500 dark:text-slate-400 block text-right truncate">
+                      (= {formatINR(monthlyWithdrawal)}/mo)
+                    </span>
+                  </div>
                 </div>
+
+                {/* Educational clarification note */}
+                <div className="text-[11px] text-slate-500 dark:text-slate-400 flex items-center gap-1.5 bg-slate-50 dark:bg-slate-800/40 p-2 rounded-lg border border-slate-100 dark:border-slate-800">
+                  <Info size={13} className="text-cyan-600 dark:text-cyan-400 shrink-0" />
+                  <span>
+                    Percentage is based on the initial corpus ({formatINR(initialCorpus)}), not the declining balance.
+                  </span>
+                </div>
+
                 <Slider
-                  value={[Math.min(monthlyWithdrawal, MAX_SWP_WITHDRAWAL)]}
-                  min={MIN_SWP_WITHDRAWAL}
-                  max={MAX_SWP_WITHDRAWAL}
-                  step={1000}
+                  value={[valueToSliderPos(monthlyWithdrawal, SWP_WITHDRAWAL_SCALE)]}
+                  min={0}
+                  max={100}
+                  step={0.5}
                   onValueChange={(val) => {
-                    setMonthlyWithdrawal(val[0]);
-                    setWithdrawalInputStr(val[0].toLocaleString('en-IN'));
+                    const snapped = sliderPosToValue(val[0], SWP_WITHDRAWAL_SCALE);
+                    setMonthlyWithdrawal(snapped);
+                    setWithdrawalInputStr(snapped.toLocaleString('en-IN'));
                     setErrors((prev) => ({ ...prev, withdrawal: undefined }));
+
+                    const newPct = initialCorpus > 0 ? (snapped / initialCorpus) * 100 : 0;
+                    setWithdrawalPercentage(newPct);
+                    setPercentInputStr(newPct > 0 ? (newPct < 0.1 ? newPct.toFixed(3) : newPct.toFixed(2)) : '0');
                   }}
                   className="py-1 cursor-pointer"
                   aria-label="Monthly Withdrawal Slider"
                 />
                 <div className="flex justify-between text-[11px] font-mono text-slate-400">
-                  <span>₹500</span>
-                  <span>₹10 Lakh</span>
-                  <span>₹1 Cr</span>
-                  <span>₹10 Cr</span>
-                  <span>₹100 Cr</span>
+                  {SWP_WITHDRAWAL_SCALE.labels.map((item, idx) => (
+                    <span key={idx}>{item.label}</span>
+                  ))}
+                </div>
+
+                {/* Quick preset buttons for Withdrawal */}
+                <div className="flex flex-wrap gap-1.5 pt-1">
+                  {SWP_WITHDRAWAL_QUICK_PRESETS.map((preset) => (
+                    <button
+                      key={preset}
+                      type="button"
+                      onClick={() => {
+                        setMonthlyWithdrawal(preset);
+                        setWithdrawalInputStr(preset.toLocaleString('en-IN'));
+                        setErrors((prev) => ({ ...prev, withdrawal: undefined }));
+
+                        const newPct = initialCorpus > 0 ? (preset / initialCorpus) * 100 : 0;
+                        setWithdrawalPercentage(newPct);
+                        setPercentInputStr(newPct > 0 ? (newPct < 0.1 ? newPct.toFixed(3) : newPct.toFixed(2)) : '0');
+                      }}
+                      className={cn(
+                        "px-2.5 py-1 text-xs rounded-lg font-medium transition-all duration-150 border",
+                        monthlyWithdrawal === preset
+                          ? "bg-cyan-600 text-white border-cyan-600 shadow-sm"
+                          : "bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700 hover:border-cyan-400 hover:text-cyan-600 dark:hover:text-cyan-400"
+                      )}
+                    >
+                      {preset >= 100000 ? formatCompactINR(preset) : `₹${preset.toLocaleString('en-IN')}`}
+                    </button>
+                  ))}
                 </div>
                 {errors.withdrawal && <p className="text-xs text-rose-500">{errors.withdrawal}</p>}
               </div>
@@ -488,6 +740,9 @@ export default function SWPCalculator() {
             </Card>
           </div>
 
+          {/* Action CTAs */}
+          <CalculatorCTAButtons sourceCalculator="swp" />
+
           {/* Visualization Section */}
           <Card className="border-slate-200/80 dark:border-slate-800 bg-white dark:bg-slate-900/60 shadow-sm overflow-hidden">
             <div className="p-4 border-b border-slate-100 dark:border-slate-800/80 flex items-center justify-between">
@@ -590,6 +845,9 @@ export default function SWPCalculator() {
 
       {/* Required Financial Disclaimer */}
       <CalculatorDisclaimer />
+
+      {/* VPF vs PPF Educational Comparison Section */}
+      <VpfVsPpfComparison calculatorId="swp" />
     </div>
   );
 }

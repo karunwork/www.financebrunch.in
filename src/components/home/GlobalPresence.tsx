@@ -19,7 +19,7 @@ export default function GlobalPresence() {
             Our Global Presence
           </h2>
           <p className="text-sm sm:text-base text-slate-600 dark:text-slate-400">
-            With offices across major financial hubs, we provide localized expertise with a global perspective.
+            We provide localized expertise with a global perspective.
           </p>
         </FadeIn>
 

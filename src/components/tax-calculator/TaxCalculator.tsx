@@ -38,6 +38,7 @@ const TaxCalculator: React.FC<{ className?: string }> = ({ className }) => {
     section80E: 0,
     otherDeductions: 0,
   });
+  const [calcSessionId, setCalcSessionId] = useState<number>(0);
 
   useEffect(() => {
     setCurrencySymbol(getCurrencySymbol(country));
@@ -54,6 +55,9 @@ const TaxCalculator: React.FC<{ className?: string }> = ({ className }) => {
       state
     });
     
+    // Increment calculation session ID to restart timer from zero on recalculate
+    setCalcSessionId((prev) => prev + 1);
+
     // Always show results when calculation is triggered
     setShowResults(true);
     setShowTips(true);
@@ -63,15 +67,26 @@ const TaxCalculator: React.FC<{ className?: string }> = ({ className }) => {
   };
 
   const handleIncomeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value === "" ? 0 : parseFloat(e.target.value);
-    setIncome(value);
+    const raw = e.target.value;
+    if (raw === "") {
+      setIncome(0);
+      return;
+    }
+    const value = parseFloat(raw);
+    if (isNaN(value)) return;
+    setIncome(Math.max(0, Math.min(1000000000, value)));
   };
 
   const handleDeductionChange = (key: string, value: string) => {
-    const numValue = value === "" ? 0 : parseFloat(value);
+    if (value === "") {
+      setDeductions({ ...deductions, [key]: 0 });
+      return;
+    }
+    const numValue = parseFloat(value);
+    if (isNaN(numValue)) return;
     setDeductions({
       ...deductions,
-      [key]: numValue
+      [key]: Math.max(0, Math.min(1000000000, numValue))
     });
   };
 
@@ -189,7 +204,7 @@ const TaxCalculator: React.FC<{ className?: string }> = ({ className }) => {
             
             <TabsContent value="results" className="space-y-4">
               <TaxResults 
-                key={`tax-results-${country}-${state}-${taxpayerType}-${income}-${regime}-${financialYear}`}
+                key={`tax-results-${country}-${state}-${taxpayerType}-${income}-${regime}-${financialYear}-${calcSessionId}-${JSON.stringify(deductions)}`}
                 income={income} 
                 regime={regime} 
                 age={age} 

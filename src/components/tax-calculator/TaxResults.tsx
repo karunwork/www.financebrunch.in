@@ -1,13 +1,31 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
+import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { PieChart, Pie, Cell, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, Legend } from "recharts";
-import { Download, Share2, Printer, ChevronDown, ChevronUp } from "lucide-react";
+import { Download, Share2, Printer, ChevronDown, ChevronUp, FileText, Loader2, Info } from "lucide-react";
 import { calculateTax, TaxBreakdown, compareTaxRegimes } from "./utils/taxCalculations";
 import { TaxRegime, FinancialYear, DeductionsType } from "./utils/taxTypes";
 import { TaxpayerType } from "./TaxpayerTypeSelector";
 import { CountryCode, StateCode } from "./CountrySelector";
 import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { useToast } from "@/hooks/use-toast";
+import {
+  printTaxReport,
+  downloadTaxReportPdf,
+  downloadTaxReportDocx,
+  shareTaxReport,
+  getAssessmentYear,
+  TaxReportData,
+  TAX_CALCULATOR_DISCLAIMER_TEXT,
+} from "./utils/taxReportGenerator";
+import { TaxConsultationPopup } from "./TaxConsultationPopup";
 import { formatCurrency as formatCurrencyValue } from "./utils/currencyUtils";
 
 export interface TaxResultsProps {
@@ -38,6 +56,150 @@ const TaxResults: React.FC<TaxResultsProps> = ({
   const [showBreakdown, setShowBreakdown] = useState(false);
   const [taxResult, setTaxResult] = useState<TaxBreakdown | null>(null);
   const [calculationComplete, setCalculationComplete] = useState(false);
+  const [isExporting, setIsExporting] = useState<boolean>(false);
+  const [consultationPopupOpen, setConsultationPopupOpen] = useState(false);
+  const hasShownPopupRef = useRef(false);
+  const navigate = useNavigate();
+  const { toast } = useToast();
+
+  // Delayed consultation popup after remaining on results page for 60 seconds
+  useEffect(() => {
+    // Only start timer after a successful tax calculation when the results are displayed
+    if (!taxResult || !calculationComplete) return;
+
+    // Prevent duplicate popups within this calculation session
+    if (hasShownPopupRef.current) return;
+
+    const delayMs = typeof window !== 'undefined' && (window as any).__TAX_POPUP_DELAY_MS__ !== undefined
+      ? Number((window as any).__TAX_POPUP_DELAY_MS__)
+      : 60000;
+
+    const timer = setTimeout(() => {
+      if (!hasShownPopupRef.current) {
+        hasShownPopupRef.current = true;
+        setConsultationPopupOpen(true);
+      }
+    }, delayMs);
+
+    return () => {
+      clearTimeout(timer);
+    };
+  }, [taxResult, calculationComplete]);
+
+  const handleConnectTaxSpecialist = () => {
+    setConsultationPopupOpen(false);
+    navigate('/contact?service=Income+Tax+Filing');
+  };
+
+  const getReportData = (): TaxReportData => {
+    return {
+      income,
+      regime,
+      age,
+      deductions,
+      financialYear,
+      assessmentYear: getAssessmentYear(financialYear),
+      taxpayerType,
+      country,
+      state,
+      taxResult: taxResult!,
+      regimeComparison,
+      generatedDateStr: new Date().toLocaleDateString('en-IN', {
+        day: 'numeric',
+        month: 'long',
+        year: 'numeric',
+      }),
+    };
+  };
+
+  const handlePrint = () => {
+    if (!taxResult) return;
+    try {
+      const data = getReportData();
+      printTaxReport(data);
+      toast({
+        title: "Print Preview Opened",
+        description: "Tax report print dialog initiated. You can print or choose 'Save as PDF'.",
+      });
+    } catch (err) {
+      console.error("Print error:", err);
+      toast({
+        title: "Print Failed",
+        description: "Unable to generate print preview. Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleDownloadPdf = async () => {
+    if (!taxResult) return;
+    setIsExporting(true);
+    try {
+      const data = getReportData();
+      await downloadTaxReportPdf(data);
+      toast({
+        title: "PDF Downloaded",
+        description: "Income Tax Calculation Report has been saved to your downloads.",
+      });
+    } catch (err) {
+      console.error("PDF download error:", err);
+      toast({
+        title: "PDF Generation Failed",
+        description: "An error occurred while creating the PDF report.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsExporting(false);
+    }
+  };
+
+  const handleDownloadDocx = async () => {
+    if (!taxResult) return;
+    setIsExporting(true);
+    try {
+      const data = getReportData();
+      await downloadTaxReportDocx(data);
+      toast({
+        title: "Word Document Downloaded",
+        description: "Income Tax Calculation Report has been saved as a .docx document.",
+      });
+    } catch (err) {
+      console.error("DOCX download error:", err);
+      toast({
+        title: "Word Export Failed",
+        description: "An error occurred while creating the Word document.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsExporting(false);
+    }
+  };
+
+  const handleShare = async () => {
+    if (!taxResult) return;
+    try {
+      const data = getReportData();
+      const res = await shareTaxReport(data);
+      if (res.method === 'clipboard') {
+        toast({
+          title: "Tax Summary Copied!",
+          description: "Summary copied to clipboard. You can now paste and share it.",
+        });
+      } else if (res.shared) {
+        toast({
+          title: "Report Shared",
+          description: "Tax calculation shared successfully.",
+        });
+      }
+    } catch (err) {
+      console.error("Share error:", err);
+      toast({
+        title: "Share Failed",
+        description: "Unable to share tax summary.",
+        variant: "destructive",
+      });
+    }
+  };
   
   // Calculate tax on component mount and whenever key inputs change
   useEffect(() => {
@@ -121,18 +283,70 @@ const TaxResults: React.FC<TaxResultsProps> = ({
   const slabData = prepareSlabData(taxResult.taxSlabs);
   
   return (
-    <Card className="w-full">
+    <div className="space-y-4">
+      <Card className="w-full">
       <CardHeader className="pb-0">
         <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-2">
           <CardTitle>Tax Calculation Results</CardTitle>
-          <div className="flex gap-2">
-            <Button variant="outline" size="sm" className="text-xs">
+          <div className="flex gap-2 items-center flex-wrap">
+            <Button
+              variant="outline"
+              size="sm"
+              className="text-xs"
+              onClick={handlePrint}
+              aria-label="Print Tax Calculation Report"
+            >
               <Printer className="h-3 w-3 mr-1" /> Print
             </Button>
-            <Button variant="outline" size="sm" className="text-xs">
-              <Download className="h-3 w-3 mr-1" /> Download
-            </Button>
-            <Button variant="outline" size="sm" className="text-xs">
+
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="text-xs"
+                  disabled={isExporting}
+                  aria-label="Download Tax Calculation Report"
+                >
+                  {isExporting ? (
+                    <Loader2 className="h-3 w-3 mr-1 animate-spin" />
+                  ) : (
+                    <Download className="h-3 w-3 mr-1" />
+                  )}
+                  Download <ChevronDown className="h-3 w-3 ml-1 opacity-70" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-56">
+                <DropdownMenuItem
+                  onClick={handleDownloadPdf}
+                  className="cursor-pointer py-2 text-xs flex items-center"
+                >
+                  <FileText className="h-4 w-4 mr-2 text-rose-600" />
+                  <div className="flex flex-col">
+                    <span className="font-medium">Download as PDF</span>
+                    <span className="text-[10px] text-muted-foreground">Printable document (.pdf)</span>
+                  </div>
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  onClick={handleDownloadDocx}
+                  className="cursor-pointer py-2 text-xs flex items-center"
+                >
+                  <FileText className="h-4 w-4 mr-2 text-blue-600" />
+                  <div className="flex flex-col">
+                    <span className="font-medium">Download as Word (.docx)</span>
+                    <span className="text-[10px] text-muted-foreground">Editable document (.docx)</span>
+                  </div>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+
+            <Button
+              variant="outline"
+              size="sm"
+              className="text-xs"
+              onClick={handleShare}
+              aria-label="Share Tax Calculation Summary"
+            >
               <Share2 className="h-3 w-3 mr-1" /> Share
             </Button>
           </div>
@@ -172,12 +386,9 @@ const TaxResults: React.FC<TaxResultsProps> = ({
                     Taxpayer Type
                   </span>
                   <span className="font-medium">
-                    {taxpayerType === "nri" ? "Non-Resident Indian" :
+                    {taxpayerType === "nri" ? "Non-Resident Indian (NRI)" :
                      taxpayerType === "startup" ? "Startup" :
-                     taxpayerType === "llp" ? "Limited Liability Partnership" :
-                     taxpayerType === "msme" ? "MSME" :
-                     taxpayerType === "company" ? "Company" :
-                     "Professional"}
+                     "Professional/Freelancer"}
                   </span>
                 </div>
               )}
@@ -449,7 +660,26 @@ const TaxResults: React.FC<TaxResultsProps> = ({
           </div>
         </div>
       </CardContent>
-    </Card>
+      </Card>
+
+      {/* Permanent Disclaimer directly below Tax Calculation Results */}
+      <div 
+        id="tax-calculation-disclaimer" 
+        className="flex items-start gap-2.5 p-3.5 sm:p-4 rounded-xl border border-slate-200/90 dark:border-slate-800 bg-slate-50/80 dark:bg-slate-900/50 text-slate-600 dark:text-slate-400 text-xs sm:text-sm leading-relaxed"
+      >
+        <Info className="h-4 w-4 text-blue-600 dark:text-cyan-400 shrink-0 mt-0.5" />
+        <p>
+          <strong className="text-slate-700 dark:text-slate-300 font-semibold">Disclaimer:</strong> This calculator provides estimates for informational purposes only and should not be considered professional tax advice. Actual tax liability may vary based on your individual circumstances and applicable tax rules. For an accurate assessment and personalized guidance, please consult a qualified Chartered Accountant or tax professional.
+        </p>
+      </div>
+
+      {/* Delayed consultation popup after remaining on results page for 60 seconds */}
+      <TaxConsultationPopup 
+        open={consultationPopupOpen}
+        onOpenChange={setConsultationPopupOpen}
+        onConnect={handleConnectTaxSpecialist}
+      />
+    </div>
   );
 };
 

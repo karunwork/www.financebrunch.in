@@ -4,6 +4,7 @@ import { CalculatorForm } from './calculator/CalculatorForm';
 import { CalculatorResults } from './calculator/CalculatorResults';
 import { FadeIn } from '@/components/ui/animation';
 import { calculateSIP } from '@/utils/sipCalculator';
+import { MAX_INVESTMENT_AMOUNT } from '@/utils/calculatorConstants';
 
 export default function HomeCalculator() {
   const [amount, setAmount] = useState(5000);
@@ -32,9 +33,10 @@ export default function HomeCalculator() {
       setAmount(0);
       setAmountDisplay('');
     } else {
-      const numericValue = parseInt(value);
+      const numericValue = parseInt(value, 10);
       if (!isNaN(numericValue)) {
-        setAmount(numericValue);
+        const clamped = Math.min(MAX_INVESTMENT_AMOUNT, Math.max(0, numericValue));
+        setAmount(clamped);
       }
     }
   };

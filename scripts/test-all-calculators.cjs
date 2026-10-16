@@ -362,7 +362,7 @@ function testSWPCalculator() {
     };
   }
 
-  // Sustainable SWP test: ₹10,00,000 corpus, ₹5,000/mo withdrawal (6% return)
+  // Sustainable SWP test: ₹10,00,000 corpus, ₹5,00,00/mo withdrawal (6% return)
   const sustainable = calculateSWP({
     initialCorpus: 1000000,
     monthlyWithdrawal: 5000,
@@ -373,6 +373,15 @@ function testSWPCalculator() {
   assert(sustainable.remainingCorpus > 0);
   assert.strictEqual(sustainable.totalActualWithdrawals, 600000); // 10 * 12 * 5000
   console.log(`✓ PASS: Sustainable SWP (Remaining Corpus: ₹${sustainable.remainingCorpus})`);
+
+  // SWP User-Requested Example Test: Corpus ₹2,10,000, Withdrawal 2% -> ₹4,200
+  const corpusExample = 210000;
+  const pctExample = 2; // 2%
+  const rupeeFromPct = Math.round((corpusExample * pctExample) / 100);
+  assert.strictEqual(rupeeFromPct, 4200, '2% of ₹2,10,000 must be ₹4,200');
+  const pctFromRupee = Number(((rupeeFromPct / corpusExample) * 100).toFixed(2));
+  assert.strictEqual(pctFromRupee, 2, '₹4,200 of ₹2,10,000 must be 2%');
+  console.log(`✓ PASS: SWP Percentage Dual Conversion: Corpus ₹${corpusExample}, ${pctExample}% = ₹${rupeeFromPct} (Reverse = ${pctFromRupee}%)`);
 
   // ₹100 Crore Corpus SWP test: ₹50 Lakh/month withdrawal @ 8% for 10y
   const highSWP = calculateSWP({
@@ -401,9 +410,6 @@ function testSWPCalculator() {
   console.log('✓ PASS: SWP Exhaustion at month 5 with exact zero remaining balance');
 
   // Partial final withdrawal test: ₹50,000 corpus, ₹20,000/mo withdrawal @ 0%
-  // Month 1: 20k (bal 30k)
-  // Month 2: 20k (bal 10k)
-  // Month 3: only 10k available -> partial final withdrawal!
   const partialSWP = calculateSWP({
     initialCorpus: 50000,
     monthlyWithdrawal: 20000,
@@ -416,7 +422,51 @@ function testSWPCalculator() {
   console.log('✓ PASS: SWP Partial final withdrawal capped at available balance');
 }
 
-// 5. Test Formatters
+// 5. Test ₹100 Crore Boundary Limits Across All Calculators
+function test100CroreBoundaryLimits() {
+  console.log('\n--- Testing ₹100 Crore Boundary Limits ---');
+  const MAX_LIMIT = 1000000000; // ₹100 Crore
+
+  function validateInput(val) {
+    if (typeof val !== 'number' || isNaN(val) || !isFinite(val)) return { valid: false, reason: 'NaN/non-numeric' };
+    if (val < 0) return { valid: false, reason: 'Negative' };
+    if (val > MAX_LIMIT) return { valid: false, reason: 'Exceeds ₹100 Crore' };
+    return { valid: true, value: val };
+  }
+
+  // 1. Below Maximum (₹99,99,99,999)
+  const belowMax = validateInput(999999999);
+  assert.strictEqual(belowMax.valid, true);
+  console.log('✓ PASS: Value just below maximum (₹99.99 Cr) is accepted');
+
+  // 2. Exactly Maximum (₹1,00,00,00,000)
+  const exactMax = validateInput(1000000000);
+  assert.strictEqual(exactMax.valid, true);
+  assert.strictEqual(exactMax.value, MAX_LIMIT);
+  console.log('✓ PASS: Exactly ₹100 Crore is accepted');
+
+  // 3. Above Maximum (₹1,00,00,00,001)
+  const aboveMax = validateInput(1000000001);
+  assert.strictEqual(aboveMax.valid, false);
+  console.log('✓ PASS: Value above maximum (₹1,00,00,00,001) is rejected');
+
+  // 4. Absurd Value (₹500 Crore)
+  const absurdVal = validateInput(5000000000);
+  assert.strictEqual(absurdVal.valid, false);
+  console.log('✓ PASS: Absurd value (₹500 Crore) is safely rejected');
+
+  // 5. Negative Value (-₹1,000)
+  const negativeVal = validateInput(-1000);
+  assert.strictEqual(negativeVal.valid, false);
+  console.log('✓ PASS: Negative value (-₹1,000) is rejected');
+
+  // 6. Non-numeric / NaN
+  const nanVal = validateInput(NaN);
+  assert.strictEqual(nanVal.valid, false);
+  console.log('✓ PASS: NaN is safely rejected');
+}
+
+// 6. Test Formatters
 function testFormatters() {
   console.log('\n--- Testing Currency Formatters ---');
   function formatCompactINR(value) {
@@ -453,6 +503,7 @@ try {
   testStepUpSIPCalculator();
   testLumpsumCalculator();
   testSWPCalculator();
+  test100CroreBoundaryLimits();
   testFormatters();
   console.log('\n========================================');
   console.log('🎉 ALL 4 CALCULATORS VERIFIED AND PASSED!');

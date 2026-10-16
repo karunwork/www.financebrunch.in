@@ -41,6 +41,12 @@ import {
   MIN_SIP_MONTHLY,
   SIP_QUICK_PRESETS,
 } from '@/utils/sipCalculator';
+import {
+  valueToSliderPos,
+  sliderPosToValue,
+  SIP_MONTHLY_SCALE,
+} from '@/utils/sliderScaleUtils';
+import { VpfVsPpfComparison } from './VpfVsPpfComparison';
 import { cn } from '@/lib/utils';
 
 interface SIPCalculatorProps {
@@ -99,12 +105,16 @@ export default function SIPCalculator({ className, showHeading = false }: SIPCal
     if (valStr.trim() === '') {
       setValidationErrors((prev) => ({ ...prev, monthly: 'Monthly investment is required.' }));
       setMonthlyInvestment(0);
-    } else if (isNaN(num) || num < MIN_SIP_MONTHLY) {
+    } else if (isNaN(num) || num < 0) {
+      setValidationErrors((prev) => ({ ...prev, monthly: 'Please enter a valid positive number.' }));
+      setMonthlyInvestment(0);
+    } else if (num < MIN_SIP_MONTHLY) {
       setValidationErrors((prev) => ({ ...prev, monthly: `Minimum recommended monthly SIP is ₹${MIN_SIP_MONTHLY.toLocaleString('en-IN')}.` }));
       setMonthlyInvestment(num > 0 ? num : 0);
     } else if (num > MAX_SIP_MONTHLY) {
-      setValidationErrors((prev) => ({ ...prev, monthly: 'Maximum allowed input is ₹100 Crore.' }));
-      setMonthlyInvestment(num);
+      setValidationErrors((prev) => ({ ...prev, monthly: 'Maximum monthly SIP supported is ₹100 Crore (₹1,00,00,00,000).' }));
+      // Strictly enforce limit: clamp calculation state to ₹100 Crore, never silently calculate above limit
+      setMonthlyInvestment(MAX_SIP_MONTHLY);
     } else {
       setValidationErrors((prev) => ({ ...prev, monthly: undefined }));
       setMonthlyInvestment(num);
@@ -113,7 +123,11 @@ export default function SIPCalculator({ className, showHeading = false }: SIPCal
 
   const handleMonthlyBlur = () => {
     setIsMonthlyFocused(false);
-    if (monthlyInvestment > 0) {
+    if (monthlyInvestment > MAX_SIP_MONTHLY) {
+      setMonthlyInvestment(MAX_SIP_MONTHLY);
+      setMonthlyInputStr(MAX_SIP_MONTHLY.toLocaleString('en-IN'));
+      setValidationErrors((prev) => ({ ...prev, monthly: undefined }));
+    } else if (monthlyInvestment > 0) {
       setMonthlyInputStr(monthlyInvestment.toLocaleString('en-IN'));
     }
   };
@@ -276,21 +290,19 @@ export default function SIPCalculator({ className, showHeading = false }: SIPCal
             </div>
 
             <Slider
-              value={[Math.min(monthlyInvestment, MAX_SIP_MONTHLY)]}
-              min={MIN_SIP_MONTHLY}
-              max={MAX_SIP_MONTHLY}
-              step={500}
-              onValueChange={(vals) => handleMonthlySlider(vals[0])}
+              value={[valueToSliderPos(monthlyInvestment, SIP_MONTHLY_SCALE)]}
+              min={0}
+              max={100}
+              step={0.5}
+              onValueChange={(vals) => handleMonthlySlider(sliderPosToValue(vals[0], SIP_MONTHLY_SCALE))}
               className="py-1 cursor-pointer"
               aria-label="Monthly Investment Slider"
             />
 
             <div className="flex justify-between text-xs text-gray-500 dark:text-gray-400 font-medium">
-              <span>₹100</span>
-              <span>₹10 Lakh</span>
-              <span>₹1 Cr</span>
-              <span>₹10 Cr</span>
-              <span>₹100 Cr</span>
+              {SIP_MONTHLY_SCALE.labels.map((item, idx) => (
+                <span key={idx}>{item.label}</span>
+              ))}
             </div>
 
             {/* Quick preset buttons */}
@@ -307,7 +319,7 @@ export default function SIPCalculator({ className, showHeading = false }: SIPCal
                       : "bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 border-gray-200 dark:border-gray-700 hover:border-blue-400 hover:text-blue-600 dark:hover:text-blue-400"
                   )}
                 >
-                  ₹{preset.toLocaleString('en-IN')}
+                  {preset >= 100000 ? formatCompactINR(preset) : `₹${preset.toLocaleString('en-IN')}`}
                 </button>
               ))}
             </div>
@@ -894,6 +906,9 @@ export default function SIPCalculator({ className, showHeading = false }: SIPCal
           </div>
         </div>
       </div>
+
+      {/* VPF vs PPF Educational Comparison Section */}
+      <VpfVsPpfComparison calculatorId="sip" />
     </div>
   );
 }

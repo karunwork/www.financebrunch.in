@@ -19,10 +19,10 @@ export default function Services() {
             DIVERSIFIED CAPABILITIES
           </p>
           <h3 className="text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight text-slate-900 dark:text-white mb-2 sm:mb-2.5">
-            Complementary Financial Solutions
+            Comprehensive Financial Solutions
           </h3>
           <p className="text-sm sm:text-base text-slate-600 dark:text-slate-400 max-w-2xl leading-relaxed">
-            7 specialized execution verticals engineered for long-term wealth creation, capital preservation, and multi-asset growth.
+            {homepageServices.length} specialized execution verticals engineered for long-term wealth creation, capital preservation, and multi-asset growth.
           </p>
         </div>
 

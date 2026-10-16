@@ -23,7 +23,7 @@ export interface WhyChooseItem {
     topGlow: string;
     cardGlow: string;
   };
-  highlights: string[];
+  highlights?: string[];
 }
 
 export const whyChooseCards: WhyChooseItem[] = [
@@ -31,7 +31,7 @@ export const whyChooseCards: WhyChooseItem[] = [
     id: "data-driven",
     number: "01",
     title: "Data-Driven Approach",
-    description: "Our recommendations are backed by thorough research, quantitative data analysis, and deep market expertise from seasoned SEBI-accredited professionals.",
+    description: "Our investment recommendations are backed by quantitative risk-reward research and seasoned SEBI-accredited market expertise. We apply disciplined valuation modeling and downside drawdown protection to build resilient portfolios.",
     icon: <TrendingUp className="h-7 w-7" />,
     tag: "Institutional Intelligence",
     accent: {
@@ -43,18 +43,13 @@ export const whyChooseCards: WhyChooseItem[] = [
       badgeText: "text-blue-700 dark:text-blue-300",
       topGlow: "from-transparent via-blue-500/60 to-transparent",
       cardGlow: "rgba(59, 130, 246, 0.12)",
-    },
-    highlights: [
-      "Rigorous Quantitative Risk-Reward Screening",
-      "Macroeconomic & Sectoral Growth Modeling",
-      "Disciplined Downside Drawdown Protection"
-    ]
+    }
   },
   {
     id: "global-diversification",
     number: "02",
     title: "Global Diversification",
-    description: "Strategic exposure across both Indian and US equities, providing seamless geographical diversification to optimize multi-currency returns while shielding against localized volatility.",
+    description: "Strategic allocation across high-growth Indian equities and US tech leaders delivers seamless geographical diversification. Investors benefit from multi-currency growth potential while insulating portfolios against localized market volatility.",
     icon: <Globe className="h-7 w-7" />,
     tag: "Cross-Border Wealth",
     accent: {
@@ -66,18 +61,13 @@ export const whyChooseCards: WhyChooseItem[] = [
       badgeText: "text-purple-700 dark:text-purple-300",
       topGlow: "from-transparent via-purple-500/60 to-transparent",
       cardGlow: "rgba(168, 85, 247, 0.12)",
-    },
-    highlights: [
-      "Dollar-Hedged Global Tech & S&P 500 Leaders",
-      "High-Growth Indian Equities (BSE & NSE)",
-      "Smart Currency Allocation & FEMA Compliance"
-    ]
+    }
   },
   {
     id: "exclusive-opportunities",
     number: "03",
     title: "Exclusive Opportunities",
-    description: "Access to private market placements, pre-IPO deals, and high-pedigree unlisted shares that typically remain inaccessible to retail investors, unlocking superior early-stage upside.",
+    description: "Gain curated access to vetted pre-IPO opportunities and high-conviction unlisted shares prior to public market listings. We ensure institutional-grade diligence, transparent pricing, and direct demat share transfers.",
     icon: <FileText className="h-7 w-7" />,
     tag: "Pre-IPO Equity",
     accent: {
@@ -89,18 +79,13 @@ export const whyChooseCards: WhyChooseItem[] = [
       badgeText: "text-emerald-700 dark:text-emerald-300",
       topGlow: "from-transparent via-emerald-500/60 to-transparent",
       cardGlow: "rgba(16, 185, 129, 0.12)",
-    },
-    highlights: [
-      "Curated Pre-IPO Unicorns & Tech Innovators",
-      "Transparent Price Discovery & Demat Transfers",
-      "Institutional-Grade Diligence & Valuation Audits"
-    ]
+    }
   },
   {
     id: "alternative-investments",
     number: "04",
     title: "Alternative Investments",
-    description: "Innovative portfolio assets such as 99.9% pure Digital Gold and regulated alternative avenues that serve as enduring hedges against inflation and macroeconomic market turbulence.",
+    description: "Hedge portfolios against inflation with 99.9% 24K pure Digital Gold and regulated alternative asset solutions. Enjoy zero storage fees, fully insured vault backing, and seamless doorstep physical delivery.",
     icon: <DollarSign className="h-7 w-7" />,
     tag: "Inflation Hedging",
     accent: {
@@ -112,18 +97,13 @@ export const whyChooseCards: WhyChooseItem[] = [
       badgeText: "text-amber-700 dark:text-amber-300",
       topGlow: "from-transparent via-amber-500/60 to-transparent",
       cardGlow: "rgba(245, 158, 11, 0.12)",
-    },
-    highlights: [
-      "99.9% 24K Pure Digital Gold with Zero Storage Fees",
-      "Insured Physical Vault Backing with Anytime Delivery",
-      "Uncorrelated Asset Shield Against Market Drawdowns"
-    ]
+    }
   },
   {
     id: "technical-expertise",
     number: "05",
     title: "Technical Expertise",
-    description: "Advanced technical chart structures, momentum oscillators, and timing methodologies to identify high-probability entry points and disciplined exit parameters for capital maximization.",
+    description: "We leverage multi-timeframe chart structures and momentum modeling to identify high-probability entry points. Systematic trailing stop-loss strategies help protect capital and capture disciplined market upside.",
     icon: <CandlestickChart className="h-7 w-7" />,
     tag: "Market Timing",
     accent: {
@@ -135,18 +115,13 @@ export const whyChooseCards: WhyChooseItem[] = [
       badgeText: "text-indigo-700 dark:text-indigo-300",
       topGlow: "from-transparent via-indigo-500/60 to-transparent",
       cardGlow: "rgba(99, 102, 241, 0.12)",
-    },
-    highlights: [
-      "Multi-Timeframe Trend & Support Analysis",
-      "Systematic Trailing Stop-Loss Strategies",
-      "Volume Profile & Institutional Flow Tracking"
-    ]
+    }
   },
   {
     id: "strong-client-network",
     number: "06",
     title: "Strong Client Network",
-    description: "Join a thriving community of 1,000+ informed investors who leverage our institutional research, strategic asset allocations, and proactive market updates to grow wealth steadily.",
+    description: "Join a thriving community of 1,000+ informed investors who rely on our proactive portfolio allocations. Clients receive direct 1-on-1 advisor reviews and exclusive weekly market intelligence briefs.",
     icon: <Users className="h-7 w-7" />,
     tag: "Investor Community",
     accent: {
@@ -158,34 +133,53 @@ export const whyChooseCards: WhyChooseItem[] = [
       badgeText: "text-rose-700 dark:text-rose-300",
       topGlow: "from-transparent via-rose-500/60 to-transparent",
       cardGlow: "rgba(244, 63, 94, 0.12)",
-    },
-    highlights: [
-      "1,000+ High-Net-Worth & Retail Investor Trust",
-      "Direct 1-on-1 Portfolio Reviews with Advisors",
-      "Exclusive Weekly Strategic Intelligence Briefs"
-    ]
+    }
   }
 ];
 
 export function AppleScrollShowcase() {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isAnimating, setIsAnimating] = useState(false);
-  const maxIndex = whyChooseCards.length - 1;
+  const [isHovered, setIsHovered] = useState(false);
+  const [autoplayKey, setAutoplayKey] = useState(0);
 
+  const maxIndex = whyChooseCards.length - 1;
   const touchStartXRef = useRef<number | null>(null);
 
+  // Helper to restart the 6-second timer on user interaction
+  const resetAutoplay = () => {
+    setAutoplayKey((k) => k + 1);
+  };
+
+  // Automatic sliding every 6 seconds
+  useEffect(() => {
+    if (typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      return;
+    }
+
+    if (isHovered) return;
+
+    const timer = setInterval(() => {
+      setCurrentIndex((prev) => (prev === maxIndex ? 0 : prev + 1));
+    }, 6000);
+
+    return () => clearInterval(timer);
+  }, [maxIndex, isHovered, autoplayKey]);
+
   const goToPrev = () => {
-    if (isAnimating || currentIndex === 0) return;
+    if (isAnimating) return;
     setIsAnimating(true);
-    setCurrentIndex((prev) => Math.max(0, prev - 1));
-    setTimeout(() => setIsAnimating(false), 450);
+    setCurrentIndex((prev) => (prev === 0 ? maxIndex : prev - 1));
+    resetAutoplay();
+    setTimeout(() => setIsAnimating(false), 500);
   };
 
   const goToNext = () => {
-    if (isAnimating || currentIndex === maxIndex) return;
+    if (isAnimating) return;
     setIsAnimating(true);
-    setCurrentIndex((prev) => Math.min(maxIndex, prev + 1));
-    setTimeout(() => setIsAnimating(false), 450);
+    setCurrentIndex((prev) => (prev === maxIndex ? 0 : prev + 1));
+    resetAutoplay();
+    setTimeout(() => setIsAnimating(false), 500);
   };
 
   const goToIndex = (index: number) => {
@@ -193,7 +187,8 @@ export function AppleScrollShowcase() {
     if (index < 0 || index > maxIndex) return;
     setIsAnimating(true);
     setCurrentIndex(index);
-    setTimeout(() => setIsAnimating(false), 450);
+    resetAutoplay();
+    setTimeout(() => setIsAnimating(false), 500);
   };
 
   // Keyboard navigation when section is in view
@@ -265,12 +260,16 @@ export function AppleScrollShowcase() {
           </p>
         </div>
 
-        {/* Carousel Container (Modeled directly after Client Testimonials Carousel) */}
-        <div className="relative max-w-2xl sm:max-w-3xl lg:max-w-4xl mx-auto px-2 sm:px-12 md:px-14">
+        {/* Carousel Container */}
+        <div 
+          className="relative mx-auto w-full max-w-[1060px] px-4 sm:px-12 md:px-14 lg:px-16"
+          onMouseEnter={() => setIsHovered(true)}
+          onMouseLeave={() => setIsHovered(false)}
+        >
           
-          {/* Card Viewport */}
+          {/* Card Viewport - Centered & width min(900px, calc(100vw - 120px)) */}
           <div 
-            className="relative overflow-hidden rounded-3xl"
+            className="relative overflow-hidden rounded-3xl mx-auto w-full max-w-[calc(100%-32px)] sm:max-w-full lg:max-w-[min(900px,calc(100vw-120px))]"
             onTouchStart={handleTouchStart}
             onTouchEnd={handleTouchEnd}
           >
@@ -278,12 +277,13 @@ export function AppleScrollShowcase() {
               className="flex transition-transform duration-500 ease-in-out" 
               style={{ transform: `translateX(-${currentIndex * 100}%)` }}
             >
-              {whyChooseCards.map((card, idx) => (
-                <div key={card.id} className="w-full flex-shrink-0 px-2 sm:px-3">
+              {whyChooseCards.map((card) => (
+                <div key={card.id} className="w-full flex-shrink-0 px-1 sm:px-2">
                   <div 
+                    data-slide-card="true"
                     className={cn(
-                      "relative rounded-3xl p-6 sm:p-9 md:p-10 transition-all duration-300 flex flex-col justify-between select-none",
-                      "backdrop-blur-2xl border shadow-xl",
+                      "relative rounded-3xl p-[20px] sm:p-7 lg:p-[36px] transition-all duration-300 flex flex-col justify-between select-none w-full",
+                      "backdrop-blur-2xl border shadow-xl min-h-0 md:min-h-[380px] lg:min-h-[450px]",
                       "bg-white/95 dark:bg-[#071329]/95 border-slate-200/90 dark:border-slate-800/90"
                     )}
                   >
@@ -295,12 +295,14 @@ export function AppleScrollShowcase() {
                       )} 
                     />
 
-                    {/* Card Top: Number Watermark & Icon Header */}
-                    <div>
-                      <div className="flex items-center justify-between mb-5 sm:mb-6">
-                        {/* Icon Badge */}
+                    {/* Card Body with 20-24px vertical spacing between sections */}
+                    <div className="flex flex-col justify-between h-full space-y-5 lg:space-y-6">
+                      
+                      {/* Section 1: Icon Header & Number Watermark */}
+                      <div className="flex items-center justify-between">
+                        {/* Icon Badge: 64px x 64px */}
                         <div className={cn(
-                          "w-14 h-14 sm:w-16 sm:h-16 rounded-2xl flex items-center justify-center border shadow-sm transition-transform duration-300",
+                          "w-16 h-16 rounded-2xl flex items-center justify-center border shadow-sm transition-transform duration-300 flex-shrink-0",
                           card.accent.iconBg,
                           card.accent.iconColor,
                           card.accent.border
@@ -309,15 +311,15 @@ export function AppleScrollShowcase() {
                         </div>
 
                         {/* Large Subtle Number Watermark */}
-                        <span className="font-mono text-3xl sm:text-5xl font-black text-slate-300 dark:text-slate-700/60 select-none">
+                        <span className="font-mono text-4xl sm:text-5xl lg:text-6xl font-black text-slate-300 dark:text-slate-700/60 select-none">
                           {card.number}
                         </span>
                       </div>
 
-                      {/* Eyebrow Category Chip */}
-                      <div className="inline-block mb-3">
+                      {/* Section 2: Eyebrow Category Chip */}
+                      <div>
                         <span className={cn(
-                          "px-3 py-1 rounded-full text-xs font-semibold tracking-wide uppercase border",
+                          "inline-block px-3.5 py-1 rounded-full text-xs font-semibold tracking-wide uppercase border",
                           card.accent.badgeBg,
                           card.accent.badgeText,
                           card.accent.border
@@ -326,78 +328,50 @@ export function AppleScrollShowcase() {
                         </span>
                       </div>
 
-                      {/* Card Headline */}
-                      <h3 className="text-xl sm:text-2xl md:text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white mb-3 leading-snug">
+                      {/* Section 3: Main Heading (30–34px on desktop) */}
+                      <h3 className="text-2xl sm:text-3xl lg:text-[32px] font-black tracking-tight text-slate-900 dark:text-white leading-snug">
                         {card.title}
                       </h3>
 
-                      {/* Card Description */}
-                      <p className="text-sm sm:text-base text-slate-600 dark:text-slate-300 leading-relaxed font-normal">
+                      {/* Section 4: Description (17–18px on desktop) */}
+                      <p className="text-base sm:text-[17px] lg:text-[18px] text-slate-600 dark:text-slate-300 leading-relaxed font-normal">
                         {card.description}
                       </p>
                     </div>
 
-                    {/* Card Bottom: Value Deliverables Highlights */}
-                    <div className="mt-8 pt-6 border-t border-slate-200/80 dark:border-slate-800/80 space-y-3">
-                      <div className="text-[11px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 mb-2">
-                        Key Value Deliverables
-                      </div>
-                      {card.highlights.map((item, hIdx) => (
-                        <div key={hIdx} className="flex items-start text-xs sm:text-sm text-slate-700 dark:text-slate-300 font-medium">
-                          <CheckCircle2 className={cn("w-4 h-4 sm:w-5 sm:h-5 mr-2.5 sm:mr-3 mt-0.5 flex-shrink-0", card.accent.iconColor)} />
-                          <span>{item}</span>
-                        </div>
-                      ))}
-                    </div>
                   </div>
                 </div>
               ))}
             </div>
           </div>
 
-          {/* Left Arrow Button (Matching Testimonial Carousel) */}
-          <div className="absolute top-1/2 left-0 transform -translate-y-1/2 z-20">
+          {/* Left Arrow Button (Continuous cycling with timer reset) */}
+          <div className="absolute top-1/2 left-0 sm:left-1 md:left-2 transform -translate-y-1/2 z-20">
             <Button 
               variant="outline" 
               size="icon" 
-              className={cn(
-                "rounded-full w-10 h-10 sm:w-11 sm:h-11 shadow-md backdrop-blur-sm transition-all duration-200",
-                "bg-white/90 dark:bg-slate-900/90 border-slate-200/90 dark:border-slate-800",
-                "hover:bg-white dark:hover:bg-slate-800 hover:scale-110 active:scale-95 focus-visible:ring-2 focus-visible:ring-blue-500",
-                currentIndex === 0 
-                  ? "opacity-30 cursor-not-allowed hover:scale-100" 
-                  : "opacity-100 hover:border-blue-500/50"
-              )}
+              className="w-11 h-11 sm:w-12 sm:h-12 rounded-full shadow-md backdrop-blur-sm transition-all duration-200 bg-white/90 dark:bg-slate-900/90 border-slate-200/90 dark:border-slate-800 hover:bg-white dark:hover:bg-slate-800 hover:scale-110 active:scale-95 focus-visible:ring-2 focus-visible:ring-blue-500 opacity-100 hover:border-blue-500/50"
               onClick={goToPrev}
-              disabled={currentIndex === 0}
               aria-label="Previous investment feature card"
             >
-              <ChevronLeft size={20} className="text-slate-700 dark:text-slate-200 transition-transform duration-200 hover:-translate-x-0.5" />
+              <ChevronLeft size={22} className="text-slate-700 dark:text-slate-200 transition-transform duration-200 hover:-translate-x-0.5" />
             </Button>
           </div>
 
-          {/* Right Arrow Button (Matching Testimonial Carousel) */}
-          <div className="absolute top-1/2 right-0 transform -translate-y-1/2 z-20">
+          {/* Right Arrow Button (Continuous cycling with timer reset) */}
+          <div className="absolute top-1/2 right-0 sm:right-1 md:right-2 transform -translate-y-1/2 z-20">
             <Button 
               variant="outline" 
               size="icon" 
-              className={cn(
-                "rounded-full w-10 h-10 sm:w-11 sm:h-11 shadow-md backdrop-blur-sm transition-all duration-200",
-                "bg-white/90 dark:bg-slate-900/90 border-slate-200/90 dark:border-slate-800",
-                "hover:bg-white dark:hover:bg-slate-800 hover:scale-110 active:scale-95 focus-visible:ring-2 focus-visible:ring-blue-500",
-                currentIndex === maxIndex 
-                  ? "opacity-30 cursor-not-allowed hover:scale-100" 
-                  : "opacity-100 hover:border-blue-500/50"
-              )}
+              className="w-11 h-11 sm:w-12 sm:h-12 rounded-full shadow-md backdrop-blur-sm transition-all duration-200 bg-white/90 dark:bg-slate-900/90 border-slate-200/90 dark:border-slate-800 hover:bg-white dark:hover:bg-slate-800 hover:scale-110 active:scale-95 focus-visible:ring-2 focus-visible:ring-blue-500 opacity-100 hover:border-blue-500/50"
               onClick={goToNext}
-              disabled={currentIndex === maxIndex}
               aria-label="Next investment feature card"
             >
-              <ChevronRight size={20} className="text-slate-700 dark:text-slate-200 transition-transform duration-200 hover:translate-x-0.5" />
+              <ChevronRight size={22} className="text-slate-700 dark:text-slate-200 transition-transform duration-200 hover:translate-x-0.5" />
             </Button>
           </div>
 
-          {/* Indicators & Counter Below Card (Matching Testimonial Carousel) */}
+          {/* Indicators & Counter Below Card */}
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mt-8 sm:mt-10">
             <div className="flex items-center gap-1.5">
               {whyChooseCards.map((_, index) => (

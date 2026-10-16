@@ -104,7 +104,7 @@ const RetirementCalculator = () => {
             id="currentSavings"
             type="number"
             value={currentSavings}
-            onChange={(e) => setCurrentSavings(Number(e.target.value))}
+            onChange={(e) => setCurrentSavings(Math.max(0, Math.min(1000000000, Number(e.target.value))))}
             className="mt-1"
           />
         </div>
@@ -115,7 +115,7 @@ const RetirementCalculator = () => {
             id="monthlyIncome"
             type="number"
             value={monthlyIncome}
-            onChange={(e) => setMonthlyIncome(Number(e.target.value))}
+            onChange={(e) => setMonthlyIncome(Math.max(0, Math.min(1000000000, Number(e.target.value))))}
             className="mt-1"
           />
         </div>
@@ -126,7 +126,7 @@ const RetirementCalculator = () => {
             id="monthlyExpenses"
             type="number"
             value={monthlyExpenses}
-            onChange={(e) => setMonthlyExpenses(Number(e.target.value))}
+            onChange={(e) => setMonthlyExpenses(Math.max(0, Math.min(1000000000, Number(e.target.value))))}
             className="mt-1"
           />
         </div>

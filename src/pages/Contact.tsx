@@ -21,14 +21,22 @@ const Contact = () => {
 
   const initialService = resolveInitialService(subjectParam);
 
+  const getInitialMessageForService = (service: string) => {
+    if (service === 'Mutual Fund Advisory') {
+      return 'I would like to consult with a mutual fund advisor regarding my investment plan.';
+    }
+    if (service === 'Income Tax Filing') {
+      return 'I would like to connect with a tax specialist regarding my income tax calculation and guidance.';
+    }
+    return '';
+  };
+
   const [formData, setFormData] = useState({
     name: '',
     email: '',
     phone: '',
     service: initialService,
-    message: initialService === 'Mutual Fund Advisory'
-      ? 'I would like to consult with a mutual fund advisor regarding my investment plan.'
-      : '',
+    message: getInitialMessageForService(initialService),
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
@@ -43,7 +51,7 @@ const Contact = () => {
       setFormData((prev) => ({
         ...prev,
         service: resolved,
-        message: prev.message || (resolved === 'Mutual Fund Advisory' ? 'I would like to consult with a mutual fund advisor regarding my investment plan.' : ''),
+        message: prev.message || getInitialMessageForService(resolved),
       }));
     }
   }, [subjectParam]);

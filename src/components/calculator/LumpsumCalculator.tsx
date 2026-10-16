@@ -34,7 +34,14 @@ import {
   MIN_LUMPSUM_AMOUNT,
   LUMPSUM_QUICK_PRESETS,
 } from '@/utils/lumpsumCalculator';
+import {
+  valueToSliderPos,
+  sliderPosToValue,
+  LUMPSUM_INVESTMENT_SCALE,
+} from '@/utils/sliderScaleUtils';
+import { CalculatorCTAButtons } from './CalculatorCTAButtons';
 import { CalculatorDisclaimer } from './CalculatorDisclaimer';
+import { VpfVsPpfComparison } from './VpfVsPpfComparison';
 import { cn } from '@/lib/utils';
 
 export default function LumpsumCalculator() {
@@ -69,12 +76,16 @@ export default function LumpsumCalculator() {
     if (valStr.trim() === '') {
       setErrors((prev) => ({ ...prev, investment: 'Investment amount is required.' }));
       setInitialInvestment(0);
-    } else if (isNaN(num) || num < MIN_LUMPSUM_AMOUNT) {
+    } else if (isNaN(num) || num < 0) {
+      setErrors((prev) => ({ ...prev, investment: 'Please enter a valid positive number.' }));
+      setInitialInvestment(0);
+    } else if (num < MIN_LUMPSUM_AMOUNT) {
       setErrors((prev) => ({ ...prev, investment: `Minimum lumpsum investment is ₹${MIN_LUMPSUM_AMOUNT.toLocaleString('en-IN')}.` }));
       setInitialInvestment(num > 0 ? num : 0);
     } else if (num > MAX_LUMPSUM_AMOUNT) {
-      setErrors((prev) => ({ ...prev, investment: 'Maximum investment supported is ₹100 Crore.' }));
-      setInitialInvestment(num);
+      setErrors((prev) => ({ ...prev, investment: 'Maximum investment supported is ₹100 Crore (₹1,00,00,00,000).' }));
+      // Strictly enforce limit: clamp calculation state to ₹100 Crore, never silently calculate above limit
+      setInitialInvestment(MAX_LUMPSUM_AMOUNT);
     } else {
       setErrors((prev) => ({ ...prev, investment: undefined }));
       setInitialInvestment(num);
@@ -83,7 +94,11 @@ export default function LumpsumCalculator() {
 
   const handleInvestmentBlur = () => {
     setIsInvestmentFocused(false);
-    if (initialInvestment > 0) {
+    if (initialInvestment > MAX_LUMPSUM_AMOUNT) {
+      setInitialInvestment(MAX_LUMPSUM_AMOUNT);
+      setInvestmentInputStr(MAX_LUMPSUM_AMOUNT.toLocaleString('en-IN'));
+      setErrors((prev) => ({ ...prev, investment: undefined }));
+    } else if (initialInvestment > 0) {
       setInvestmentInputStr(initialInvestment.toLocaleString('en-IN'));
     }
   };
@@ -176,24 +191,23 @@ export default function LumpsumCalculator() {
                   </div>
                 </div>
                 <Slider
-                  value={[Math.min(initialInvestment, MAX_LUMPSUM_AMOUNT)]}
-                  min={MIN_LUMPSUM_AMOUNT}
-                  max={MAX_LUMPSUM_AMOUNT}
-                  step={5000}
+                  value={[valueToSliderPos(initialInvestment, LUMPSUM_INVESTMENT_SCALE)]}
+                  min={0}
+                  max={100}
+                  step={0.5}
                   onValueChange={(val) => {
-                    setInitialInvestment(val[0]);
-                    setInvestmentInputStr(val[0].toLocaleString('en-IN'));
+                    const snapped = sliderPosToValue(val[0], LUMPSUM_INVESTMENT_SCALE);
+                    setInitialInvestment(snapped);
+                    setInvestmentInputStr(snapped.toLocaleString('en-IN'));
                     setErrors((prev) => ({ ...prev, investment: undefined }));
                   }}
                   className="py-1 cursor-pointer"
                   aria-label="Total Investment Slider"
                 />
                 <div className="flex justify-between text-[11px] font-mono text-slate-400">
-                  <span>₹1,000</span>
-                  <span>₹10 Lakh</span>
-                  <span>₹1 Cr</span>
-                  <span>₹10 Cr</span>
-                  <span>₹100 Cr</span>
+                  {LUMPSUM_INVESTMENT_SCALE.labels.map((item, idx) => (
+                    <span key={idx}>{item.label}</span>
+                  ))}
                 </div>
 
                 {/* Quick preset buttons */}
@@ -214,7 +228,7 @@ export default function LumpsumCalculator() {
                           : "bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700 hover:border-cyan-400 hover:text-cyan-600 dark:hover:text-cyan-400"
                       )}
                     >
-                      ₹{preset.toLocaleString('en-IN')}
+                      {preset >= 100000 ? formatCompactINR(preset) : `₹${preset.toLocaleString('en-IN')}`}
                     </button>
                   ))}
                 </div>
@@ -378,6 +392,9 @@ export default function LumpsumCalculator() {
               </span>
             </Card>
           </div>
+
+          {/* Action CTAs */}
+          <CalculatorCTAButtons sourceCalculator="lumpsum" />
 
           {/* Visualization Section */}
           <Card className="border-slate-200/80 dark:border-slate-800 bg-white dark:bg-slate-900/60 shadow-sm overflow-hidden">
@@ -543,6 +560,9 @@ export default function LumpsumCalculator() {
 
       {/* Required Financial Disclaimer */}
       <CalculatorDisclaimer />
+
+      {/* VPF vs PPF Educational Comparison Section */}
+      <VpfVsPpfComparison calculatorId="lumpsum" />
     </div>
   );
 }

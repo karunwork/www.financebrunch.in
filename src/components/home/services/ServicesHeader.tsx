@@ -5,7 +5,7 @@ interface ServicesHeaderProps {
   totalProductsCount?: number;
 }
 
-export function ServicesHeader({ totalProductsCount = 7 }: ServicesHeaderProps) {
+export function ServicesHeader({ totalProductsCount = 6 }: ServicesHeaderProps) {
   return (
     <FadeIn direction="up" className="max-w-3xl mx-auto text-center mb-8 sm:mb-10">
       <div className="inline-flex items-center gap-2 px-3.5 py-1.5 bg-blue-50 dark:bg-blue-950/40 text-blue-600 dark:text-blue-400 rounded-full text-sm font-semibold mb-4 border border-blue-100 dark:border-blue-900/50 shadow-sm">

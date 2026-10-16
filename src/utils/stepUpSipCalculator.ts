@@ -9,7 +9,10 @@
  */
 
 import { formatINR, formatCompactINR } from './sipCalculator';
-import { MAX_CALCULATION_SAFETY_LIMIT } from './calculatorConstants';
+import {
+  MAX_INVESTMENT_AMOUNT,
+  MAX_CALCULATION_SAFETY_LIMIT,
+} from './calculatorConstants';
 export {
   MAX_INVESTMENT_AMOUNT,
   MIN_STEPUP_MONTHLY,
@@ -97,8 +100,8 @@ export function calculateStepUpSIP(inputs: StepUpSIPCalculatorInputs): StepUpSIP
     };
   }
 
-  // Prevent calculation overflow for unrealistic extremes (allows up to ₹100 Cr and beyond safely)
-  if (initialMonthlyInvestment > MAX_CALCULATION_SAFETY_LIMIT || investmentDurationYears > 60 || expectedAnnualReturn > 100 || annualStepUpPercentage > 100) {
+  // Prevent calculation overflow for unrealistic extremes (strictly capped at ₹100 Crore)
+  if (initialMonthlyInvestment > MAX_INVESTMENT_AMOUNT || investmentDurationYears > 60 || expectedAnnualReturn > 100 || annualStepUpPercentage > 100) {
     return {
       initialMonthlySIP: initialMonthlyInvestment,
       finalMonthlySIP: initialMonthlyInvestment,
@@ -132,7 +135,9 @@ export function calculateStepUpSIP(inputs: StepUpSIPCalculatorInputs): StepUpSIP
 
   for (let m = 1; m <= totalMonths; m++) {
     const yearIndex = Math.floor((m - 1) / 12);
-    const monthlyContribution = initialMonthlyInvestment * Math.pow(1 + annualStepUpPercentage / 100, yearIndex);
+    // Cap monthly contribution at ₹100 Crore to prevent absurd compounding overflow
+    const calculatedMonthly = initialMonthlyInvestment * Math.pow(1 + annualStepUpPercentage / 100, yearIndex);
+    const monthlyContribution = Math.min(MAX_INVESTMENT_AMOUNT, calculatedMonthly);
 
     stepUpTotalInvested += monthlyContribution;
     currentYearInvested += monthlyContribution;
@@ -164,9 +169,12 @@ export function calculateStepUpSIP(inputs: StepUpSIPCalculatorInputs): StepUpSIP
     }
   }
 
-  // Final scheduled monthly SIP (last month's contribution):
+  // Final scheduled monthly SIP (last month's contribution capped at ₹100 Cr):
   const finalYearIndex = Math.floor((totalMonths - 1) / 12);
-  const finalMonthlySIP = initialMonthlyInvestment * Math.pow(1 + annualStepUpPercentage / 100, finalYearIndex);
+  const finalMonthlySIP = Math.min(
+    MAX_INVESTMENT_AMOUNT,
+    initialMonthlyInvestment * Math.pow(1 + annualStepUpPercentage / 100, finalYearIndex)
+  );
 
   // Fixed SIP calculation for identical starting parameters and end-of-month timing:
   const fixedTotalInvested = initialMonthlyInvestment * totalMonths;

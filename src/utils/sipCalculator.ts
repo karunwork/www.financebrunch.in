@@ -147,8 +147,8 @@ export function calculateSIP(inputs: SIPCalculatorInputs): SIPCalculationResult 
     };
   }
 
-  // Prevent calculation overflow for unrealistic extremes (allows up to ₹100 Cr and beyond safely)
-  if (monthlyInvestment > MAX_CALCULATION_SAFETY_LIMIT || investmentDurationYears > 60 || expectedAnnualReturn > 100) {
+  // Prevent calculation overflow for unrealistic extremes (strictly capped at ₹100 Crore)
+  if (monthlyInvestment > MAX_INVESTMENT_AMOUNT || investmentDurationYears > 60 || expectedAnnualReturn > 100) {
     return {
       monthlyInvestment,
       investmentDurationYears,
@@ -205,7 +205,10 @@ export function calculateSIP(inputs: SIPCalculatorInputs): SIPCalculationResult 
 
     let monthlyContribution = monthlyInvestment;
     if (isStepUpEnabled && stepUpPercentage > 0) {
-      monthlyContribution = monthlyInvestment * Math.pow(1 + stepUpPercentage / 100, yearIndex);
+      monthlyContribution = Math.min(
+        MAX_INVESTMENT_AMOUNT,
+        monthlyInvestment * Math.pow(1 + stepUpPercentage / 100, yearIndex)
+      );
     }
 
     totalInvested += monthlyContribution;

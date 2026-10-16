@@ -12,7 +12,10 @@
  */
 
 import { formatINR, formatCompactINR } from './sipCalculator';
-import { MAX_CALCULATION_SAFETY_LIMIT } from './calculatorConstants';
+import {
+  MAX_INVESTMENT_AMOUNT,
+  MAX_CALCULATION_SAFETY_LIMIT,
+} from './calculatorConstants';
 export {
   MAX_INVESTMENT_AMOUNT,
   MIN_LUMPSUM_AMOUNT,
@@ -77,8 +80,8 @@ export function calculateLumpsum(inputs: LumpsumCalculatorInputs): LumpsumCalcul
     };
   }
 
-  // Prevent calculation overflow for unrealistic extremes (allows up to ₹100 Cr and beyond safely)
-  if (initialInvestment > MAX_CALCULATION_SAFETY_LIMIT || investmentDurationYears > 60 || expectedAnnualReturn > 100) {
+  // Prevent calculation overflow for unrealistic extremes (strictly capped at ₹100 Crore)
+  if (initialInvestment > MAX_INVESTMENT_AMOUNT || investmentDurationYears > 60 || expectedAnnualReturn > 100) {
     return {
       initialInvestment,
       expectedAnnualReturn,

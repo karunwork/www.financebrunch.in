@@ -36,8 +36,14 @@ import {
   MIN_STEPUP_MONTHLY,
   STEPUP_QUICK_PRESETS,
 } from '@/utils/stepUpSipCalculator';
+import {
+  valueToSliderPos,
+  sliderPosToValue,
+  SIP_MONTHLY_SCALE,
+} from '@/utils/sliderScaleUtils';
 import { CalculatorCTAButtons } from './CalculatorCTAButtons';
 import { CalculatorDisclaimer } from './CalculatorDisclaimer';
+import { VpfVsPpfComparison } from './VpfVsPpfComparison';
 import { cn } from '@/lib/utils';
 
 export default function StepUpSIPCalculator() {
@@ -81,12 +87,16 @@ export default function StepUpSIPCalculator() {
     if (valStr.trim() === '') {
       setErrors((prev) => ({ ...prev, monthly: 'Monthly investment is required.' }));
       setInitialMonthly(0);
-    } else if (isNaN(num) || num < MIN_STEPUP_MONTHLY) {
+    } else if (isNaN(num) || num < 0) {
+      setErrors((prev) => ({ ...prev, monthly: 'Please enter a valid positive number.' }));
+      setInitialMonthly(0);
+    } else if (num < MIN_STEPUP_MONTHLY) {
       setErrors((prev) => ({ ...prev, monthly: `Minimum recommended monthly SIP is ₹${MIN_STEPUP_MONTHLY.toLocaleString('en-IN')}.` }));
       setInitialMonthly(num > 0 ? num : 0);
     } else if (num > MAX_STEPUP_MONTHLY) {
-      setErrors((prev) => ({ ...prev, monthly: 'Maximum monthly SIP supported is ₹100 Crore.' }));
-      setInitialMonthly(num);
+      setErrors((prev) => ({ ...prev, monthly: 'Maximum monthly SIP supported is ₹100 Crore (₹1,00,00,00,000).' }));
+      // Strictly enforce limit: clamp calculation state to ₹100 Crore, never silently calculate above limit
+      setInitialMonthly(MAX_STEPUP_MONTHLY);
     } else {
       setErrors((prev) => ({ ...prev, monthly: undefined }));
       setInitialMonthly(num);
@@ -95,7 +105,11 @@ export default function StepUpSIPCalculator() {
 
   const handleMonthlyBlur = () => {
     setIsMonthlyFocused(false);
-    if (initialMonthly > 0) {
+    if (initialMonthly > MAX_STEPUP_MONTHLY) {
+      setInitialMonthly(MAX_STEPUP_MONTHLY);
+      setMonthlyInputStr(MAX_STEPUP_MONTHLY.toLocaleString('en-IN'));
+      setErrors((prev) => ({ ...prev, monthly: undefined }));
+    } else if (initialMonthly > 0) {
       setMonthlyInputStr(initialMonthly.toLocaleString('en-IN'));
     }
   };
@@ -202,24 +216,23 @@ export default function StepUpSIPCalculator() {
                   </div>
                 </div>
                 <Slider
-                  value={[Math.min(initialMonthly, MAX_STEPUP_MONTHLY)]}
-                  min={MIN_STEPUP_MONTHLY}
-                  max={MAX_STEPUP_MONTHLY}
-                  step={500}
+                  value={[valueToSliderPos(initialMonthly, SIP_MONTHLY_SCALE)]}
+                  min={0}
+                  max={100}
+                  step={0.5}
                   onValueChange={(val) => {
-                    setInitialMonthly(val[0]);
-                    setMonthlyInputStr(val[0].toLocaleString('en-IN'));
+                    const snappedVal = sliderPosToValue(val[0], SIP_MONTHLY_SCALE);
+                    setInitialMonthly(snappedVal);
+                    setMonthlyInputStr(snappedVal.toLocaleString('en-IN'));
                     setErrors((prev) => ({ ...prev, monthly: undefined }));
                   }}
                   className="py-1 cursor-pointer"
                   aria-label="Starting Monthly SIP Slider"
                 />
                 <div className="flex justify-between text-[11px] font-mono text-slate-400">
-                  <span>₹100</span>
-                  <span>₹10 Lakh</span>
-                  <span>₹1 Cr</span>
-                  <span>₹10 Cr</span>
-                  <span>₹100 Cr</span>
+                  {SIP_MONTHLY_SCALE.labels.map((item, idx) => (
+                    <span key={idx}>{item.label}</span>
+                  ))}
                 </div>
 
                 {/* Quick preset buttons */}
@@ -240,7 +253,7 @@ export default function StepUpSIPCalculator() {
                           : "bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700 hover:border-cyan-400 hover:text-cyan-600 dark:hover:text-cyan-400"
                       )}
                     >
-                      ₹{preset.toLocaleString('en-IN')}
+                      {preset >= 100000 ? formatCompactINR(preset) : `₹${preset.toLocaleString('en-IN')}`}
                     </button>
                   ))}
                 </div>
@@ -608,6 +621,9 @@ export default function StepUpSIPCalculator() {
 
       {/* Required Financial Disclaimer */}
       <CalculatorDisclaimer />
+
+      {/* VPF vs PPF Educational Comparison Section */}
+      <VpfVsPpfComparison calculatorId="stepup" />
     </div>
   );
 }

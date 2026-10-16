@@ -386,14 +386,13 @@ export const productCategories: ProductCategoryGroup[] = [
 ];
 
 /**
- * Exactly 7 restored homepage service cards in the requested order:
+ * Exactly 6 homepage service cards in the requested order:
  * 1. Investment Planning
  * 2. Mutual Funds
- * 3. Global Tax File (replaces Fixed Deposits)
+ * 3. Tax Filings (formerly Global Tax File)
  * 4. FIRE Strategy / Early Retirement
  * 5. Wealth Management
  * 6. Insurance Solutions
- * 7. Income Tax Filing
  */
 export const homepageServices: ServiceItem[] = [
   // 1. Investment Planning
@@ -433,10 +432,10 @@ export const homepageServices: ServiceItem[] = [
     backgroundWord: "GROW",
     highlights: ["Zero Commission Direct Funds", "ELSS Tax Saving 80C", "Disciplined SIP Plans"]
   },
-  // 3. Global Tax File (Replaced Fixed Deposits with complete information)
+  // 3. Tax Filings (formerly Global Tax File)
   {
     id: "global-tax-file",
-    title: "Global Tax File",
+    title: "Tax Filings",
     category: "Tax & Specialized Solutions",
     categorySlug: "tax-specialized",
     badge: "Cross-Border Tax",
@@ -505,24 +504,5 @@ export const homepageServices: ServiceItem[] = [
     ctaText: "Get Insurance Audit",
     backgroundWord: "PROTECT",
     highlights: ["Policy Portfolio Review", "Claim Settlement Guidance", "Unbiased Product Curation"]
-  },
-  // 7. Income Tax Filing
-  {
-    id: "income-tax-filing",
-    title: "Income Tax Filing",
-    category: "Tax & Specialized Solutions",
-    categorySlug: "tax-specialized",
-    badge: "ITR & Tax Optimization",
-    description: "Expert income tax preparation, regime comparison (New vs Old), business tax filing, and seamless tax optimization.",
-    icon: React.createElement(ReceiptText, { size: 24 }),
-    color: "bg-blue-600",
-    redirectToWhatsApp: false,
-    whatsAppMessage: "Hello, I am seeking assistance with income tax filing. Could we connect to discuss further?",
-    imageSrc: "/lovable-uploads/b80d81b8-1bd9-42ad-9457-5b8f46a67af0.png",
-    showSheet: false,
-    linkTo: "/income-tax-filing",
-    ctaText: "File Your Taxes",
-    backgroundWord: "TAX",
-    highlights: ["Old vs New Regime Modeling", "Capital Gains Calculation", "Notice Management"]
   }
 ];

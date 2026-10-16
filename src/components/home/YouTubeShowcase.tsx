@@ -5,6 +5,7 @@ import {
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
+import { FadeIn } from '@/components/ui/animation';
 import { youtubeVideos, YouTubeVideo, YOUTUBE_CHANNEL } from '@/data/youtubeVideos';
 import { YouTubeModal } from './YouTubeModal';
 
@@ -13,65 +14,55 @@ export default function YouTubeShowcase() {
   const [isAnimating, setIsAnimating] = useState(false);
   const [selectedVideo, setSelectedVideo] = useState<YouTubeVideo | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isHovered, setIsHovered] = useState(false);
+  const [autoplayKey, setAutoplayKey] = useState(0);
 
-  // Responsive cards per view: 3 on desktop (lg+), 2 on tablet (sm to lg), 1 on mobile (<sm)
-  const [cardsPerView, setCardsPerView] = useState(() => {
-    if (typeof window === 'undefined') return 3;
-    if (window.innerWidth < 640) return 1;
-    if (window.innerWidth < 1024) return 2;
-    return 3;
-  });
-
+  const maxIndex = youtubeVideos.length - 1;
   const touchStartXRef = useRef<number | null>(null);
 
-  // Update cardsPerView on window resize
+  // Helper to restart the 6-second timer on user interaction
+  const resetAutoplay = () => {
+    setAutoplayKey((k) => k + 1);
+  };
+
+  // Auto-advance every 6s unless hovered or modal is open
   useEffect(() => {
-    const handleResize = () => {
-      const width = window.innerWidth;
-      let nextCardsPerView = 3;
-      if (width < 640) {
-        nextCardsPerView = 1;
-      } else if (width < 1024) {
-        nextCardsPerView = 2;
-      }
-      setCardsPerView(nextCardsPerView);
-    };
-
-    handleResize();
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
-
-  // Maximum navigable start index so the last visible set never shows empty space
-  const maxIndex = Math.max(0, youtubeVideos.length - cardsPerView);
-
-  // Clamp currentIndex whenever cardsPerView changes
-  useEffect(() => {
-    if (currentIndex > maxIndex) {
-      setCurrentIndex(maxIndex);
+    // Respect reduced-motion preferences where practical
+    if (typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      return;
     }
-  }, [maxIndex, currentIndex]);
+
+    if (isModalOpen || isHovered) return;
+
+    const timer = setInterval(() => {
+      setCurrentIndex((prev) => (prev === maxIndex ? 0 : prev + 1));
+    }, 6000);
+
+    return () => clearInterval(timer);
+  }, [maxIndex, isModalOpen, isHovered, autoplayKey]);
 
   const goToPrev = () => {
-    if (isAnimating || currentIndex === 0) return;
+    if (isAnimating) return;
     setIsAnimating(true);
-    setCurrentIndex((prev) => Math.max(0, prev - 1));
-    setTimeout(() => setIsAnimating(false), 450);
+    setCurrentIndex((prev) => (prev === 0 ? maxIndex : prev - 1));
+    resetAutoplay();
+    setTimeout(() => setIsAnimating(false), 500);
   };
 
   const goToNext = () => {
-    if (isAnimating || currentIndex === maxIndex) return;
+    if (isAnimating) return;
     setIsAnimating(true);
-    setCurrentIndex((prev) => Math.min(maxIndex, prev + 1));
-    setTimeout(() => setIsAnimating(false), 450);
+    setCurrentIndex((prev) => (prev === maxIndex ? 0 : prev + 1));
+    resetAutoplay();
+    setTimeout(() => setIsAnimating(false), 500);
   };
 
   const goToIndex = (index: number) => {
     if (isAnimating || index === currentIndex) return;
-    const target = Math.max(0, Math.min(maxIndex, index));
     setIsAnimating(true);
-    setCurrentIndex(target);
-    setTimeout(() => setIsAnimating(false), 450);
+    setCurrentIndex(index);
+    resetAutoplay();
+    setTimeout(() => setIsAnimating(false), 500);
   };
 
   // Keyboard navigation
@@ -113,13 +104,10 @@ export default function YouTubeShowcase() {
     setSelectedVideo(null);
   };
 
-  // Total navigable dots: maxIndex + 1
-  const totalNavigablePositions = maxIndex + 1;
-
   return (
     <section 
       id="insights-youtube"
-      className="py-16 sm:py-20 md:py-24 bg-transparent overflow-hidden relative"
+      className="py-24 bg-transparent overflow-hidden relative"
       onKeyDown={handleKeyDown}
       tabIndex={0}
       aria-label="Insights From The Finance Brunch YouTube Section"
@@ -143,147 +131,143 @@ export default function YouTubeShowcase() {
         aria-hidden="true" 
       />
       <div 
-        className="absolute bottom-1/4 right-1/4 w-80 h-80 rounded-full bg-red-500/10 blur-[130px] pointer-events-none" 
+        className="absolute bottom-1/4 right-1/4 w-80 h-80 rounded-full bg-primary/10 blur-[130px] pointer-events-none" 
         aria-hidden="true" 
       />
 
       <div className="w-full max-w-7xl 2xl:max-w-[1536px] 3xl:max-w-[1680px] px-4 sm:px-6 lg:px-8 mx-auto relative z-10">
         
         {/* Section Header */}
-        <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-10 sm:mb-14">
-          <div className="max-w-3xl">
-            {/* Eyebrow Badge with YouTube Icon */}
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-red-500/10 dark:bg-red-500/15 border border-red-500/20 dark:border-red-500/30 text-red-600 dark:text-red-400 text-xs font-semibold uppercase tracking-wider mb-3">
-              <Youtube className="w-3.5 h-3.5" />
-              <span>WATCH & LEARN</span>
-            </div>
+        <FadeIn direction="up" className="max-w-3xl mx-auto text-center mb-16">
+          <span className="inline-block px-3.5 py-1 bg-primary/10 text-primary rounded-full text-sm font-medium mb-4">
+            Official YouTube Channel
+          </span>
+          <h2 className="text-3xl md:text-4xl font-bold mb-6">
+            Insights From <span className="text-primary">The Finance Brunch</span>
+          </h2>
+          <p className="text-lg text-gray-600 dark:text-gray-400">
+            Explore financial insights, investment education, market perspectives, and practical guidance from our YouTube channel.
+          </p>
+        </FadeIn>
 
-            {/* Main Heading */}
-            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight text-slate-900 dark:text-white mb-3">
-              Insights From{" "}
-              <span className="bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 dark:from-cyan-400 dark:via-blue-400 dark:to-indigo-300 bg-clip-text text-transparent">
-                The Finance Brunch
-              </span>
-            </h2>
-
-            {/* Supporting Text */}
-            <p className="text-sm sm:text-base lg:text-lg text-slate-600 dark:text-slate-400 leading-relaxed">
-              Explore financial insights, investment education, market perspectives, and practical guidance from our YouTube channel.
-            </p>
-          </div>
-
-          {/* Action Button linking to official channel */}
-          <div className="flex-shrink-0 flex items-center gap-3">
-            <a
-              href={YOUTUBE_CHANNEL.url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-xs sm:text-sm font-semibold text-white bg-red-600 hover:bg-red-700 transition-all shadow-md shadow-red-600/20 hover:scale-105 active:scale-100"
-            >
-              <Youtube className="w-4 h-4" />
-              <span>Visit Channel</span>
-              <ExternalLink className="w-3.5 h-3.5 ml-0.5" />
-            </a>
-          </div>
-        </div>
-
-        {/* Carousel Container */}
-        <div className="relative">
-          
-          {/* Clipped Carousel Viewport */}
+        {/* Carousel Container - Restored & Significantly Enlarged */}
+        <FadeIn 
+          direction="up" 
+          delay={0.15} 
+          className="relative mx-auto w-full max-w-[1240px] px-4 sm:px-12 md:px-14 lg:px-16"
+          onMouseEnter={() => setIsHovered(true)}
+          onMouseLeave={() => setIsHovered(false)}
+        >
+          {/* Clipped Carousel Viewport - Exactly min(1100px, calc(100vw - 100px)) on desktop */}
           <div 
-            className="relative overflow-hidden py-3"
+            className="relative overflow-hidden rounded-2xl sm:rounded-3xl mx-auto w-full max-w-[calc(100%-32px)] sm:max-w-full lg:max-w-[min(1100px,calc(100vw-100px))]"
             onTouchStart={handleTouchStart}
             onTouchEnd={handleTouchEnd}
           >
             <div 
-              className="flex transition-transform duration-500 ease-in-out -mx-2.5 sm:-mx-3.5" 
-              style={{ 
-                transform: `translateX(-${currentIndex * (100 / cardsPerView)}%)` 
-              }}
+              className="flex transition-transform duration-500 ease-in-out" 
+              style={{ transform: `translateX(-${currentIndex * 100}%)` }}
             >
               {youtubeVideos.map((video) => (
-                <div 
-                  key={video.id} 
-                  className="w-full sm:w-1/2 lg:w-1/3 flex-shrink-0 px-2.5 sm:px-3.5"
-                >
+                <div key={video.id} className="w-full flex-shrink-0 px-1 sm:px-2">
                   <div
                     onClick={() => handlePlayVideo(video)}
-                    className={cn(
-                      "relative rounded-3xl overflow-hidden transition-all duration-300 flex flex-col justify-between select-none group cursor-pointer h-full",
-                      "backdrop-blur-2xl border shadow-lg hover:shadow-2xl hover:-translate-y-1.5",
-                      "bg-white/95 dark:bg-[#071329]/95 border-slate-200/90 dark:border-slate-800/90 hover:border-red-500/40 dark:hover:border-red-400/40"
-                    )}
+                    className="group bg-white dark:bg-gray-900 rounded-2xl sm:rounded-3xl shadow-xl hover:shadow-2xl p-[20px] sm:p-6 lg:p-[32px] border border-gray-100 dark:border-gray-800 hover:border-primary/30 transition-all duration-300 cursor-pointer w-full flex flex-col justify-center min-h-0 md:min-h-[380px]"
                   >
-                    {/* Video Thumbnail Area with 16:9 Aspect Ratio */}
-                    <div className="relative aspect-video w-full overflow-hidden bg-slate-950">
-                      <img 
-                        src={video.maxResThumbnail}
-                        alt={video.title}
-                        onError={(e) => {
-                          (e.target as HTMLImageElement).src = video.thumbnail;
-                        }}
-                        className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105 filter brightness-95 group-hover:brightness-100"
-                        loading="lazy"
-                      />
+                    <div className="flex flex-col md:flex-row items-center gap-6 lg:gap-[28px] w-full">
+                      
+                      {/* Left: Large & Clear Video Thumbnail Area (~420px width on desktop, 16/9 aspect ratio) */}
+                      <div className="w-full md:w-[420px] flex-shrink-0">
+                        <div className="relative aspect-video w-full rounded-xl sm:rounded-2xl overflow-hidden bg-slate-950 shadow-md">
+                          <img 
+                            src={video.maxResThumbnail}
+                            alt={video.title}
+                            onError={(e) => {
+                              (e.target as HTMLImageElement).src = video.thumbnail;
+                            }}
+                            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                            loading="lazy"
+                          />
 
-                      {/* Vignette Overlay */}
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/20 to-transparent" />
+                          {/* Vignette Overlay */}
+                          <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/20 to-transparent" />
 
-                      {/* Top Badges */}
-                      <div className="absolute top-3 left-3 right-3 flex items-center justify-between">
-                        <span className={cn(
-                          "px-2.5 py-0.5 rounded-full text-[11px] font-semibold tracking-wide uppercase border backdrop-blur-md",
-                          video.tagColor.bg,
-                          video.tagColor.text,
-                          video.tagColor.border
-                        )}>
-                          {video.category}
-                        </span>
+                          {/* Top Badges */}
+                          <div className="absolute top-3 left-3 right-3 flex items-center justify-between">
+                            <span className={cn(
+                              "px-2.5 py-0.5 rounded-full text-[10px] sm:text-[11px] font-semibold tracking-wide uppercase border backdrop-blur-md",
+                              video.tagColor.bg,
+                              video.tagColor.text,
+                              video.tagColor.border
+                            )}>
+                              {video.category}
+                            </span>
 
-                        <span className="backdrop-blur-md bg-black/60 text-white/90 text-[10px] font-mono px-2 py-0.5 rounded-full border border-white/10 flex items-center gap-1">
-                          <Eye className="w-3 h-3 text-red-400" />
-                          <span>{video.viewsFormatted}</span>
-                        </span>
-                      </div>
+                            <span className="backdrop-blur-md bg-black/60 text-white/90 text-[10px] font-mono px-2.5 py-0.5 rounded-full border border-white/10 flex items-center gap-1">
+                              <Eye className="w-2.5 h-2.5 text-red-400" />
+                              <span>{video.viewsFormatted}</span>
+                            </span>
+                          </div>
 
-                      {/* Centered Play Button Overlay */}
-                      <div className="absolute inset-0 flex items-center justify-center">
-                        <div className="w-13 h-13 sm:w-14 sm:h-14 rounded-full bg-red-600 text-white flex items-center justify-center shadow-xl backdrop-blur-sm transition-all duration-300 group-hover:scale-115 group-hover:shadow-[0_0_25px_rgba(239,68,68,0.6)]">
-                          <Play className="w-5 h-5 sm:w-6 sm:h-6 ml-0.5 fill-white" />
+                          {/* Centered Prominent Play Button Overlay */}
+                          <div className="absolute inset-0 flex items-center justify-center">
+                            <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-red-600 text-white flex items-center justify-center shadow-2xl backdrop-blur-sm transition-all duration-300 group-hover:scale-115 group-hover:bg-red-500 group-hover:shadow-[0_0_25px_rgba(239,68,68,0.55)]">
+                              <Play className="w-6 h-6 sm:w-7 sm:h-7 ml-0.5 fill-white" />
+                            </div>
+                          </div>
+
+                          {/* Bottom Banner */}
+                          <div className="absolute bottom-2.5 left-3 right-3 flex items-center justify-between text-[11px] text-white/85 font-medium">
+                            <span className="flex items-center gap-1">
+                              <Calendar className="w-3 h-3 text-slate-300" />
+                              {video.publishedFormatted}
+                            </span>
+                            <span className="font-semibold text-red-300 group-hover:text-white transition-colors">
+                              Click to Play ➔
+                            </span>
+                          </div>
                         </div>
                       </div>
 
-                      {/* Bottom Banner */}
-                      <div className="absolute bottom-2.5 left-3 right-3 flex items-center justify-between text-[11px] text-white/85 font-medium">
-                        <span className="flex items-center gap-1">
-                          <Calendar className="w-3 h-3 text-slate-300" />
-                          {video.publishedFormatted}
-                        </span>
-                        <span className="font-semibold text-red-300 group-hover:text-white transition-colors">
-                          Click to Play ➔
-                        </span>
-                      </div>
-                    </div>
+                      {/* Right: Video Details & Information (Vertically Centered) */}
+                      <div className="flex-1 flex flex-col justify-center min-w-0 py-1 space-y-3 sm:space-y-4">
+                        <div>
+                          {/* Eyebrow Badge */}
+                          <div className="inline-block mb-1.5 sm:mb-2">
+                            <span className={cn(
+                              "px-3 py-1 rounded-full text-xs font-semibold tracking-wide border",
+                              video.tagColor.bg,
+                              video.tagColor.text,
+                              video.tagColor.border
+                            )}>
+                              {video.category}
+                            </span>
+                          </div>
 
-                    {/* Video Card Content */}
-                    <div className="p-5 sm:p-6 flex flex-col justify-between flex-grow">
-                      <div>
-                        <h3 className="text-base sm:text-lg font-bold text-slate-900 dark:text-white mb-2 leading-snug line-clamp-2 group-hover:text-red-600 dark:group-hover:text-red-400 transition-colors">
-                          {video.title}
-                        </h3>
+                          {/* Video Title */}
+                          <h3 className="text-xl sm:text-2xl lg:text-[26px] font-bold text-gray-900 dark:text-white line-clamp-2 leading-snug group-hover:text-primary transition-colors">
+                            {video.title}
+                          </h3>
+
+                          {/* Video Short Description */}
+                          <p className="mt-2.5 text-sm sm:text-base lg:text-[15px] text-gray-600 dark:text-gray-300 line-clamp-3 leading-relaxed">
+                            {video.description}
+                          </p>
+                        </div>
+
+                        {/* Bottom Row: Channel branding & Watch action */}
+                        <div className="pt-3.5 border-t border-gray-100 dark:border-gray-800 flex items-center justify-between text-xs sm:text-sm">
+                          <span className="flex items-center gap-2 font-medium text-gray-600 dark:text-gray-400">
+                            <Youtube className="w-4 h-4 text-red-600" />
+                            <span>The Finance Brunch</span>
+                          </span>
+                          <span className="font-semibold text-primary flex items-center gap-1.5 group-hover:translate-x-1 transition-transform">
+                            <span>Watch Video</span>
+                            <ArrowRight className="w-4 h-4" />
+                          </span>
+                        </div>
                       </div>
 
-                      <div className="pt-3 mt-3 border-t border-slate-200/80 dark:border-slate-800/80 flex items-center justify-between text-xs text-slate-500 dark:text-slate-400">
-                        <span className="flex items-center gap-1.5 font-medium">
-                          <Youtube className="w-3.5 h-3.5 text-red-600" />
-                          <span>The Finance Brunch</span>
-                        </span>
-                        <span className="font-semibold text-blue-600 dark:text-cyan-400 flex items-center gap-1 group-hover:translate-x-1 transition-transform">
-                          <span>Watch Video</span>
-                          <ArrowRight className="w-3.5 h-3.5" />
-                        </span>
-                      </div>
                     </div>
                   </div>
                 </div>
@@ -291,73 +275,64 @@ export default function YouTubeShowcase() {
             </div>
           </div>
 
-          {/* Left Arrow Button */}
-          <div className="absolute top-1/2 -left-3 sm:-left-5 transform -translate-y-1/2 z-20">
+          {/* Left Arrow Button - Positioned outside card edges */}
+          <div className="absolute top-1/2 left-0 sm:left-1 md:left-2 transform -translate-y-1/2 z-20">
             <Button 
               variant="outline" 
               size="icon" 
-              className={cn(
-                "rounded-full w-10 h-10 sm:w-11 sm:h-11 shadow-lg backdrop-blur-md transition-all duration-200",
-                "bg-white/95 dark:bg-slate-900/95 border-slate-200/90 dark:border-slate-800",
-                "hover:bg-white dark:hover:bg-slate-800 hover:scale-110 active:scale-95 focus-visible:ring-2 focus-visible:ring-red-500",
-                currentIndex === 0 
-                  ? "opacity-30 cursor-not-allowed hover:scale-100" 
-                  : "opacity-100 hover:border-red-500/50"
-              )}
+              className="w-11 h-11 sm:w-12 sm:h-12 rounded-full bg-white/90 dark:bg-gray-900/90 backdrop-blur-sm shadow-md hover:bg-white dark:hover:bg-gray-900 hover:scale-110 active:scale-95 transition-all duration-200 focus-visible:ring-2 focus-visible:ring-primary"
               onClick={goToPrev}
-              disabled={currentIndex === 0}
-              aria-label="Previous videos"
+              aria-label="Previous video"
             >
-              <ChevronLeft size={20} className="text-slate-700 dark:text-slate-200 transition-transform duration-200 hover:-translate-x-0.5" />
+              <ChevronLeft size={22} className="transition-transform duration-200 hover:-translate-x-0.5" />
             </Button>
           </div>
 
-          {/* Right Arrow Button */}
-          <div className="absolute top-1/2 -right-3 sm:-right-5 transform -translate-y-1/2 z-20">
+          {/* Right Arrow Button - Positioned outside card edges */}
+          <div className="absolute top-1/2 right-0 sm:right-1 md:right-2 transform -translate-y-1/2 z-20">
             <Button 
               variant="outline" 
               size="icon" 
-              className={cn(
-                "rounded-full w-10 h-10 sm:w-11 sm:h-11 shadow-lg backdrop-blur-md transition-all duration-200",
-                "bg-white/95 dark:bg-slate-900/95 border-slate-200/90 dark:border-slate-800",
-                "hover:bg-white dark:hover:bg-slate-800 hover:scale-110 active:scale-95 focus-visible:ring-2 focus-visible:ring-red-500",
-                currentIndex === maxIndex 
-                  ? "opacity-30 cursor-not-allowed hover:scale-100" 
-                  : "opacity-100 hover:border-red-500/50"
-              )}
+              className="w-11 h-11 sm:w-12 sm:h-12 rounded-full bg-white/90 dark:bg-gray-900/90 backdrop-blur-sm shadow-md hover:bg-white dark:hover:bg-gray-900 hover:scale-110 active:scale-95 transition-all duration-200 focus-visible:ring-2 focus-visible:ring-primary"
               onClick={goToNext}
-              disabled={currentIndex === maxIndex}
-              aria-label="Next videos"
+              aria-label="Next video"
             >
-              <ChevronRight size={20} className="text-slate-700 dark:text-slate-200 transition-transform duration-200 hover:translate-x-0.5" />
+              <ChevronRight size={22} className="transition-transform duration-200 hover:translate-x-0.5" />
             </Button>
           </div>
 
-          {/* Pagination Indicators & Counter Below Carousel (No page scrolling) */}
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mt-8 sm:mt-10">
-            <div className="flex items-center gap-2">
-              {Array.from({ length: totalNavigablePositions }).map((_, index) => (
-                <button
-                  key={index}
-                  type="button"
-                  className={cn(
-                    "h-2.5 rounded-full transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500 cursor-pointer",
-                    index === currentIndex 
-                      ? "bg-red-600 dark:bg-red-500 w-8 shadow-sm shadow-red-500/30" 
-                      : "bg-slate-300 dark:bg-slate-700 w-2.5 hover:bg-red-400 dark:hover:bg-red-600 hover:scale-125"
-                  )}
-                  onClick={() => goToIndex(index)}
-                  aria-label={`Go to video set ${index + 1}`}
-                />
-              ))}
-            </div>
-
-            <span className="text-xs font-mono font-bold text-slate-500 dark:text-slate-400 sm:ml-2">
-              0{currentIndex + 1} / 0{totalNavigablePositions}
-            </span>
+          {/* Pagination Indicators Below Card */}
+          <div className="flex justify-center mt-10">
+            {youtubeVideos.map((_, index) => (
+              <button
+                type="button"
+                key={index}
+                className={cn(
+                  "w-3 h-3 mx-1.5 rounded-full transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary cursor-pointer",
+                  index === currentIndex 
+                    ? "bg-primary w-8" 
+                    : "bg-gray-300 dark:bg-gray-700 hover:bg-primary/50 hover:scale-125"
+                )}
+                onClick={() => goToIndex(index)}
+                aria-label={`Go to video ${index + 1}`}
+              />
+            ))}
           </div>
 
-        </div>
+          {/* Channel link below pagination */}
+          <div className="flex justify-center mt-6">
+            <a
+              href={YOUTUBE_CHANNEL.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 text-xs sm:text-sm font-semibold text-primary hover:text-primary/80 transition-colors"
+            >
+              <Youtube className="w-4 h-4 text-red-600" />
+              <span>Visit @TheFinanceBrunch on YouTube</span>
+              <ExternalLink className="w-3.5 h-3.5" />
+            </a>
+          </div>
+        </FadeIn>
       </div>
 
       {/* Video Modal Player */}

@@ -143,9 +143,6 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({
             <Building2 className="h-4 w-4 mr-2 flex-shrink-0" />
             {taxpayerType === "nri" ? "NRI taxation has specific rules based on your residential status and source of income." :
              taxpayerType === "startup" ? "Startups may qualify for tax benefits under Section 80IAC (Startup India)." :
-             taxpayerType === "llp" ? "LLPs are taxed at a flat rate of 30% plus applicable surcharge and cess." :
-             taxpayerType === "msme" ? "MSMEs can opt for presumptive taxation under Section 44AD (8% or 6% of turnover)." :
-             taxpayerType === "company" ? "Companies can opt for regular taxation or Section 115BAA (22% flat rate)." :
              "Professionals can opt for presumptive taxation under Section 44ADA (50% of gross receipts up to ₹50 Lakhs)."}
           </p>
         </div>
