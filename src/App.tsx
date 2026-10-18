@@ -12,6 +12,7 @@ import Footer from './components/layout/Footer';
 import { GlobalAmbientBackground } from './components/layout/GlobalAmbientBackground';
 import { ScrollProgress } from './components/layout/ScrollProgress';
 import { ScrollLinkedMotion } from './components/layout/ScrollLinkedMotion';
+import { SmoothScroll } from './components/layout/SmoothScroll';
 import { Toaster } from './components/ui/sonner';
 
 const Calculator = lazy(() => import('./pages/Calculator'));
@@ -129,6 +130,7 @@ function App() {
         <TooltipProvider>
           <Router basename={import.meta.env.BASE_URL}>
             <ScrollToTop />
+            <SmoothScroll />
             <ScrollToHashElement />
             <div className="relative flex flex-col min-h-screen bg-background text-gray-900 dark:text-gray-100 transition-colors duration-300">
               <ScrollProgress />

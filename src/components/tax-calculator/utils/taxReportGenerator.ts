@@ -4,7 +4,7 @@
  * embedding the official Finance Brunch logo in the top-right corner of each format.
  */
 
-import { jsPDF } from 'jspdf';
+import { GState, jsPDF } from 'jspdf';
 import {
   Document,
   Packer,
@@ -30,7 +30,7 @@ import {
 import { registerReportFonts } from './reportFont';
 
 export const TAX_CALCULATOR_DISCLAIMER_TEXT =
-  'Disclaimer: This calculator provides estimates for informational purposes only and should not be considered professional tax advice. Actual tax liability may vary based on your individual circumstances and applicable tax rules. For an accurate assessment and personalized guidance, please consult a qualified Chartered Accountant or tax professional.';
+  'This report provides an indicative estimate based on the information entered and the tax rules applicable to the selected financial year. It is intended for informational and planning purposes only and does not constitute professional tax, legal, or financial advice. Actual tax liability may vary depending on individual circumstances, eligible deductions, applicable legislation, and subsequent regulatory changes. For an accurate assessment of your tax position, please consult an independent qualified Chartered Accountant or other appropriately qualified tax professional.';
 
 export interface TaxReportData {
   income: number;
@@ -410,7 +410,12 @@ export function printTaxReport(data: TaxReportData) {
   </div>` : ''}
 
   <div class="disclaimer">
-    ${TAX_CALCULATOR_DISCLAIMER_TEXT}
+    <strong>Disclaimer:</strong> ${TAX_CALCULATOR_DISCLAIMER_TEXT}
+  </div>
+
+  <div style="margin-top: 18px; padding-top: 12px; border-top: 1px solid #cbd5e1; display: flex; justify-content: space-between; align-items: center; font-size: 11px; color: #64748b;">
+    <strong style="color: #0f172a; font-size: 12px;">Finance Brunch</strong>
+    <span>Email: admin@financebrunch.in &nbsp;|&nbsp; Phone: +91 7842-494-981 &nbsp;|&nbsp; Website: https://financebrunch.in</span>
   </div>
 </body>
 </html>`;
@@ -479,6 +484,14 @@ export async function downloadTaxReportPdf(data: TaxReportData) {
   const logoHeight = logoWidth / LOGO_ASPECT_RATIO;
   const logoX = pageWidth - margin - logoWidth;
   const logoY = 10;
+
+  // Draw the watermark before every report element so it can never cover content.
+  doc.setGState(new GState({ opacity: 0.06 }));
+  doc.setFont('ReportFont', 'bold');
+  doc.setFontSize(54);
+  doc.setTextColor(203, 213, 225);
+  doc.text('FINANCE BRUNCH', pageWidth / 2, 175, { align: 'center', angle: 45 });
+  doc.setGState(new GState({ opacity: 1 }));
 
   try {
     doc.addImage(FINANCE_BRUNCH_LOGO_RAW, 'PNG', logoX, logoY, logoWidth, logoHeight);
@@ -672,15 +685,34 @@ export async function downloadTaxReportPdf(data: TaxReportData) {
 
   // 6. Disclaimer
   doc.setFont('ReportFont', 'bold');
-  doc.setFontSize(7.5);
+  doc.setFontSize(8);
   doc.setTextColor(100, 116, 139);
   doc.text('Disclaimer:', margin, currentY);
 
   doc.setFont('ReportFont', 'normal');
-  doc.setFontSize(7);
-  const disclaimerBody = 'This calculator provides estimates for informational purposes only and should not be considered professional tax advice. Actual tax liability may vary based on your individual circumstances and applicable tax rules. For an accurate assessment and personalized guidance, please consult a qualified Chartered Accountant or tax professional.';
-  const splitDisclaimer = doc.splitTextToSize(disclaimerBody, contentWidth);
-  doc.text(splitDisclaimer, margin, currentY + 4);
+  doc.setFontSize(6.8);
+  doc.setTextColor(100, 116, 139);
+  const splitDisclaimer = doc.splitTextToSize(TAX_CALCULATOR_DISCLAIMER_TEXT, contentWidth);
+  doc.text(splitDisclaimer, margin, currentY + 3.8);
+
+  const disclaimerHeight = splitDisclaimer.length * 3.2;
+  const footerY = currentY + 5 + disclaimerHeight;
+
+  // Divider above Brand Footer
+  doc.setDrawColor(203, 213, 225);
+  doc.setLineWidth(0.3);
+  doc.line(margin, footerY, margin + contentWidth, footerY);
+
+  // Professional Finance Brunch Brand Footer
+  doc.setFont('ReportFont', 'bold');
+  doc.setFontSize(8);
+  doc.setTextColor(15, 23, 42);
+  doc.text('Finance Brunch', margin, footerY + 5);
+
+  doc.setFont('ReportFont', 'normal');
+  doc.setFontSize(7.2);
+  doc.setTextColor(100, 116, 139);
+  doc.text('Email: admin@financebrunch.in   |   Phone: +91 7842-494-981   |   Website: https://financebrunch.in', margin + 26, footerY + 5);
 
   // Trigger immediate client-side download
   const blob = doc.output('blob');
@@ -985,13 +1017,49 @@ export async function downloadTaxReportDocx(data: TaxReportData) {
           new Paragraph({
             children: [
               new TextRun({
+                text: 'Disclaimer: ',
+                bold: true,
+                size: 16,
+                color: '64748b',
+              }),
+              new TextRun({
                 text: TAX_CALCULATOR_DISCLAIMER_TEXT,
                 size: 16,
                 color: '64748b',
                 italics: true,
               }),
             ],
-            spacing: { before: 200 },
+            spacing: { before: 200, after: 140 },
+          }),
+
+          // Divider
+          new Table({
+            width: { size: 100, type: WidthType.PERCENTAGE },
+            borders: {
+              top: { style: BorderStyle.SINGLE, size: 6, color: 'CBD5E1' },
+              bottom: { style: BorderStyle.NONE },
+              left: { style: BorderStyle.NONE },
+              right: { style: BorderStyle.NONE },
+            },
+            rows: [new TableRow({ children: [new TableCell({ children: [] })] })],
+          }),
+
+          // Professional Finance Brunch Brand Footer
+          new Paragraph({
+            children: [
+              new TextRun({
+                text: 'Finance Brunch',
+                bold: true,
+                size: 18,
+                color: '0f172a',
+              }),
+              new TextRun({
+                text: '   |   Email: admin@financebrunch.in   |   Phone: +91 7842-494-981   |   Website: https://financebrunch.in',
+                size: 16,
+                color: '64748b',
+              }),
+            ],
+            spacing: { before: 120 },
           }),
         ],
       },
@@ -1027,8 +1095,8 @@ Plan your taxes accurately on Finance Brunch:`;
     try {
       await navigator.share(sharePayload);
       return { shared: true, method: 'web-share' };
-    } catch (err: any) {
-      if (err.name === 'AbortError') {
+    } catch (err: unknown) {
+      if (err instanceof DOMException && err.name === 'AbortError') {
         return { shared: false, method: 'web-share' };
       }
     }

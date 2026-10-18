@@ -1,16 +1,21 @@
 /**
  * Finance Brunch - Systematic Withdrawal Plan (SWP) Calculator Utility
  *
- * Implements deterministic client-side SWP simulation:
- * 1. Start with initial corpus.
- * 2. Effective monthly rate: i = (1 + expectedAnnualReturn / 100)^(1 / 12) - 1.
- * 3. Each month:
- *    - Apply monthly return first: balanceBefore = balance * (1 + i).
- *    - Deduct scheduled withdrawal, capped at available balance:
- *      actualWithdrawal = Math.min(balanceBefore, monthlyWithdrawal).
- *    - Record actual withdrawal and closing balance: closing = balanceBefore - actualWithdrawal.
- *    - Stop counting once corpus is exhausted (closing === 0).
- * 4. Never allows balance to become negative.
+ * Implements deterministic client-side SWP simulation supporting both
+ * Monthly and Yearly withdrawal schedules:
+ * 
+ * 1. Monthly Schedule:
+ *    - Effective monthly rate: i = (1 + expectedAnnualReturn / 100)^(1 / 12) - 1.
+ *    - Each month: growth is compounded first, then scheduled monthly withdrawal is deducted.
+ *    - Capped at available balance (never allows balance to become negative).
+ * 
+ * 2. Yearly Schedule:
+ *    - Annual compound rate: i = expectedAnnualReturn / 100.
+ *    - Each year: annual growth is compounded first on opening balance, then scheduled yearly withdrawal is deducted.
+ *    - Capped at available balance (never allows balance to become negative).
+ * 
+ * 3. Both schedules track year-by-year opening balance, growth earned, actual withdrawals,
+ *    closing balance, cumulative withdrawals, and exact exhaustion point.
  */
 
 import { formatINR, formatCompactINR } from './sipCalculator';
@@ -30,9 +35,13 @@ export {
   SWP_WITHDRAWAL_QUICK_PRESETS,
 } from './calculatorConstants';
 
+export type SWPWithdrawalFrequency = 'monthly' | 'yearly';
+
 export interface SWPCalculatorInputs {
   initialCorpus: number;
-  monthlyWithdrawal: number;
+  monthlyWithdrawal?: number; // legacy backward compatibility
+  withdrawalAmount?: number;  // active amount per period
+  withdrawalFrequency?: SWPWithdrawalFrequency;
   expectedAnnualReturn: number;
   withdrawalDurationYears: number;
 }
@@ -49,6 +58,8 @@ export interface SWPYearlyScheduleItem {
 export interface SWPCalculationResult {
   initialCorpus: number;
   scheduledMonthlyWithdrawal: number;
+  scheduledWithdrawalAmount: number;
+  withdrawalFrequency: SWPWithdrawalFrequency;
   expectedAnnualReturn: number;
   withdrawalDurationYears: number;
   totalActualWithdrawals: number;
@@ -66,17 +77,23 @@ export function calculateSWP(inputs: SWPCalculatorInputs): SWPCalculationResult 
   const {
     initialCorpus,
     monthlyWithdrawal,
+    withdrawalAmount,
+    withdrawalFrequency = 'monthly',
     expectedAnnualReturn,
     withdrawalDurationYears,
   } = inputs;
+
+  const rawWithdrawal = withdrawalAmount !== undefined 
+    ? withdrawalAmount 
+    : (monthlyWithdrawal !== undefined ? monthlyWithdrawal : 0);
 
   if (
     typeof initialCorpus !== 'number' ||
     isNaN(initialCorpus) ||
     initialCorpus < 0 ||
-    typeof monthlyWithdrawal !== 'number' ||
-    isNaN(monthlyWithdrawal) ||
-    monthlyWithdrawal < 0 ||
+    typeof rawWithdrawal !== 'number' ||
+    isNaN(rawWithdrawal) ||
+    rawWithdrawal < 0 ||
     typeof expectedAnnualReturn !== 'number' ||
     isNaN(expectedAnnualReturn) ||
     expectedAnnualReturn < 0 ||
@@ -86,7 +103,9 @@ export function calculateSWP(inputs: SWPCalculatorInputs): SWPCalculationResult 
   ) {
     return {
       initialCorpus: Math.max(0, Number(initialCorpus) || 0),
-      scheduledMonthlyWithdrawal: Math.max(0, Number(monthlyWithdrawal) || 0),
+      scheduledMonthlyWithdrawal: Math.max(0, Number(rawWithdrawal) || 0),
+      scheduledWithdrawalAmount: Math.max(0, Number(rawWithdrawal) || 0),
+      withdrawalFrequency,
       expectedAnnualReturn: Math.max(0, Number(expectedAnnualReturn) || 0),
       withdrawalDurationYears: Math.max(0, Number(withdrawalDurationYears) || 0),
       totalActualWithdrawals: 0,
@@ -104,13 +123,15 @@ export function calculateSWP(inputs: SWPCalculatorInputs): SWPCalculationResult 
   // Prevent calculation overflow for unrealistic extremes (strictly capped at ₹100 Crore)
   if (
     initialCorpus > MAX_INVESTMENT_AMOUNT ||
-    monthlyWithdrawal > MAX_INVESTMENT_AMOUNT ||
+    rawWithdrawal > MAX_INVESTMENT_AMOUNT ||
     withdrawalDurationYears > 60 ||
     expectedAnnualReturn > 100
   ) {
     return {
       initialCorpus,
-      scheduledMonthlyWithdrawal: monthlyWithdrawal,
+      scheduledMonthlyWithdrawal: withdrawalFrequency === 'yearly' ? Math.round(rawWithdrawal / 12) : rawWithdrawal,
+      scheduledWithdrawalAmount: rawWithdrawal,
+      withdrawalFrequency,
       expectedAnnualReturn,
       withdrawalDurationYears,
       totalActualWithdrawals: 0,
@@ -125,17 +146,90 @@ export function calculateSWP(inputs: SWPCalculatorInputs): SWPCalculationResult 
     };
   }
 
+  let currentBalance = initialCorpus;
+  let totalActualWithdrawals = 0;
+  let totalGrowthEarned = 0;
+  let exhaustionMonthNumber: number | null = null;
+  let exhaustionYear: number | null = null;
+  const yearlySchedule: SWPYearlyScheduleItem[] = [];
+
+  // ==========================================
+  // 1. YEARLY WITHDRAWAL SCHEDULE SIMULATION
+  // ==========================================
+  if (withdrawalFrequency === 'yearly') {
+    const annualWithdrawal = rawWithdrawal;
+    const annualRate = expectedAnnualReturn / 100;
+
+    for (let y = 1; y <= withdrawalDurationYears; y++) {
+      const openingBalance = currentBalance;
+
+      if (currentBalance <= 0) {
+        yearlySchedule.push({
+          year: y,
+          openingBalance: 0,
+          growthEarned: 0,
+          annualWithdrawal: 0,
+          closingBalance: 0,
+          cumulativeWithdrawals: Math.round(totalActualWithdrawals),
+        });
+        continue;
+      }
+
+      // Apply annual compound growth on opening balance
+      const growthEarned = currentBalance * annualRate;
+      totalGrowthEarned += growthEarned;
+      const balanceBeforeWithdrawal = currentBalance + growthEarned;
+
+      // Deduct scheduled annual withdrawal, capped at available balance
+      const actualWithdrawal = Math.min(balanceBeforeWithdrawal, annualWithdrawal);
+      const closingBalance = Math.max(0, balanceBeforeWithdrawal - actualWithdrawal);
+
+      totalActualWithdrawals += actualWithdrawal;
+      currentBalance = closingBalance;
+
+      if (currentBalance === 0 && exhaustionYear === null) {
+        exhaustionYear = y;
+        exhaustionMonthNumber = y * 12;
+      }
+
+      yearlySchedule.push({
+        year: y,
+        openingBalance: Math.round(openingBalance),
+        growthEarned: Math.round(growthEarned),
+        annualWithdrawal: Math.round(actualWithdrawal),
+        closingBalance: Math.round(closingBalance),
+        cumulativeWithdrawals: Math.round(totalActualWithdrawals),
+      });
+    }
+
+    const isExhausted = exhaustionYear !== null;
+
+    return {
+      initialCorpus: Math.round(initialCorpus),
+      scheduledMonthlyWithdrawal: Math.round(annualWithdrawal / 12),
+      scheduledWithdrawalAmount: Math.round(annualWithdrawal),
+      withdrawalFrequency: 'yearly',
+      expectedAnnualReturn,
+      withdrawalDurationYears,
+      totalActualWithdrawals: Math.round(totalActualWithdrawals),
+      remainingCorpus: Math.round(currentBalance),
+      totalGrowthEarned: Math.round(totalGrowthEarned),
+      isExhausted,
+      exhaustionMonthNumber,
+      exhaustionYear,
+      yearlySchedule,
+      isValid: true,
+    };
+  }
+
+  // ==========================================
+  // 2. MONTHLY WITHDRAWAL SCHEDULE SIMULATION
+  // ==========================================
   const totalMonths = Math.round(withdrawalDurationYears * 12);
   const monthlyRate = expectedAnnualReturn === 0
     ? 0
     : Math.pow(1 + expectedAnnualReturn / 100, 1 / 12) - 1;
 
-  let currentBalance = initialCorpus;
-  let totalActualWithdrawals = 0;
-  let totalGrowthEarned = 0;
-  let exhaustionMonthNumber: number | null = null;
-
-  const yearlySchedule: SWPYearlyScheduleItem[] = [];
   let currentYearOpening = currentBalance;
   let currentYearGrowth = 0;
   let currentYearWithdrawals = 0;
@@ -163,14 +257,14 @@ export function calculateSWP(inputs: SWPCalculatorInputs): SWPCalculationResult 
       continue;
     }
 
-    // 1. Apply monthly return first
+    // Apply monthly return first
     const growthEarned = currentBalance * monthlyRate;
     const balanceBeforeWithdrawal = currentBalance + growthEarned;
     totalGrowthEarned += growthEarned;
     currentYearGrowth += growthEarned;
 
-    // 2. Deduct scheduled withdrawal, capped at available balance
-    const actualWithdrawal = Math.min(balanceBeforeWithdrawal, monthlyWithdrawal);
+    // Deduct scheduled monthly withdrawal, capped at available balance
+    const actualWithdrawal = Math.min(balanceBeforeWithdrawal, rawWithdrawal);
     const closingBalance = Math.max(0, balanceBeforeWithdrawal - actualWithdrawal);
     totalActualWithdrawals += actualWithdrawal;
     currentYearWithdrawals += actualWithdrawal;
@@ -196,13 +290,15 @@ export function calculateSWP(inputs: SWPCalculatorInputs): SWPCalculationResult 
   }
 
   const isExhausted = exhaustionMonthNumber !== null;
-  const exhaustionYear = exhaustionMonthNumber
+  exhaustionYear = exhaustionMonthNumber
     ? parseFloat((exhaustionMonthNumber / 12).toFixed(1))
     : null;
 
   return {
     initialCorpus: Math.round(initialCorpus),
-    scheduledMonthlyWithdrawal: Math.round(monthlyWithdrawal),
+    scheduledMonthlyWithdrawal: Math.round(rawWithdrawal),
+    scheduledWithdrawalAmount: Math.round(rawWithdrawal),
+    withdrawalFrequency: 'monthly',
     expectedAnnualReturn,
     withdrawalDurationYears,
     totalActualWithdrawals: Math.round(totalActualWithdrawals),

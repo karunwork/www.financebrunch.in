@@ -18,7 +18,7 @@ const TaxCalculator: React.FC<{ className?: string }> = ({ className }) => {
   const [country, setCountry] = useState<CountryCode>("india");
   const [state, setState] = useState<StateCode>("default");
   const [taxpayerType, setTaxpayerType] = useState<TaxpayerType>("individual");
-  const [income, setIncome] = useState<number>(500000);
+  const [income, setIncome] = useState<number>(0);
   const [age, setAge] = useState<string>("below60");
   const [regime, setRegime] = useState<TaxRegime>("new");
   const [financialYear, setFinancialYear] = useState<FinancialYear>("2024-2025");
@@ -121,7 +121,7 @@ const TaxCalculator: React.FC<{ className?: string }> = ({ className }) => {
 
   // Auto-calculate on mount or when key values change
   useEffect(() => {
-    if (income > 0) {
+    if (income >= 0) {
       setShowResults(true);
       setShowTips(country === "india" && taxpayerType === "individual");
     }

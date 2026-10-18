@@ -5,8 +5,10 @@ import { Button } from '@/components/ui/button';
 import { 
   LineChart, ChevronRight, ExternalLink, 
   Info, Clock, HomeIcon, Phone,
-  ArrowRight, Shield
+  ArrowRight, Shield, TrendingUp, Globe,
+  CandlestickChart, Sparkles, Briefcase, DollarSign
 } from 'lucide-react';
+import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
 import ScrollToTop from '@/components/ui/ScrollToTop';
 import { useIsMobile } from '@/hooks/use-mobile';
@@ -127,8 +129,8 @@ const InvestmentPlanning = () => {
     visible: {
       opacity: 1,
       transition: {
-        staggerChildren: 0.1,
-        delayChildren: 0.15,
+        staggerChildren: shouldReduceMotion ? 0 : 0.08,
+        delayChildren: shouldReduceMotion ? 0 : 0.1,
       }
     }
   };
@@ -136,16 +138,186 @@ const InvestmentPlanning = () => {
   const serviceCardVariants = {
     hidden: { 
       opacity: 0, 
-      y: shouldReduceMotion ? 0 : 28,
+      y: shouldReduceMotion ? 0 : 20,
+      scale: shouldReduceMotion ? 1 : 0.98,
       filter: shouldReduceMotion ? 'blur(0px)' : 'blur(4px)'
     },
     visible: {
       opacity: 1,
       y: 0,
+      scale: 1,
       filter: 'blur(0px)',
-      transition: { duration: 0.65, ease: appleEase }
+      transition: { duration: shouldReduceMotion ? 0 : 0.55, ease: appleEase }
     }
   };
+
+  interface InvestmentServiceItem {
+    id: string;
+    title: string;
+    category: string;
+    description: string;
+    icon: React.ReactNode;
+    accent: {
+      iconBg: string;
+      iconColor: string;
+      border: string;
+      badgeBg: string;
+      badgeText: string;
+      topGlow: string;
+      glow: string;
+    };
+    renderAction: () => React.ReactNode;
+  }
+
+  const investmentServices: InvestmentServiceItem[] = [
+    {
+      id: "indian-stock-analysis",
+      title: "Indian Stock Analysis",
+      category: "Equity Research",
+      description: "Expert analysis of Indian equity markets with actionable insights on stocks across various sectors and market capitalizations.",
+      icon: <TrendingUp className="h-6 w-6" />,
+      accent: {
+        iconBg: "bg-blue-500/10 dark:bg-blue-500/15",
+        iconColor: "text-blue-600 dark:text-cyan-400",
+        border: "border-blue-500/25 dark:border-cyan-400/25",
+        badgeBg: "bg-blue-50 dark:bg-blue-950/60",
+        badgeText: "text-blue-700 dark:text-cyan-300",
+        topGlow: "from-transparent via-blue-500/60 to-transparent",
+        glow: "hover:shadow-[0_16px_36px_-10px_rgba(59,130,246,0.18)] dark:hover:shadow-[0_16px_36px_-10px_rgba(6,182,212,0.22)]",
+      },
+      renderAction: () => (
+        <Link to="/indian-stock-analysis" className="w-full block">
+          <Button className="w-full h-9.5 bg-blue-600 hover:bg-blue-700 dark:bg-cyan-500 dark:hover:bg-cyan-400 dark:text-slate-950 text-white font-semibold rounded-xl text-xs sm:text-sm shadow-sm transition-all group-hover:shadow-md">
+            <span>Explore Indian Markets</span>
+            <ChevronRight className="ml-1.5 h-4 w-4 transition-transform group-hover:translate-x-1" />
+          </Button>
+        </Link>
+      ),
+    },
+    {
+      id: "usa-stock-analysis",
+      title: "USA Stock Analysis",
+      category: "NASDAQ & NYSE",
+      description: "In-depth research on US equities, focusing on growth stocks, tech companies, and dividend-yielding investments across NASDAQ and NYSE.",
+      icon: <Globe className="h-6 w-6" />,
+      accent: {
+        iconBg: "bg-purple-500/10 dark:bg-purple-500/15",
+        iconColor: "text-purple-600 dark:text-purple-400",
+        border: "border-purple-500/25 dark:border-purple-400/25",
+        badgeBg: "bg-purple-50 dark:bg-purple-950/60",
+        badgeText: "text-purple-700 dark:text-purple-300",
+        topGlow: "from-transparent via-purple-500/60 to-transparent",
+        glow: "hover:shadow-[0_16px_36px_-10px_rgba(168,85,247,0.18)] dark:hover:shadow-[0_16px_36px_-10px_rgba(168,85,247,0.22)]",
+      },
+      renderAction: () => (
+        <Button 
+          className="w-full h-9.5 bg-blue-600 hover:bg-blue-700 dark:bg-cyan-500 dark:hover:bg-cyan-400 dark:text-slate-950 text-white font-semibold rounded-xl text-xs sm:text-sm shadow-sm transition-all group-hover:shadow-md"
+          onClick={() => setUsaStockPopupOpen(true)}
+        >
+          <span>Explore US Equities</span>
+          <ExternalLink className="ml-1.5 h-4 w-4 transition-transform group-hover:scale-110" />
+        </Button>
+      ),
+    },
+    {
+      id: "ipo-analysis",
+      title: "IPO Analysis",
+      category: "Primary Market",
+      description: "Detailed evaluation of upcoming IPOs, including business models, financial health, valuation, and potential for long-term growth.",
+      icon: <Sparkles className="h-6 w-6" />,
+      accent: {
+        iconBg: "bg-emerald-500/10 dark:bg-emerald-500/15",
+        iconColor: "text-emerald-600 dark:text-emerald-400",
+        border: "border-emerald-500/25 dark:border-emerald-400/25",
+        badgeBg: "bg-emerald-50 dark:bg-emerald-950/60",
+        badgeText: "text-emerald-700 dark:text-emerald-300",
+        topGlow: "from-transparent via-emerald-500/60 to-transparent",
+        glow: "hover:shadow-[0_16px_36px_-10px_rgba(16,185,129,0.18)] dark:hover:shadow-[0_16px_36px_-10px_rgba(16,185,129,0.22)]",
+      },
+      renderAction: () => (
+        <Link to="/ipo-analysis" className="w-full block">
+          <Button className="w-full h-9.5 bg-blue-600 hover:bg-blue-700 dark:bg-cyan-500 dark:hover:bg-cyan-400 dark:text-slate-950 text-white font-semibold rounded-xl text-xs sm:text-sm shadow-sm transition-all group-hover:shadow-md">
+            <span>View IPO Insights</span>
+            <ChevronRight className="ml-1.5 h-4 w-4 transition-transform group-hover:translate-x-1" />
+          </Button>
+        </Link>
+      ),
+    },
+    {
+      id: "unlisted-shares",
+      title: "Unlisted Shares",
+      category: "Pre-IPO Equities",
+      description: "Access to private equity opportunities in promising companies before they go public, offering potential for significant returns.",
+      icon: <Briefcase className="h-6 w-6" />,
+      accent: {
+        iconBg: "bg-cyan-500/10 dark:bg-cyan-500/15",
+        iconColor: "text-cyan-600 dark:text-cyan-400",
+        border: "border-cyan-500/25 dark:border-cyan-400/25",
+        badgeBg: "bg-cyan-50 dark:bg-cyan-950/60",
+        badgeText: "text-cyan-700 dark:text-cyan-300",
+        topGlow: "from-transparent via-cyan-500/60 to-transparent",
+        glow: "hover:shadow-[0_16px_36px_-10px_rgba(6,182,212,0.18)] dark:hover:shadow-[0_16px_36px_-10px_rgba(6,182,212,0.22)]",
+      },
+      renderAction: () => (
+        <Link to="/unlisted-shares" className="w-full block">
+          <Button className="w-full h-9.5 bg-blue-600 hover:bg-blue-700 dark:bg-cyan-500 dark:hover:bg-cyan-400 dark:text-slate-950 text-white font-semibold rounded-xl text-xs sm:text-sm shadow-sm transition-all group-hover:shadow-md">
+            <span>Explore Unlisted Shares</span>
+            <ArrowRight className="ml-1.5 h-4 w-4 transition-transform group-hover:translate-x-1" />
+          </Button>
+        </Link>
+      ),
+    },
+    {
+      id: "digital-gold",
+      title: "Digital Gold",
+      category: "24K Pure Gold",
+      description: "Invest in 99.9% pure gold electronically without worrying about storage, security, or authenticity issues.",
+      icon: <DollarSign className="h-6 w-6" />,
+      accent: {
+        iconBg: "bg-amber-500/10 dark:bg-amber-500/15",
+        iconColor: "text-amber-600 dark:text-amber-400",
+        border: "border-amber-500/25 dark:border-amber-400/25",
+        badgeBg: "bg-amber-50 dark:bg-amber-950/60",
+        badgeText: "text-amber-700 dark:text-amber-300",
+        topGlow: "from-transparent via-amber-500/60 to-transparent",
+        glow: "hover:shadow-[0_16px_36px_-10px_rgba(245,158,11,0.18)] dark:hover:shadow-[0_16px_36px_-10px_rgba(245,158,11,0.22)]",
+      },
+      renderAction: () => (
+        <Button 
+          className="w-full h-9.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-amber-700 dark:text-amber-300 font-semibold rounded-xl text-xs sm:text-sm shadow-sm transition-all"
+          onClick={handleDigitalGoldClick}
+        >
+          <span>Coming Soon</span>
+          <Info className="ml-1.5 h-4 w-4" />
+        </Button>
+      ),
+    },
+    {
+      id: "crypto-currency",
+      title: "Crypto Currency Investments",
+      category: "Blockchain Assets",
+      description: "Strategic guidance on blockchain assets and cryptocurrencies, helping you navigate this emerging investment class with confidence.",
+      icon: <CandlestickChart className="h-6 w-6" />,
+      accent: {
+        iconBg: "bg-rose-500/10 dark:bg-rose-500/15",
+        iconColor: "text-rose-600 dark:text-rose-400",
+        border: "border-rose-500/25 dark:border-rose-400/25",
+        badgeBg: "bg-rose-50 dark:bg-rose-950/60",
+        badgeText: "text-rose-700 dark:text-rose-300",
+        topGlow: "from-transparent via-rose-500/60 to-transparent",
+        glow: "hover:shadow-[0_16px_36px_-10px_rgba(244,63,94,0.18)] dark:hover:shadow-[0_16px_36px_-10px_rgba(244,63,94,0.22)]",
+      },
+      renderAction: () => (
+        <Button 
+          className="w-full h-9.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-purple-700 dark:text-purple-300 font-semibold rounded-xl text-xs sm:text-sm shadow-sm transition-all"
+          onClick={handleCryptoClick}
+        >
+          <span>Coming Soon</span>
+          <Clock className="ml-1.5 h-4 w-4" />
+        </Button>
+      ),
+    },
+  ];
 
   const headlineWords = ["Maximize", "Your", "Investment", "Potential"];
 
@@ -241,12 +413,12 @@ const InvestmentPlanning = () => {
                 Our expert investment planning services help you navigate financial markets with confidence and build wealth for your future, whether you're in India or abroad.
               </motion.p>
 
-              {/* 4. Action buttons entering last */}
+              {/* 4. Action button entering last */}
               <motion.div 
                 variants={ctaVariants}
                 initial="hidden"
                 animate="visible"
-                className="flex flex-wrap items-center justify-center gap-3 sm:gap-4"
+                className="flex items-center justify-center pt-2"
               >
                 <a 
                   href="#comprehensive-investment-services"
@@ -255,16 +427,6 @@ const InvestmentPlanning = () => {
                   <span>Explore Services</span>
                   <ChevronRight size={15} className="ml-1.5" />
                 </a>
-
-                <Button 
-                  variant="outline"
-                  size="sm"
-                  onClick={handleContactAdvisor}
-                  className="rounded-full px-5 py-2 text-xs sm:text-sm font-semibold bg-white/80 dark:bg-slate-900/80 border-slate-300 dark:border-slate-700 hover:border-blue-500 dark:hover:border-cyan-400 transition-all"
-                >
-                  <span>Talk with an Advisor</span>
-                  <ExternalLink size={14} className="ml-1.5" />
-                </Button>
               </motion.div>
             </div>
           </div>
@@ -291,238 +453,82 @@ const InvestmentPlanning = () => {
               </p>
             </div>
             
-            {/* 6 Comprehensive Services Cards with Staggered Entrance */}
+            {/* 6 Comprehensive Services Cards with Staggered Entrance - Compact 3-Column, 2-Row Grid */}
             <motion.div 
               variants={sectionGridVariants}
               initial="hidden"
               whileInView="visible"
-              viewport={{ once: true, amount: 0.1 }}
-              className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 max-w-6xl mx-auto"
+              viewport={{ once: true, amount: 0.15 }}
+              className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-7 max-w-[1140px] mx-auto items-stretch"
             >
-              {/* Card 1: Indian Stock Analysis */}
-              <motion.div 
-                variants={serviceCardVariants}
-                className="bg-white/90 dark:bg-slate-900/90 rounded-2xl sm:rounded-3xl overflow-hidden shadow-lg hover:shadow-2xl hover:-translate-y-1.5 transition-all duration-300 border border-slate-200/90 dark:border-slate-800 group flex flex-col h-full"
-              >
-                <div className="h-48 sm:h-52 overflow-hidden relative bg-slate-950">
-                  <img 
-                    src="/lovable-uploads/06b665ec-50f4-4f68-b7fe-836df10af649.png" 
-                    alt="Indian Stock Analysis - BSE Building" 
-                    className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105 filter contrast-[1.05]"
-                    loading="lazy"
+              {investmentServices.map((service) => (
+                <motion.div 
+                  key={service.id} 
+                  variants={serviceCardVariants}
+                  className={cn(
+                    "group relative rounded-3xl p-5 sm:p-6 transition-all duration-300 flex flex-col justify-between select-none h-auto min-h-[300px] lg:h-[305px] w-full",
+                    "backdrop-blur-xl border shadow-sm hover:shadow-xl",
+                    "bg-white/95 dark:bg-[#071329]/95 border-slate-200/90 dark:border-slate-800/90",
+                    "hover:-translate-y-1.5 hover:border-blue-500/50 dark:hover:border-cyan-400/50",
+                    service.accent.glow
+                  )}
+                >
+                  {/* Top Architectural Accent Highlight Line */}
+                  <div 
+                    className={cn(
+                      "absolute top-0 inset-x-0 h-[2.5px] rounded-t-3xl bg-gradient-to-r pointer-events-none",
+                      service.accent.topGlow
+                    )} 
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-slate-950/85 via-slate-950/20 to-transparent" />
-                  <div className="absolute top-3.5 left-3.5 z-10">
-                    <span className="backdrop-blur-md bg-slate-950/75 text-cyan-400 text-xs font-semibold px-2.5 py-1 rounded-full border border-cyan-400/25 uppercase tracking-wider">
-                      Equity Research
-                    </span>
-                  </div>
-                  <div className="absolute bottom-3 left-3.5 right-3.5">
-                    <h3 className="text-lg sm:text-xl font-bold text-white tracking-tight">Indian Stock Analysis</h3>
-                  </div>
-                </div>
-                <div className="p-6 flex flex-col flex-grow justify-between">
-                  <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 mb-6 leading-relaxed flex-grow">
-                    Expert analysis of Indian equity markets with actionable insights on stocks across various sectors and market capitalizations.
-                  </p>
-                  <div className="pt-4 border-t border-slate-100 dark:border-slate-800">
-                    <Link to="/indian-stock-analysis" className="w-full block">
-                      <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl text-xs sm:text-sm shadow-sm transition-all group-hover:shadow-md">
-                        Explore Indian Markets
-                        <ChevronRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
-                      </Button>
-                    </Link>
-                  </div>
-                </div>
-              </motion.div>
-              
-              {/* Card 2: USA Stock Analysis */}
-              <motion.div 
-                variants={serviceCardVariants}
-                className="bg-white/90 dark:bg-slate-900/90 rounded-2xl sm:rounded-3xl overflow-hidden shadow-lg hover:shadow-2xl hover:-translate-y-1.5 transition-all duration-300 border border-slate-200/90 dark:border-slate-800 group flex flex-col h-full"
-              >
-                <div className="h-48 sm:h-52 overflow-hidden relative bg-slate-950">
-                  <img 
-                    src="/lovable-uploads/39526ab9-be38-46a7-9a10-857828b19686.png" 
-                    alt="USA Stock Analysis - Wall Street" 
-                    className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105 filter contrast-[1.05]"
-                    loading="lazy"
+
+                  {/* Soft Background Pointer/Hover Ambient Bloom */}
+                  <div 
+                    aria-hidden="true"
+                    className="absolute inset-0 rounded-3xl bg-gradient-to-br from-blue-500/[0.03] to-purple-500/[0.03] dark:from-cyan-500/[0.03] dark:to-purple-500/[0.03] opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-slate-950/85 via-slate-950/20 to-transparent" />
-                  <div className="absolute top-3.5 left-3.5 z-10">
-                    <span className="backdrop-blur-md bg-slate-950/75 text-purple-400 text-xs font-semibold px-2.5 py-1 rounded-full border border-purple-400/25 uppercase tracking-wider">
-                      NASDAQ & NYSE
-                    </span>
+
+                  {/* Card Interior */}
+                  <div className="relative z-10 flex flex-col justify-between h-full">
+                    {/* Header: Icon badge & Category Chip */}
+                    <div>
+                      <div className="flex items-center justify-between mb-3.5">
+                        <div className={cn(
+                          "w-12 h-12 rounded-2xl flex items-center justify-center border shadow-sm transition-transform duration-300 group-hover:scale-105 flex-shrink-0",
+                          service.accent.iconBg,
+                          service.accent.iconColor,
+                          service.accent.border
+                        )}>
+                          {service.icon}
+                        </div>
+
+                        <span className={cn(
+                          "px-3 py-1 rounded-full text-[11px] font-semibold tracking-wider uppercase border",
+                          service.accent.badgeBg,
+                          service.accent.badgeText,
+                          service.accent.border
+                        )}>
+                          {service.category}
+                        </span>
+                      </div>
+
+                      {/* Title */}
+                      <h3 className="text-lg sm:text-[19px] font-bold tracking-tight text-slate-900 dark:text-white leading-snug mb-2 group-hover:text-blue-600 dark:group-hover:text-cyan-400 transition-colors line-clamp-1">
+                        {service.title}
+                      </h3>
+
+                      {/* Description */}
+                      <p className="text-xs sm:text-[13px] text-slate-600 dark:text-slate-300 leading-relaxed line-clamp-3">
+                        {service.description}
+                      </p>
+                    </div>
+
+                    {/* Bottom CTA Action Button */}
+                    <div className="pt-3.5 mt-auto border-t border-slate-100 dark:border-slate-800/80">
+                      {service.renderAction()}
+                    </div>
                   </div>
-                  <div className="absolute bottom-3 left-3.5 right-3.5">
-                    <h3 className="text-lg sm:text-xl font-bold text-white tracking-tight">USA Stock Analysis</h3>
-                  </div>
-                </div>
-                <div className="p-6 flex flex-col flex-grow justify-between">
-                  <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 mb-6 leading-relaxed flex-grow">
-                    In-depth research on US equities, focusing on growth stocks, tech companies, and dividend-yielding investments across NASDAQ and NYSE.
-                  </p>
-                  <div className="pt-4 border-t border-slate-100 dark:border-slate-800">
-                    <Button 
-                      className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl text-xs sm:text-sm shadow-sm transition-all group-hover:shadow-md"
-                      onClick={() => setUsaStockPopupOpen(true)}
-                    >
-                      Explore US Equities
-                      <ExternalLink className="ml-2 h-4 w-4 transition-transform group-hover:scale-110" />
-                    </Button>
-                  </div>
-                </div>
-              </motion.div>
-              
-              {/* Card 3: IPO Analysis */}
-              <motion.div 
-                variants={serviceCardVariants}
-                className="bg-white/90 dark:bg-slate-900/90 rounded-2xl sm:rounded-3xl overflow-hidden shadow-lg hover:shadow-2xl hover:-translate-y-1.5 transition-all duration-300 border border-slate-200/90 dark:border-slate-800 group flex flex-col h-full"
-              >
-                <div className="h-48 sm:h-52 overflow-hidden relative bg-slate-950">
-                  <img 
-                    src="/lovable-uploads/57727f9c-2aca-4226-99e9-efa57dc9848f.png" 
-                    alt="IPO Analysis" 
-                    className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105 filter contrast-[1.05]"
-                    loading="lazy"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-slate-950/85 via-slate-950/20 to-transparent" />
-                  <div className="absolute top-3.5 left-3.5 z-10">
-                    <span className="backdrop-blur-md bg-slate-950/75 text-emerald-400 text-xs font-semibold px-2.5 py-1 rounded-full border border-emerald-400/25 uppercase tracking-wider">
-                      Primary Market
-                    </span>
-                  </div>
-                  <div className="absolute bottom-3 left-3.5 right-3.5">
-                    <h3 className="text-lg sm:text-xl font-bold text-white tracking-tight">IPO Analysis</h3>
-                  </div>
-                </div>
-                <div className="p-6 flex flex-col flex-grow justify-between">
-                  <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 mb-6 leading-relaxed flex-grow">
-                    Detailed evaluation of upcoming IPOs, including business models, financial health, valuation, and potential for long-term growth.
-                  </p>
-                  <div className="pt-4 border-t border-slate-100 dark:border-slate-800">
-                    <Link to="/ipo-analysis" className="w-full block">
-                      <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl text-xs sm:text-sm shadow-sm transition-all group-hover:shadow-md">
-                        View IPO Insights
-                        <ChevronRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
-                      </Button>
-                    </Link>
-                  </div>
-                </div>
-              </motion.div>
-              
-              {/* Card 4: Unlisted Shares */}
-              <motion.div 
-                variants={serviceCardVariants}
-                className="bg-white/90 dark:bg-slate-900/90 rounded-2xl sm:rounded-3xl overflow-hidden shadow-lg hover:shadow-2xl hover:-translate-y-1.5 transition-all duration-300 border border-slate-200/90 dark:border-slate-800 group flex flex-col h-full"
-              >
-                <div className="h-48 sm:h-52 overflow-hidden relative bg-slate-950">
-                  <img 
-                    src="https://images.unsplash.com/photo-1460925895917-afdab827c52f" 
-                    alt="Unlisted Shares" 
-                    className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105 filter contrast-[1.05]"
-                    loading="lazy"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-slate-950/85 via-slate-950/20 to-transparent" />
-                  <div className="absolute top-3.5 left-3.5 z-10">
-                    <span className="backdrop-blur-md bg-slate-950/75 text-cyan-400 text-xs font-semibold px-2.5 py-1 rounded-full border border-cyan-400/25 uppercase tracking-wider">
-                      Pre-IPO Equities
-                    </span>
-                  </div>
-                  <div className="absolute bottom-3 left-3.5 right-3.5">
-                    <h3 className="text-lg sm:text-xl font-bold text-white tracking-tight">Unlisted Shares</h3>
-                  </div>
-                </div>
-                <div className="p-6 flex flex-col flex-grow justify-between">
-                  <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 mb-6 leading-relaxed flex-grow">
-                    Access to private equity opportunities in promising companies before they go public, offering potential for significant returns.
-                  </p>
-                  <div className="pt-4 border-t border-slate-100 dark:border-slate-800">
-                    <Link to="/unlisted-shares" className="w-full block">
-                      <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl text-xs sm:text-sm shadow-sm transition-all group-hover:shadow-md">
-                        Explore Unlisted Shares
-                        <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
-                      </Button>
-                    </Link>
-                  </div>
-                </div>
-              </motion.div>
-              
-              {/* Card 5: Digital Gold */}
-              <motion.div 
-                variants={serviceCardVariants}
-                className="bg-white/90 dark:bg-slate-900/90 rounded-2xl sm:rounded-3xl overflow-hidden shadow-lg hover:shadow-2xl hover:-translate-y-1.5 transition-all duration-300 border border-slate-200/90 dark:border-slate-800 group flex flex-col h-full"
-              >
-                <div className="h-48 sm:h-52 overflow-hidden relative bg-slate-950">
-                  <img 
-                    src="/lovable-uploads/75e0d2e9-6d50-49f9-abe9-5236913686da.png" 
-                    alt="Digital Gold" 
-                    className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105 filter contrast-[1.05]"
-                    loading="lazy"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-slate-950/85 via-slate-950/20 to-transparent" />
-                  <div className="absolute top-3.5 left-3.5 z-10">
-                    <span className="backdrop-blur-md bg-slate-950/75 text-amber-400 text-xs font-semibold px-2.5 py-1 rounded-full border border-amber-400/25 uppercase tracking-wider">
-                      24K Pure Gold
-                    </span>
-                  </div>
-                  <div className="absolute bottom-3 left-3.5 right-3.5">
-                    <h3 className="text-lg sm:text-xl font-bold text-white tracking-tight">Digital Gold</h3>
-                  </div>
-                </div>
-                <div className="p-6 flex flex-col flex-grow justify-between">
-                  <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 mb-6 leading-relaxed flex-grow">
-                    Invest in 99.9% pure gold electronically without worrying about storage, security, or authenticity issues.
-                  </p>
-                  <div className="pt-4 border-t border-slate-100 dark:border-slate-800">
-                    <Button 
-                      className="w-full bg-slate-800 hover:bg-slate-700 text-amber-300 font-semibold rounded-xl text-xs sm:text-sm shadow-sm transition-all"
-                      onClick={handleDigitalGoldClick}
-                    >
-                      Coming Soon
-                      <Info className="ml-2 h-4 w-4" />
-                    </Button>
-                  </div>
-                </div>
-              </motion.div>
-              
-              {/* Card 6: Crypto Currency Investments */}
-              <motion.div 
-                variants={serviceCardVariants}
-                className="bg-white/90 dark:bg-slate-900/90 rounded-2xl sm:rounded-3xl overflow-hidden shadow-lg hover:shadow-2xl hover:-translate-y-1.5 transition-all duration-300 border border-slate-200/90 dark:border-slate-800 group flex flex-col h-full"
-              >
-                <div className="h-48 sm:h-52 overflow-hidden relative bg-slate-950">
-                  <img 
-                    src="/lovable-uploads/b7af595c-860c-4bed-8735-64391a005af9.png" 
-                    alt="Crypto Currency" 
-                    className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105 filter contrast-[1.05]"
-                    loading="lazy"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-slate-950/85 via-slate-950/20 to-transparent" />
-                  <div className="absolute top-3.5 left-3.5 z-10">
-                    <span className="backdrop-blur-md bg-slate-950/75 text-rose-400 text-xs font-semibold px-2.5 py-1 rounded-full border border-rose-400/25 uppercase tracking-wider">
-                      Blockchain Assets
-                    </span>
-                  </div>
-                  <div className="absolute bottom-3 left-3.5 right-3.5">
-                    <h3 className="text-lg sm:text-xl font-bold text-white tracking-tight">Crypto Currency Investments</h3>
-                  </div>
-                </div>
-                <div className="p-6 flex flex-col flex-grow justify-between">
-                  <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 mb-6 leading-relaxed flex-grow">
-                    Strategic guidance on blockchain assets and cryptocurrencies, helping you navigate this emerging investment class with confidence.
-                  </p>
-                  <div className="pt-4 border-t border-slate-100 dark:border-slate-800">
-                    <Button 
-                      className="w-full bg-slate-800 hover:bg-slate-700 text-purple-300 font-semibold rounded-xl text-xs sm:text-sm shadow-sm transition-all"
-                      onClick={handleCryptoClick}
-                    >
-                      Coming Soon
-                      <Clock className="ml-2 h-4 w-4" />
-                    </Button>
-                  </div>
-                </div>
-              </motion.div>
+                </motion.div>
+              ))}
             </motion.div>
           </div>
         </section>

@@ -87,13 +87,13 @@ const Hero = () => {
             >
               <div className="text-center group p-1.5 sm:p-2.5 rounded-xl border border-transparent hover:border-primary/20 hover:shadow-sm hover:bg-white/60 dark:hover:bg-darkblue-900/60 transition-all duration-200 cursor-default">
                 <div className="text-2xl sm:text-3xl font-bold text-primary transition-transform duration-200 group-hover:scale-105">
-                  <AnimatedNumber value={5000} suffix="+" duration={1200} />
+                  <AnimatedNumber value={550} suffix="+" duration={1200} />
                 </div>
                 <div className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 leading-tight mt-0.5">Happy Clients</div>
               </div>
               <div className="text-center group p-1.5 sm:p-2.5 rounded-xl border border-transparent hover:border-primary/20 hover:shadow-sm hover:bg-white/60 dark:hover:bg-darkblue-900/60 transition-all duration-200 cursor-default">
                 <div className="text-2xl sm:text-3xl font-bold text-primary transition-transform duration-200 group-hover:scale-105">
-                  <AnimatedNumber value={15} prefix="₹" suffix="Cr+" duration={1000} />
+                  <AnimatedNumber value={15} suffix="Cr+" duration={1000} />
                 </div>
                 <div className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 leading-tight mt-0.5">Assets Under Management</div>
               </div>

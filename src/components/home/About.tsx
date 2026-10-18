@@ -7,8 +7,8 @@ import AnimatedNumber from '../ui/AnimatedNumber';
 export default function About() {
   const achievements = [
     { value: 7, suffix: '+', label: 'Years Experience' },
-    { value: 250, suffix: '+', label: 'Happy Clients' },
-    { value: 5, suffix: 'Cr+', label: 'Assets Managed' },
+    { value: 550, suffix: '+', label: 'Happy Clients' },
+    { value: 15, suffix: 'Cr+', label: 'Assets Managed' },
     { value: 95, suffix: '%', label: 'Client Retention' },
   ];
 

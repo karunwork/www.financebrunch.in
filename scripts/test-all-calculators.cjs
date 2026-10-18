@@ -322,14 +322,61 @@ function testSWPCalculator() {
   console.log('\n--- Testing SWP Calculator ---');
 
   function calculateSWP(inputs) {
-    const { initialCorpus, monthlyWithdrawal, expectedAnnualReturn, withdrawalDurationYears } = inputs;
-    const totalMonths = Math.round(withdrawalDurationYears * 12);
-    const monthlyRate = expectedAnnualReturn === 0 ? 0 : Math.pow(1 + expectedAnnualReturn / 100, 1 / 12) - 1;
+    const { 
+      initialCorpus, 
+      monthlyWithdrawal, 
+      withdrawalAmount, 
+      withdrawalFrequency = 'monthly', 
+      expectedAnnualReturn, 
+      withdrawalDurationYears 
+    } = inputs;
+
+    const rawWithdrawal = withdrawalAmount !== undefined 
+      ? withdrawalAmount 
+      : (monthlyWithdrawal !== undefined ? monthlyWithdrawal : 0);
 
     let balance = initialCorpus;
     let totalActualWithdrawals = 0;
     let exhaustionMonth = null;
+    let exhaustionYear = null;
     let partialFinalWithdrawal = false;
+
+    if (withdrawalFrequency === 'yearly') {
+      const annualRate = expectedAnnualReturn / 100;
+      for (let y = 1; y <= withdrawalDurationYears; y++) {
+        if (balance <= 0) break;
+        const growth = balance * annualRate;
+        const balanceBefore = balance + growth;
+
+        let actualWithdrawal = rawWithdrawal;
+        if (balanceBefore < rawWithdrawal) {
+          actualWithdrawal = balanceBefore;
+          partialFinalWithdrawal = true;
+        }
+
+        balance = Math.max(0, balanceBefore - actualWithdrawal);
+        totalActualWithdrawals += actualWithdrawal;
+
+        if (balance <= 0.0001) {
+          balance = 0;
+          if (!exhaustionYear) exhaustionYear = y;
+        }
+      }
+
+      return {
+        initialCorpus,
+        withdrawalFrequency: 'yearly',
+        totalActualWithdrawals: Math.round(totalActualWithdrawals),
+        remainingCorpus: Math.round(balance),
+        exhaustionYear,
+        isExhausted: exhaustionYear !== null,
+        partialFinalWithdrawal,
+      };
+    }
+
+    // Monthly Schedule
+    const totalMonths = Math.round(withdrawalDurationYears * 12);
+    const monthlyRate = expectedAnnualReturn === 0 ? 0 : Math.pow(1 + expectedAnnualReturn / 100, 1 / 12) - 1;
 
     for (let m = 1; m <= totalMonths; m++) {
       if (balance <= 0) break;
@@ -337,8 +384,8 @@ function testSWPCalculator() {
       const growth = balance * monthlyRate;
       const balanceBefore = balance + growth;
 
-      let actualWithdrawal = monthlyWithdrawal;
-      if (balanceBefore < monthlyWithdrawal) {
+      let actualWithdrawal = rawWithdrawal;
+      if (balanceBefore < rawWithdrawal) {
         actualWithdrawal = balanceBefore;
         partialFinalWithdrawal = true;
       }
@@ -354,6 +401,7 @@ function testSWPCalculator() {
 
     return {
       initialCorpus,
+      withdrawalFrequency: 'monthly',
       totalActualWithdrawals: Math.round(totalActualWithdrawals),
       remainingCorpus: Math.round(balance),
       exhaustionMonth,
@@ -362,17 +410,47 @@ function testSWPCalculator() {
     };
   }
 
-  // Sustainable SWP test: ₹10,00,000 corpus, ₹5,00,00/mo withdrawal (6% return)
+  // Sustainable Monthly SWP test: ₹10,00,000 corpus, ₹5,000/mo withdrawal (8% return)
   const sustainable = calculateSWP({
     initialCorpus: 1000000,
     monthlyWithdrawal: 5000,
+    withdrawalFrequency: 'monthly',
     expectedAnnualReturn: 8,
     withdrawalDurationYears: 10,
   });
   assert.strictEqual(sustainable.isExhausted, false);
   assert(sustainable.remainingCorpus > 0);
   assert.strictEqual(sustainable.totalActualWithdrawals, 600000); // 10 * 12 * 5000
-  console.log(`✓ PASS: Sustainable SWP (Remaining Corpus: ₹${sustainable.remainingCorpus})`);
+  console.log(`✓ PASS: Sustainable Monthly SWP (Remaining Corpus: ₹${sustainable.remainingCorpus})`);
+
+  // Sustainable Yearly SWP test: ₹10,00,000 corpus, ₹60,000/yr withdrawal (8% return)
+  const sustainableYearly = calculateSWP({
+    initialCorpus: 1000000,
+    withdrawalAmount: 60000,
+    withdrawalFrequency: 'yearly',
+    expectedAnnualReturn: 8,
+    withdrawalDurationYears: 10,
+  });
+  assert.strictEqual(sustainableYearly.isExhausted, false);
+  assert(sustainableYearly.remainingCorpus > 0);
+  assert.strictEqual(sustainableYearly.totalActualWithdrawals, 600000); // 10 * 60,000
+  console.log(`✓ PASS: Sustainable Yearly SWP (Remaining Corpus: ₹${sustainableYearly.remainingCorpus})`);
+
+  // Depleting Yearly SWP test: ₹1,00,000 corpus, ₹30,000/yr withdrawal @ 0% return
+  // Year 1: 30k (rem 70k), Year 2: 30k (rem 40k), Year 3: 30k (rem 10k), Year 4: 10k (exhausted!)
+  const depletingYearly = calculateSWP({
+    initialCorpus: 100000,
+    withdrawalAmount: 30000,
+    withdrawalFrequency: 'yearly',
+    expectedAnnualReturn: 0,
+    withdrawalDurationYears: 5,
+  });
+  assert.strictEqual(depletingYearly.isExhausted, true);
+  assert.strictEqual(depletingYearly.exhaustionYear, 4);
+  assert.strictEqual(depletingYearly.remainingCorpus, 0);
+  assert.strictEqual(depletingYearly.totalActualWithdrawals, 100000);
+  assert.strictEqual(depletingYearly.partialFinalWithdrawal, true);
+  console.log('✓ PASS: Depleting Yearly SWP exhausts in Year 4 with zero remaining balance');
 
   // SWP User-Requested Example Test: Corpus ₹2,10,000, Withdrawal 2% -> ₹4,200
   const corpusExample = 210000;
@@ -387,6 +465,7 @@ function testSWPCalculator() {
   const highSWP = calculateSWP({
     initialCorpus: 1000000000,
     monthlyWithdrawal: 5000000,
+    withdrawalFrequency: 'monthly',
     expectedAnnualReturn: 8,
     withdrawalDurationYears: 10,
   });
@@ -400,6 +479,7 @@ function testSWPCalculator() {
   const depletingZeroReturn = calculateSWP({
     initialCorpus: 100000,
     monthlyWithdrawal: 20000,
+    withdrawalFrequency: 'monthly',
     expectedAnnualReturn: 0,
     withdrawalDurationYears: 5,
   });
@@ -413,6 +493,7 @@ function testSWPCalculator() {
   const partialSWP = calculateSWP({
     initialCorpus: 50000,
     monthlyWithdrawal: 20000,
+    withdrawalFrequency: 'monthly',
     expectedAnnualReturn: 0,
     withdrawalDurationYears: 1,
   });

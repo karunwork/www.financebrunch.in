@@ -19,14 +19,6 @@ const HeroSection: React.FC<HeroSectionProps> = ({ openContactForm }) => {
             <p className="text-lg text-gray-600 dark:text-gray-300">
               Expert assistance with your income tax preparation, filing, and planning from our team of Chartered Accountants with 15+ years of experience.
             </p>
-            <div className="flex flex-wrap gap-4 pt-2">
-              <Button size="lg" className="button-hover">
-                Consult an Expert
-              </Button>
-              <Button variant="outline" size="lg" onClick={openContactForm}>
-                Get a Quote
-              </Button>
-            </div>
             
             <div className="flex flex-wrap gap-6 pt-4">
               <div className="flex items-center">

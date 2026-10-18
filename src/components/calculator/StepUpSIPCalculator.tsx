@@ -44,6 +44,8 @@ import {
 import { CalculatorCTAButtons } from './CalculatorCTAButtons';
 import { CalculatorDisclaimer } from './CalculatorDisclaimer';
 import { VpfVsPpfComparison } from './VpfVsPpfComparison';
+import { DownloadResultsSection } from './DownloadResultsSection';
+import { CalculatorExportData } from '@/utils/calculatorExportGenerator';
 import { cn } from '@/lib/utils';
 
 export default function StepUpSIPCalculator() {
@@ -78,6 +80,46 @@ export default function StepUpSIPCalculator() {
       annualStepUpPercentage: stepUpPercentage,
     });
   }, [initialMonthly, expectedReturn, investmentDuration, stepUpPercentage]);
+
+  const getExportData = (): CalculatorExportData => {
+    return {
+      calculatorType: 'stepup',
+      calculatorTitle: 'Step-Up SIP Investment Calculator',
+      generatedDateStr: new Date().toLocaleDateString('en-IN', {
+        day: 'numeric',
+        month: 'long',
+        year: 'numeric',
+      }),
+      inputs: [
+        { label: 'Initial Monthly SIP', value: formatINR(initialMonthly) },
+        { label: 'Annual Step-Up Rate', value: `${stepUpPercentage}% per year` },
+        { label: 'Expected Annual Return Rate', value: `${expectedReturn}% per annum` },
+        { label: 'Investment Time Horizon', value: `${investmentDuration} Years` },
+      ],
+      summaryMetrics: [
+        { label: 'Total Invested Capital', value: formatINR(result.totalInvested) },
+        { label: 'Estimated Wealth Returns', value: `+${formatINR(result.estimatedReturns)}` },
+        { label: 'Projected Portfolio Value', value: formatINR(result.futureValue), isHighlight: true },
+        { label: 'Advantage Over Fixed SIP', value: `+${formatINR(result.stepUpAdvantage)}` },
+      ],
+      scheduleHeaders: [
+        'Year',
+        'Monthly SIP',
+        'Yearly Invested',
+        'Cumulative Invested',
+        'Portfolio Value',
+      ],
+      growthSchedule: result.annualSchedule.map((row) => ({
+        col1: `Year ${row.year}`,
+        col2: formatINR(row.monthlyContribution),
+        col3: formatINR(row.yearlyInvested),
+        col4: formatINR(row.cumulativeInvested),
+        col5: formatINR(row.futureValue),
+      })),
+      notes: `Starting SIP installment of ${formatINR(initialMonthly)}/mo stepping up by ${stepUpPercentage}% each year compounded at ${expectedReturn}% p.a. over ${investmentDuration} years.`,
+      disclaimer: 'These calculations are illustrative estimates based on the selected return assumptions and cash-flow schedule. Actual investment returns may vary and are not guaranteed. Market risks apply. This calculator does not constitute investment advice.',
+    };
+  };
 
   const handleMonthlyChange = (valStr: string) => {
     setMonthlyInputStr(valStr);
@@ -607,6 +649,9 @@ export default function StepUpSIPCalculator() {
           </div>
         )}
       </div>
+
+      {/* Download Calculation Results (PDF and Word exports) */}
+      <DownloadResultsSection getData={getExportData} className="mt-6 mb-6" />
 
       {/* Assumptions Explanation */}
       <div className="p-4 rounded-xl bg-blue-50/50 dark:bg-slate-900/40 border border-blue-100 dark:border-slate-800 text-xs text-slate-600 dark:text-slate-400 space-y-1">

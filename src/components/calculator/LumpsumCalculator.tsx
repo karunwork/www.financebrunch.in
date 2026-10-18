@@ -42,6 +42,8 @@ import {
 import { CalculatorCTAButtons } from './CalculatorCTAButtons';
 import { CalculatorDisclaimer } from './CalculatorDisclaimer';
 import { VpfVsPpfComparison } from './VpfVsPpfComparison';
+import { DownloadResultsSection } from './DownloadResultsSection';
+import { CalculatorExportData } from '@/utils/calculatorExportGenerator';
 import { cn } from '@/lib/utils';
 
 export default function LumpsumCalculator() {
@@ -67,6 +69,51 @@ export default function LumpsumCalculator() {
       investmentDurationYears: investmentDuration,
     });
   }, [initialInvestment, expectedReturn, investmentDuration]);
+
+  const getExportData = (): CalculatorExportData => {
+    const wealthMultiplier = result.totalInvested > 0 
+      ? (result.futureValue / result.totalInvested).toFixed(2)
+      : '1.00';
+    return {
+      calculatorType: 'lumpsum',
+      calculatorTitle: 'Lumpsum Investment Calculator',
+      generatedDateStr: new Date().toLocaleDateString('en-IN', {
+        day: 'numeric',
+        month: 'long',
+        year: 'numeric',
+      }),
+      inputs: [
+        { label: 'Total Initial Investment', value: formatINR(initialInvestment) },
+        { label: 'Expected Annual Return Rate', value: `${expectedReturn}% per annum` },
+        { label: 'Investment Time Horizon', value: `${investmentDuration} Years` },
+      ],
+      summaryMetrics: [
+        { label: 'Total Invested Capital', value: formatINR(result.totalInvested) },
+        { label: 'Estimated Wealth Returns', value: `+${formatINR(result.estimatedReturns)}` },
+        { label: 'Projected Future Value', value: formatINR(result.futureValue), isHighlight: true },
+        { label: 'Wealth Multiplier', value: `${wealthMultiplier}x` },
+      ],
+      scheduleHeaders: [
+        'Year',
+        'Invested Capital',
+        'Growth Multiplier',
+        'Estimated Returns',
+        'Portfolio Value',
+      ],
+      growthSchedule: result.yearlyBreakdown.map((row) => {
+        const mult = row.invested > 0 ? (row.futureValue / row.invested).toFixed(2) : '1.00';
+        return {
+          col1: `Year ${row.year}`,
+          col2: formatINR(row.invested),
+          col3: `${mult}x`,
+          col4: `+${formatINR(row.estimatedReturns)}`,
+          col5: formatINR(row.futureValue),
+        };
+      }),
+      notes: `Lumpsum compounding assumes the entire principal is invested upfront and grows at an effective annual return rate of ${expectedReturn}% over ${investmentDuration} years.`,
+      disclaimer: 'These calculations are illustrative estimates based on the selected return assumptions and cash-flow schedule. Actual investment returns may vary and are not guaranteed. Market risks apply. This calculator does not constitute investment advice.',
+    };
+  };
 
   const handleInvestmentChange = (valStr: string) => {
     setInvestmentInputStr(valStr);
@@ -546,6 +593,9 @@ export default function LumpsumCalculator() {
           </div>
         )}
       </div>
+
+      {/* Download Calculation Results (PDF and Word exports) */}
+      <DownloadResultsSection getData={getExportData} className="mt-6 mb-6" />
 
       {/* Assumptions Explanation */}
       <div className="p-4 rounded-xl bg-blue-50/50 dark:bg-slate-900/40 border border-blue-100 dark:border-slate-800 text-xs text-slate-600 dark:text-slate-400 space-y-1">

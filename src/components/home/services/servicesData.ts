@@ -61,17 +61,16 @@ export const servicesData: ServiceItem[] = [
     title: "Mutual Funds",
     category: "Wealth & Investments",
     categorySlug: "wealth-investments",
-    badge: "SIP & Lumpsum",
+    badge: "SIP • Lumpsum • SWP",
     description: "Diversify your investment portfolio with expert mutual fund selection for wealth creation and growth across Large, Flexi, Mid, and ELSS funds.",
     icon: React.createElement(FileCode, { size: 24 }),
     color: "bg-emerald-600",
     redirectToWhatsApp: false,
     imageSrc: "/lovable-uploads/bf6dd0ac-44d2-4676-a31c-07952b0c5108.png",
-    showSheet: true,
-    sheetType: "mutual-fund",
+    showSheet: false,
     linkTo: "/mutual-funds",
     ctaText: "Explore Mutual Funds",
-    highlights: ["Zero Commission Direct Funds", "ELSS Tax Saving 80C", "Disciplined SIP Plans"]
+    highlights: ["ELSS Tax Saving 80C", "Disciplined SIP Plans"]
   },
   {
     id: "fixed-deposits",
@@ -389,10 +388,10 @@ export const productCategories: ProductCategoryGroup[] = [
  * Exactly 6 homepage service cards in the requested order:
  * 1. Investment Planning
  * 2. Mutual Funds
- * 3. Tax Filings (formerly Global Tax File)
+ * 3. Insurance Solutions
  * 4. FIRE Strategy / Early Retirement
  * 5. Wealth Management
- * 6. Insurance Solutions
+ * 6. Tax Filings
  */
 export const homepageServices: ServiceItem[] = [
   // 1. Investment Planning
@@ -419,36 +418,35 @@ export const homepageServices: ServiceItem[] = [
     title: "Mutual Funds",
     category: "Wealth & Investments",
     categorySlug: "wealth-investments",
-    badge: "SIP & Lumpsum",
+    badge: "SIP • Lumpsum • SWP",
     description: "Diversify your investment portfolio with expert mutual fund selection for wealth creation and growth across Large, Flexi, Mid, and ELSS funds.",
     icon: React.createElement(FileCode, { size: 24 }),
     color: "bg-emerald-600",
     redirectToWhatsApp: false,
     imageSrc: "/lovable-uploads/bf6dd0ac-44d2-4676-a31c-07952b0c5108.png",
-    showSheet: true,
-    sheetType: "mutual-fund",
+    showSheet: false,
     linkTo: "/mutual-funds",
     ctaText: "Explore Mutual Funds",
     backgroundWord: "GROW",
-    highlights: ["Zero Commission Direct Funds", "ELSS Tax Saving 80C", "Disciplined SIP Plans"]
+    highlights: ["ELSS Tax Saving 80C", "Disciplined SIP Plans"]
   },
-  // 3. Tax Filings (formerly Global Tax File)
+  // 3. Insurance Solutions (moved to 3rd card position)
   {
-    id: "global-tax-file",
-    title: "Tax Filings",
-    category: "Tax & Specialized Solutions",
-    categorySlug: "tax-specialized",
-    badge: "Cross-Border Tax",
-    description: "Specialized cross-border tax filing and advisory for NRIs, expats, and global investors handling dual-country tax compliance, DTAA, and foreign credits.",
-    icon: React.createElement(Globe, { size: 24 }),
-    color: "bg-cyan-600",
+    id: "insurance-solutions",
+    title: "Insurance Solutions",
+    category: "Protection & Insurance",
+    categorySlug: "insurance-protection",
+    badge: "Holistic Audit",
+    description: "Protect yourself and your loved ones with an exhaustive audit of your family's health, term, and liability coverage gaps.",
+    icon: React.createElement(ShieldCheck, { size: 24 }),
+    color: "bg-indigo-600",
     redirectToWhatsApp: false,
-    imageSrc: "/images/financial-planning-advisory.jpg",
+    imageSrc: "/images/service-insurance.jpg",
     showSheet: false,
-    linkTo: "/global-tax-file",
-    ctaText: "Explore Global Tax",
-    backgroundWord: "GLOBAL",
-    highlights: ["Cross-Border Tax Returns", "DTAA & Foreign Tax Credits", "Expat & NRI Tax Advisory"]
+    linkTo: "/insurance-planning",
+    ctaText: "Get Insurance Audit",
+    backgroundWord: "PROTECT",
+    highlights: ["Policy Portfolio Review", "Claim Settlement Guidance", "Unbiased Product Curation"]
   },
   // 4. FIRE Strategy / Early Retirement
   {
@@ -487,22 +485,22 @@ export const homepageServices: ServiceItem[] = [
     backgroundWord: "WEALTH",
     highlights: ["Custom Asset Allocation", "Quarterly Rebalancing", "Dedicated Wealth Specialist"]
   },
-  // 6. Insurance Solutions
+  // 6. Tax Filings (moved to 6th card position)
   {
-    id: "insurance-solutions",
-    title: "Insurance Solutions",
-    category: "Protection & Insurance",
-    categorySlug: "insurance-protection",
-    badge: "Holistic Audit",
-    description: "Protect yourself and your loved ones with an exhaustive audit of your family's health, term, and liability coverage gaps.",
-    icon: React.createElement(ShieldCheck, { size: 24 }),
-    color: "bg-indigo-600",
+    id: "global-tax-file",
+    title: "Tax Filings",
+    category: "Tax & Specialized Solutions",
+    categorySlug: "tax-specialized",
+    badge: "Cross-Border Tax",
+    description: "Specialized cross-border tax filing and advisory for NRIs, expats, and global investors handling dual-country tax compliance, DTAA, and foreign credits.",
+    icon: React.createElement(Globe, { size: 24 }),
+    color: "bg-cyan-600",
     redirectToWhatsApp: false,
-    imageSrc: "/images/service-insurance.jpg",
+    imageSrc: "/images/financial-planning-advisory.jpg",
     showSheet: false,
-    linkTo: "/insurance-planning",
-    ctaText: "Get Insurance Audit",
-    backgroundWord: "PROTECT",
-    highlights: ["Policy Portfolio Review", "Claim Settlement Guidance", "Unbiased Product Curation"]
+    linkTo: "/global-tax-file",
+    ctaText: "Explore Global Tax",
+    backgroundWord: "GLOBAL",
+    highlights: ["Cross-Border Tax Returns", "DTAA & Foreign Tax Credits", "Expat & NRI Tax Advisory"]
   }
 ];

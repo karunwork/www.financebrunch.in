@@ -32,6 +32,7 @@ const navLinks = [
       { name: 'Insurance Solutions', href: '/insurance-planning' }
     ]
   },
+  { name: 'Careers', href: '/careers' },
   { name: 'About', href: '/#about' },
   { name: 'Contact', href: '/contact' }
 ];

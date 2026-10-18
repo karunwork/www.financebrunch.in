@@ -19,7 +19,6 @@ export const ALLOWED_TAXPAYER_OPTIONS: TaxpayerOption[] = [
   { value: "individual", label: "Individual" },
   { value: "nri", label: "Non-Resident Indian (NRI)" },
   { value: "professional", label: "Professional/Freelancer" },
-  { value: "startup", label: "Startup" },
 ];
 
 interface TaxpayerTypeSelectorProps {

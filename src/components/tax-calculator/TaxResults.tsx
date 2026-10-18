@@ -70,8 +70,11 @@ const TaxResults: React.FC<TaxResultsProps> = ({
     // Prevent duplicate popups within this calculation session
     if (hasShownPopupRef.current) return;
 
-    const delayMs = typeof window !== 'undefined' && (window as any).__TAX_POPUP_DELAY_MS__ !== undefined
-      ? Number((window as any).__TAX_POPUP_DELAY_MS__)
+    const delayOverride = typeof window !== 'undefined'
+      ? (window as Window & { __TAX_POPUP_DELAY_MS__?: number | string }).__TAX_POPUP_DELAY_MS__
+      : undefined;
+    const delayMs = delayOverride !== undefined
+      ? Number(delayOverride)
       : 60000;
 
     const timer = setTimeout(() => {
@@ -669,7 +672,7 @@ const TaxResults: React.FC<TaxResultsProps> = ({
       >
         <Info className="h-4 w-4 text-blue-600 dark:text-cyan-400 shrink-0 mt-0.5" />
         <p>
-          <strong className="text-slate-700 dark:text-slate-300 font-semibold">Disclaimer:</strong> This calculator provides estimates for informational purposes only and should not be considered professional tax advice. Actual tax liability may vary based on your individual circumstances and applicable tax rules. For an accurate assessment and personalized guidance, please consult a qualified Chartered Accountant or tax professional.
+          <strong className="text-slate-700 dark:text-slate-300 font-semibold">Disclaimer: </strong>{TAX_CALCULATOR_DISCLAIMER_TEXT}
         </p>
       </div>
 

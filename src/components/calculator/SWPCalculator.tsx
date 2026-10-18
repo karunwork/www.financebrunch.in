@@ -15,6 +15,7 @@ import {
   Info,
   AlertTriangle,
   CheckCircle2,
+  Clock,
 } from 'lucide-react';
 import {
   ResponsiveContainer,
@@ -34,7 +35,7 @@ import {
   MAX_SWP_WITHDRAWAL,
   MIN_SWP_WITHDRAWAL,
   SWP_CORPUS_QUICK_PRESETS,
-  SWP_WITHDRAWAL_QUICK_PRESETS,
+  SWPWithdrawalFrequency,
 } from '@/utils/swpCalculator';
 import {
   valueToSliderPos,
@@ -42,9 +43,10 @@ import {
   SWP_CORPUS_SCALE,
   SWP_WITHDRAWAL_SCALE,
 } from '@/utils/sliderScaleUtils';
-import { CalculatorCTAButtons } from './CalculatorCTAButtons';
 import { CalculatorDisclaimer } from './CalculatorDisclaimer';
 import { VpfVsPpfComparison } from './VpfVsPpfComparison';
+import { DownloadResultsSection } from './DownloadResultsSection';
+import { CalculatorExportData } from '@/utils/calculatorExportGenerator';
 import { cn } from '@/lib/utils';
 
 export default function SWPCalculator() {
@@ -52,11 +54,15 @@ export default function SWPCalculator() {
   const [corpusInputStr, setCorpusInputStr] = useState<string>('10,00,000');
   const [isCorpusFocused, setIsCorpusFocused] = useState<boolean>(false);
 
-  const [monthlyWithdrawal, setMonthlyWithdrawal] = useState<number>(6000);
+  // Withdrawal Schedule Frequency: Monthly or Yearly
+  const [withdrawalFrequency, setWithdrawalFrequency] = useState<SWPWithdrawalFrequency>('monthly');
+
+  // Withdrawal Amount (per period: monthly or yearly)
+  const [withdrawalAmount, setWithdrawalAmount] = useState<number>(6000);
   const [withdrawalInputStr, setWithdrawalInputStr] = useState<string>('6,000');
   const [isWithdrawalFocused, setIsWithdrawalFocused] = useState<boolean>(false);
 
-  // Dual percentage entry state (% of initial corpus)
+  // Dual percentage entry state (% of initial corpus per period)
   const [withdrawalPercentage, setWithdrawalPercentage] = useState<number>(0.6);
   const [percentInputStr, setPercentInputStr] = useState<string>('0.6');
   const [isPercentFocused, setIsPercentFocused] = useState<boolean>(false);
@@ -77,15 +83,18 @@ export default function SWPCalculator() {
     duration?: string;
   }>({});
 
+  // Deterministic calculation result
   const result = useMemo(() => {
     return calculateSWP({
       initialCorpus,
-      monthlyWithdrawal,
+      withdrawalAmount,
+      withdrawalFrequency,
       expectedAnnualReturn: expectedReturn,
       withdrawalDurationYears: withdrawalDuration,
     });
-  }, [initialCorpus, monthlyWithdrawal, expectedReturn, withdrawalDuration]);
+  }, [initialCorpus, withdrawalAmount, withdrawalFrequency, expectedReturn, withdrawalDuration]);
 
+  // Synchronize initial corpus edits
   const handleCorpusChange = (valStr: string) => {
     setCorpusInputStr(valStr);
     const cleaned = valStr.replace(/[^0-9]/g, '');
@@ -116,10 +125,10 @@ export default function SWPCalculator() {
     if (withdrawalMode === 'percent') {
       const newRupee = Math.round((effectiveCorpus * withdrawalPercentage) / 100);
       const clampedRupee = Math.min(MAX_SWP_WITHDRAWAL, Math.max(0, newRupee));
-      setMonthlyWithdrawal(clampedRupee);
+      setWithdrawalAmount(clampedRupee);
       setWithdrawalInputStr(clampedRupee > 0 ? clampedRupee.toLocaleString('en-IN') : '0');
     } else {
-      const newPct = effectiveCorpus > 0 ? (monthlyWithdrawal / effectiveCorpus) * 100 : 0;
+      const newPct = effectiveCorpus > 0 ? (withdrawalAmount / effectiveCorpus) * 100 : 0;
       setWithdrawalPercentage(newPct);
       setPercentInputStr(newPct > 0 ? (newPct < 0.1 ? newPct.toFixed(3) : newPct.toFixed(2)) : '0');
     }
@@ -143,6 +152,31 @@ export default function SWPCalculator() {
     }
   };
 
+  // Toggle between Monthly and Yearly schedule
+  const handleFrequencyChange = (newFreq: SWPWithdrawalFrequency) => {
+    if (newFreq === withdrawalFrequency) return;
+    setWithdrawalFrequency(newFreq);
+
+    if (newFreq === 'yearly') {
+      // Annualize withdrawal amount and percentage
+      const newYearly = Math.min(MAX_SWP_WITHDRAWAL, Math.round(withdrawalAmount * 12));
+      setWithdrawalAmount(newYearly);
+      setWithdrawalInputStr(newYearly > 0 ? newYearly.toLocaleString('en-IN') : '0');
+      const newPct = initialCorpus > 0 ? (newYearly / initialCorpus) * 100 : 0;
+      setWithdrawalPercentage(newPct);
+      setPercentInputStr(newPct > 0 ? (newPct < 0.1 ? newPct.toFixed(3) : newPct.toFixed(2)) : '0');
+    } else {
+      // Convert to monthly equivalent
+      const newMonthly = Math.max(MIN_SWP_WITHDRAWAL, Math.round(withdrawalAmount / 12));
+      setWithdrawalAmount(newMonthly);
+      setWithdrawalInputStr(newMonthly > 0 ? newMonthly.toLocaleString('en-IN') : '0');
+      const newPct = initialCorpus > 0 ? (newMonthly / initialCorpus) * 100 : 0;
+      setWithdrawalPercentage(newPct);
+      setPercentInputStr(newPct > 0 ? (newPct < 0.1 ? newPct.toFixed(3) : newPct.toFixed(2)) : '0');
+    }
+  };
+
+  // Synchronize withdrawal rupee amount edits
   const handleWithdrawalChange = (valStr: string) => {
     setWithdrawalMode('rupee');
     setWithdrawalInputStr(valStr);
@@ -151,23 +185,23 @@ export default function SWPCalculator() {
 
     let effectiveRupee = num;
     if (valStr.trim() === '') {
-      setErrors((prev) => ({ ...prev, withdrawal: 'Monthly withdrawal is required.' }));
+      setErrors((prev) => ({ ...prev, withdrawal: 'Withdrawal amount is required.' }));
       effectiveRupee = 0;
-      setMonthlyWithdrawal(0);
+      setWithdrawalAmount(0);
     } else if (isNaN(num) || num < 0) {
       setErrors((prev) => ({ ...prev, withdrawal: 'Please enter a valid positive number.' }));
       effectiveRupee = 0;
-      setMonthlyWithdrawal(0);
+      setWithdrawalAmount(0);
     } else if (num < MIN_SWP_WITHDRAWAL) {
       setErrors((prev) => ({ ...prev, withdrawal: `Minimum withdrawal is ₹${MIN_SWP_WITHDRAWAL.toLocaleString('en-IN')}.` }));
-      setMonthlyWithdrawal(num > 0 ? num : 0);
+      setWithdrawalAmount(num > 0 ? num : 0);
     } else if (num > MAX_SWP_WITHDRAWAL) {
-      setErrors((prev) => ({ ...prev, withdrawal: 'Maximum monthly withdrawal is ₹100 Crore (₹1,00,00,00,000).' }));
+      setErrors((prev) => ({ ...prev, withdrawal: 'Maximum withdrawal is ₹100 Crore (₹1,00,00,00,000).' }));
       effectiveRupee = MAX_SWP_WITHDRAWAL;
-      setMonthlyWithdrawal(MAX_SWP_WITHDRAWAL);
+      setWithdrawalAmount(MAX_SWP_WITHDRAWAL);
     } else {
       setErrors((prev) => ({ ...prev, withdrawal: undefined }));
-      setMonthlyWithdrawal(num);
+      setWithdrawalAmount(num);
     }
 
     const newPct = initialCorpus > 0 ? (effectiveRupee / initialCorpus) * 100 : 0;
@@ -177,23 +211,24 @@ export default function SWPCalculator() {
 
   const handleWithdrawalBlur = () => {
     setIsWithdrawalFocused(false);
-    if (monthlyWithdrawal > MAX_SWP_WITHDRAWAL) {
-      setMonthlyWithdrawal(MAX_SWP_WITHDRAWAL);
+    if (withdrawalAmount > MAX_SWP_WITHDRAWAL) {
+      setWithdrawalAmount(MAX_SWP_WITHDRAWAL);
       setWithdrawalInputStr(MAX_SWP_WITHDRAWAL.toLocaleString('en-IN'));
       setErrors((prev) => ({ ...prev, withdrawal: undefined }));
-    } else if (monthlyWithdrawal > 0) {
-      setWithdrawalInputStr(monthlyWithdrawal.toLocaleString('en-IN'));
+    } else if (withdrawalAmount > 0) {
+      setWithdrawalInputStr(withdrawalAmount.toLocaleString('en-IN'));
     }
   };
 
   const handleWithdrawalFocus = () => {
     setIsWithdrawalFocused(true);
     setWithdrawalMode('rupee');
-    if (monthlyWithdrawal > 0) {
-      setWithdrawalInputStr(monthlyWithdrawal.toString());
+    if (withdrawalAmount > 0) {
+      setWithdrawalInputStr(withdrawalAmount.toString());
     }
   };
 
+  // Synchronize withdrawal percentage edits (% of initial corpus)
   const handlePercentageChange = (valStr: string) => {
     setWithdrawalMode('percent');
     setPercentInputStr(valStr);
@@ -202,26 +237,26 @@ export default function SWPCalculator() {
     if (valStr.trim() === '' || isNaN(num)) {
       setErrors((prev) => ({ ...prev, withdrawal: 'Withdrawal percentage is required.' }));
       setWithdrawalPercentage(0);
-      setMonthlyWithdrawal(0);
+      setWithdrawalAmount(0);
       setWithdrawalInputStr('0');
     } else if (num < 0) {
       setErrors((prev) => ({ ...prev, withdrawal: 'Withdrawal percentage cannot be negative.' }));
       setWithdrawalPercentage(0);
-      setMonthlyWithdrawal(0);
+      setWithdrawalAmount(0);
       setWithdrawalInputStr('0');
     } else if (num > 100) {
       setErrors((prev) => ({ ...prev, withdrawal: 'Withdrawal percentage cannot exceed 100% of initial corpus.' }));
       setWithdrawalPercentage(100);
       const calculatedRupee = Math.round((initialCorpus * 100) / 100);
       const effectiveRupee = Math.min(MAX_SWP_WITHDRAWAL, Math.max(0, calculatedRupee));
-      setMonthlyWithdrawal(effectiveRupee);
+      setWithdrawalAmount(effectiveRupee);
       setWithdrawalInputStr(effectiveRupee.toLocaleString('en-IN'));
     } else {
       setErrors((prev) => ({ ...prev, withdrawal: undefined }));
       setWithdrawalPercentage(num);
       const calculatedRupee = Math.round((initialCorpus * num) / 100);
       const effectiveRupee = Math.min(MAX_SWP_WITHDRAWAL, Math.max(0, calculatedRupee));
-      setMonthlyWithdrawal(effectiveRupee);
+      setWithdrawalAmount(effectiveRupee);
       setWithdrawalInputStr(effectiveRupee.toLocaleString('en-IN'));
     }
   };
@@ -269,15 +304,132 @@ export default function SWPCalculator() {
     CumulativeWithdrawals: item.cumulativeWithdrawals,
   }));
 
+  // Export Data preparation for PDF & Word exports
+  const getExportData = (): CalculatorExportData => {
+    return {
+      calculatorType: 'swp',
+      calculatorTitle: 'Systematic Withdrawal Plan (SWP) Calculator',
+      generatedDateStr: new Date().toLocaleDateString('en-IN', {
+        day: 'numeric',
+        month: 'long',
+        year: 'numeric',
+      }),
+      inputs: [
+        { label: 'Initial Investment Corpus', value: formatINR(initialCorpus) },
+        { 
+          label: `${withdrawalFrequency === 'monthly' ? 'Monthly' : 'Annual'} Withdrawal Amount`, 
+          value: `${formatINR(withdrawalAmount)} (${withdrawalPercentage.toFixed(2)}% of initial corpus)` 
+        },
+        { 
+          label: 'Withdrawal Schedule Frequency', 
+          value: withdrawalFrequency === 'monthly' ? 'Monthly Withdrawals (12 payouts/yr)' : 'Yearly Withdrawals (1 payout/yr)' 
+        },
+        { label: 'Expected Annual Return Rate', value: `${expectedReturn}% per annum` },
+        { label: 'Withdrawal Duration Horizon', value: `${withdrawalDuration} Years` },
+      ],
+      summaryMetrics: [
+        { label: 'Total Capital Withdrawn', value: formatINR(result.totalActualWithdrawals) },
+        { label: 'Remaining Portfolio Corpus', value: formatINR(result.remainingCorpus), isHighlight: true },
+        { label: 'Total Growth Earned', value: `+${formatINR(result.totalGrowthEarned)}` },
+        { 
+          label: 'Corpus Longevity Status', 
+          value: result.isExhausted 
+            ? `Corpus Exhausted in Year ${result.exhaustionYear}` 
+            : `Sustained throughout ${withdrawalDuration} Years` 
+        },
+      ],
+      scheduleHeaders: [
+        'Year',
+        'Opening Balance',
+        'Growth Earned',
+        withdrawalFrequency === 'monthly' ? 'Annual Withdrawals' : 'Yearly Withdrawal',
+        'Closing Balance',
+      ],
+      growthSchedule: result.yearlySchedule.map((row) => ({
+        col1: `Year ${row.year}`,
+        col2: formatINR(row.openingBalance),
+        col3: `+${formatINR(row.growthEarned)}`,
+        col4: `-${formatINR(row.annualWithdrawal)}`,
+        col5: formatINR(row.closingBalance),
+      })),
+      notes: 'Withdrawal Timing Convention: For monthly withdrawals, monthly compound growth is applied followed by end-of-month withdrawals. For yearly withdrawals, annual compound growth is applied followed by end-of-year withdrawals. Withdrawals stop automatically once the remaining corpus reaches zero.',
+      disclaimer: 'A sustainable withdrawal rate depends on your investment returns, inflation, time horizon, and risk tolerance. Some retirement-planning approaches use an annual withdrawal rate around 4–6% as a starting point, while higher rates can increase the risk of depleting your corpus. Review your plan periodically with a qualified financial professional.',
+    };
+  };
+
+  // Presets depending on schedule frequency
+  const withdrawalPresets = withdrawalFrequency === 'monthly'
+    ? [5000, 10000, 25000, 50000, 100000]
+    : [60000, 120000, 300000, 600000, 1200000];
+
   return (
     <div className="space-y-8">
-      {/* 2-Column Dashboard Layout */}
+      {/* 1. Responsible SWP Withdrawal Guidance Note (Mandated Educational Card) */}
+      <div className="p-4 sm:p-5 rounded-2xl bg-blue-50/90 dark:bg-blue-950/30 border border-blue-200/80 dark:border-blue-900/50 text-xs sm:text-sm text-slate-700 dark:text-slate-300 leading-relaxed shadow-sm">
+        <div className="flex items-start gap-3">
+          <Info className="w-5 h-5 text-blue-600 dark:text-cyan-400 mt-0.5 shrink-0" />
+          <div className="space-y-1">
+            <p className="font-bold text-slate-900 dark:text-white text-sm sm:text-base">
+              Responsible SWP Withdrawal Guidance
+            </p>
+            <p>
+              A sustainable withdrawal rate depends on your investment returns, inflation, time horizon, and risk tolerance. Some retirement-planning approaches use an annual withdrawal rate around 4–6% as a starting point, while higher rates can increase the risk of depleting your corpus. Review your plan periodically with a qualified financial professional.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      {/* 2. Main 2-Column Dashboard Layout */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
         {/* Left Inputs Column (5 Cols) */}
         <div className="lg:col-span-5 space-y-6">
           <Card className="border-slate-200/80 dark:border-slate-800 bg-white dark:bg-slate-900/60 shadow-sm">
             <CardContent className="p-6 space-y-6">
-              {/* Total Corpus */}
+              {/* Schedule Frequency Toggle: Monthly vs Yearly */}
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <Label className="text-sm font-semibold flex items-center gap-1.5">
+                    <Calendar size={15} className="text-cyan-600 dark:text-cyan-400" />
+                    <span>Withdrawal Schedule Frequency</span>
+                  </Label>
+                  <span className="text-[11px] font-semibold text-blue-600 dark:text-cyan-400">
+                    {withdrawalFrequency === 'monthly' ? 'Monthly Mode' : 'Yearly Mode'}
+                  </span>
+                </div>
+                <div className="grid grid-cols-2 gap-2 bg-slate-100 dark:bg-slate-800 p-1 rounded-xl border border-slate-200/80 dark:border-slate-700/60">
+                  <button
+                    type="button"
+                    onClick={() => handleFrequencyChange('monthly')}
+                    className={cn(
+                      "py-2 px-3 text-xs sm:text-sm font-semibold rounded-lg transition-all flex items-center justify-center gap-1.5",
+                      withdrawalFrequency === 'monthly'
+                        ? "bg-white dark:bg-slate-700 text-blue-600 dark:text-cyan-300 shadow-sm"
+                        : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
+                    )}
+                  >
+                    <span>Monthly Withdrawals</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleFrequencyChange('yearly')}
+                    className={cn(
+                      "py-2 px-3 text-xs sm:text-sm font-semibold rounded-lg transition-all flex items-center justify-center gap-1.5",
+                      withdrawalFrequency === 'yearly'
+                        ? "bg-white dark:bg-slate-700 text-blue-600 dark:text-cyan-300 shadow-sm"
+                        : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
+                    )}
+                  >
+                    <span>Yearly Withdrawals</span>
+                  </button>
+                </div>
+                <p className="text-[11px] text-slate-500 dark:text-slate-400">
+                  {withdrawalFrequency === 'monthly'
+                    ? '12 payouts per year compounded monthly. Payout deducted at month-end.'
+                    : '1 single payout per year compounded annually. Payout deducted at year-end.'}
+                </p>
+              </div>
+
+              {/* Total Corpus Input */}
               <div className="space-y-3">
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 min-w-0">
                   <Label htmlFor="swp-corpus" className="text-sm font-semibold flex items-center gap-1.5 shrink-0">
@@ -306,6 +458,7 @@ export default function SWPCalculator() {
                     )}
                   </div>
                 </div>
+
                 <Slider
                   value={[valueToSliderPos(initialCorpus, SWP_CORPUS_SCALE)]}
                   min={0}
@@ -320,10 +473,10 @@ export default function SWPCalculator() {
                     if (withdrawalMode === 'percent') {
                       const newRupee = Math.round((snapped * withdrawalPercentage) / 100);
                       const clampedRupee = Math.min(MAX_SWP_WITHDRAWAL, Math.max(0, newRupee));
-                      setMonthlyWithdrawal(clampedRupee);
+                      setWithdrawalAmount(clampedRupee);
                       setWithdrawalInputStr(clampedRupee > 0 ? clampedRupee.toLocaleString('en-IN') : '0');
                     } else {
-                      const newPct = snapped > 0 ? (monthlyWithdrawal / snapped) * 100 : 0;
+                      const newPct = snapped > 0 ? (withdrawalAmount / snapped) * 100 : 0;
                       setWithdrawalPercentage(newPct);
                       setPercentInputStr(newPct > 0 ? (newPct < 0.1 ? newPct.toFixed(3) : newPct.toFixed(2)) : '0');
                     }
@@ -331,6 +484,7 @@ export default function SWPCalculator() {
                   className="py-1 cursor-pointer"
                   aria-label="Total Investment Corpus Slider"
                 />
+
                 <div className="flex justify-between text-[11px] font-mono text-slate-400">
                   {SWP_CORPUS_SCALE.labels.map((item, idx) => (
                     <span key={idx}>{item.label}</span>
@@ -351,10 +505,10 @@ export default function SWPCalculator() {
                         if (withdrawalMode === 'percent') {
                           const newRupee = Math.round((preset * withdrawalPercentage) / 100);
                           const clampedRupee = Math.min(MAX_SWP_WITHDRAWAL, Math.max(0, newRupee));
-                          setMonthlyWithdrawal(clampedRupee);
+                          setWithdrawalAmount(clampedRupee);
                           setWithdrawalInputStr(clampedRupee > 0 ? clampedRupee.toLocaleString('en-IN') : '0');
                         } else {
-                          const newPct = preset > 0 ? (monthlyWithdrawal / preset) * 100 : 0;
+                          const newPct = preset > 0 ? (withdrawalAmount / preset) * 100 : 0;
                           setWithdrawalPercentage(newPct);
                           setPercentInputStr(newPct > 0 ? (newPct < 0.1 ? newPct.toFixed(3) : newPct.toFixed(2)) : '0');
                         }
@@ -373,12 +527,12 @@ export default function SWPCalculator() {
                 {errors.corpus && <p className="text-xs text-rose-500">{errors.corpus}</p>}
               </div>
 
-              {/* Monthly Withdrawal (Rupee & % of Initial Corpus Dual Entry) */}
+              {/* Withdrawal (Rupee & % of Initial Corpus Dual Entry) */}
               <div className="space-y-3">
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                   <Label htmlFor="swp-withdrawal" className="text-sm font-semibold flex items-center gap-1.5 shrink-0">
                     <ArrowDownRight size={15} className="text-cyan-600 dark:text-cyan-400" />
-                    <span>Monthly Withdrawal</span>
+                    <span>{withdrawalFrequency === 'monthly' ? 'Monthly Withdrawal' : 'Yearly Withdrawal'}</span>
                   </Label>
                   <div className="flex items-center bg-slate-100 dark:bg-slate-800 p-0.5 rounded-lg text-xs font-medium border border-slate-200/80 dark:border-slate-700/60">
                     <button
@@ -413,7 +567,7 @@ export default function SWPCalculator() {
                   {/* Rupee Input */}
                   <div className="space-y-1">
                     <span className="text-[11px] font-semibold text-slate-500 dark:text-slate-400 flex items-center justify-between">
-                      <span>Monthly Rupee Amount</span>
+                      <span>{withdrawalFrequency === 'monthly' ? 'Monthly Rupee' : 'Annual Rupee'}</span>
                       {withdrawalMode === 'rupee' && (
                         <span className="text-[10px] text-blue-600 dark:text-cyan-400 font-medium">Active</span>
                       )}
@@ -434,20 +588,20 @@ export default function SWPCalculator() {
                         style={{
                           fontSize: withdrawalInputStr.length > 13 ? '0.75rem' : withdrawalInputStr.length > 10 ? '0.8125rem' : '0.875rem',
                         }}
-                        aria-label="Monthly Withdrawal Amount in Rupees"
+                        aria-label="Withdrawal Amount in Rupees"
                       />
                     </div>
-                    {monthlyWithdrawal >= 100000 && !isWithdrawalFocused && (
+                    {withdrawalAmount >= 100000 && !isWithdrawalFocused && (
                       <span className="text-[11px] text-cyan-600 dark:text-cyan-400 font-semibold block text-right mt-0.5">
-                        ({formatCompactINR(monthlyWithdrawal)})
+                        ({formatCompactINR(withdrawalAmount)})
                       </span>
                     )}
                   </div>
 
-                  {/* Percentage Input */}
+                  {/* Percentage Input (% of Initial Corpus) */}
                   <div className="space-y-1">
                     <span className="text-[11px] font-semibold text-slate-500 dark:text-slate-400 flex items-center justify-between">
-                      <span title="Monthly Withdrawal (% of Initial Corpus)">Monthly Withdrawal (% of Initial Corpus)</span>
+                      <span>{withdrawalFrequency === 'monthly' ? 'Monthly % of Corpus' : 'Annual % of Corpus'}</span>
                       {withdrawalMode === 'percent' && (
                         <span className="text-[10px] text-blue-600 dark:text-cyan-400 font-medium">Active</span>
                       )}
@@ -461,62 +615,43 @@ export default function SWPCalculator() {
                         max="100"
                         value={percentInputStr}
                         onChange={(e) => handlePercentageChange(e.target.value)}
-                        onFocus={() => { setIsPercentFocused(true); setWithdrawalMode('percent'); }}
+                        onFocus={() => {
+                          setIsPercentFocused(true);
+                          setWithdrawalMode('percent');
+                        }}
                         onBlur={handlePercentBlur}
                         className={cn(
                           "pr-7 pl-3 text-right font-mono text-sm h-9 border-slate-200 dark:border-slate-700 w-full min-w-0 transition-all",
                           withdrawalMode === 'percent' && "ring-1 ring-blue-500/50 dark:ring-cyan-500/50"
                         )}
-                        aria-label="Monthly Withdrawal (% of Initial Corpus)"
+                        aria-label="Withdrawal Rate Percentage of Initial Corpus"
                       />
                       <span className="absolute right-2.5 top-1/2 -translate-y-1/2 text-xs font-semibold text-slate-400 select-none pointer-events-none">%</span>
                     </div>
-                    <span className="text-[11px] text-slate-500 dark:text-slate-400 block text-right truncate">
-                      (= {formatINR(monthlyWithdrawal)}/mo)
-                    </span>
                   </div>
                 </div>
 
-                {/* Educational clarification note */}
-                <div className="text-[11px] text-slate-500 dark:text-slate-400 flex items-center gap-1.5 bg-slate-50 dark:bg-slate-800/40 p-2 rounded-lg border border-slate-100 dark:border-slate-800">
-                  <Info size={13} className="text-cyan-600 dark:text-cyan-400 shrink-0" />
+                {/* Subtext explaining synchronization and cross-schedule equivalent */}
+                <div className="p-2.5 rounded-lg bg-slate-50 dark:bg-slate-800/50 border border-slate-200/60 dark:border-slate-700/40 text-[11px] text-slate-600 dark:text-slate-400 flex items-center justify-between">
                   <span>
-                    Percentage is based on the initial corpus ({formatINR(initialCorpus)}), not the declining balance.
+                    {withdrawalFrequency === 'monthly' ? (
+                      <>Annualized: <strong>{formatINR(withdrawalAmount * 12)}/year</strong> ({(withdrawalPercentage * 12).toFixed(2)}%/yr)</>
+                    ) : (
+                      <>Monthly equivalent: <strong>{formatINR(Math.round(withdrawalAmount / 12))}/month</strong> ({(withdrawalPercentage / 12).toFixed(2)}%/mo)</>
+                    )}
                   </span>
+                  <span className="text-slate-400 font-mono">From initial corpus</span>
                 </div>
 
-                <Slider
-                  value={[valueToSliderPos(monthlyWithdrawal, SWP_WITHDRAWAL_SCALE)]}
-                  min={0}
-                  max={100}
-                  step={0.5}
-                  onValueChange={(val) => {
-                    const snapped = sliderPosToValue(val[0], SWP_WITHDRAWAL_SCALE);
-                    setMonthlyWithdrawal(snapped);
-                    setWithdrawalInputStr(snapped.toLocaleString('en-IN'));
-                    setErrors((prev) => ({ ...prev, withdrawal: undefined }));
-
-                    const newPct = initialCorpus > 0 ? (snapped / initialCorpus) * 100 : 0;
-                    setWithdrawalPercentage(newPct);
-                    setPercentInputStr(newPct > 0 ? (newPct < 0.1 ? newPct.toFixed(3) : newPct.toFixed(2)) : '0');
-                  }}
-                  className="py-1 cursor-pointer"
-                  aria-label="Monthly Withdrawal Slider"
-                />
-                <div className="flex justify-between text-[11px] font-mono text-slate-400">
-                  {SWP_WITHDRAWAL_SCALE.labels.map((item, idx) => (
-                    <span key={idx}>{item.label}</span>
-                  ))}
-                </div>
-
-                {/* Quick preset buttons for Withdrawal */}
+                {/* Presets */}
                 <div className="flex flex-wrap gap-1.5 pt-1">
-                  {SWP_WITHDRAWAL_QUICK_PRESETS.map((preset) => (
+                  {withdrawalPresets.map((preset) => (
                     <button
                       key={preset}
                       type="button"
                       onClick={() => {
-                        setMonthlyWithdrawal(preset);
+                        setWithdrawalMode('rupee');
+                        setWithdrawalAmount(preset);
                         setWithdrawalInputStr(preset.toLocaleString('en-IN'));
                         setErrors((prev) => ({ ...prev, withdrawal: undefined }));
 
@@ -526,7 +661,7 @@ export default function SWPCalculator() {
                       }}
                       className={cn(
                         "px-2.5 py-1 text-xs rounded-lg font-medium transition-all duration-150 border",
-                        monthlyWithdrawal === preset
+                        withdrawalAmount === preset
                           ? "bg-cyan-600 text-white border-cyan-600 shadow-sm"
                           : "bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700 hover:border-cyan-400 hover:text-cyan-600 dark:hover:text-cyan-400"
                       )}
@@ -538,61 +673,66 @@ export default function SWPCalculator() {
                 {errors.withdrawal && <p className="text-xs text-rose-500">{errors.withdrawal}</p>}
               </div>
 
-              {/* Expected Return */}
+              {/* Expected Return Rate */}
               <div className="space-y-3">
-                <div className="flex justify-between items-center">
+                <div className="flex items-center justify-between">
                   <Label htmlFor="swp-return" className="text-sm font-semibold flex items-center gap-1.5">
                     <TrendingUp size={15} className="text-cyan-600 dark:text-cyan-400" />
                     Expected Return Rate (p.a.)
                   </Label>
-                  <div className="relative w-28">
+                  <div className="relative w-24">
                     <Input
                       id="swp-return"
                       type="number"
                       step="0.5"
+                      min="0"
+                      max="30"
                       value={returnInputStr}
                       onChange={(e) => handleReturnChange(e.target.value)}
                       className="pr-6 text-right font-mono text-sm h-9 border-slate-200 dark:border-slate-700"
                     />
-                    <span className="absolute right-2.5 top-1/2 -translate-y-1/2 text-xs font-semibold text-slate-400 select-none">%</span>
+                    <span className="absolute right-2.5 top-1/2 -translate-y-1/2 text-xs font-semibold text-slate-400">%</span>
                   </div>
                 </div>
                 <Slider
                   value={[expectedReturn]}
-                  min={1}
-                  max={20}
+                  min={0}
+                  max={30}
                   step={0.5}
                   onValueChange={(val) => {
                     setExpectedReturn(val[0]);
                     setReturnInputStr(val[0].toString());
                     setErrors((prev) => ({ ...prev, returnRate: undefined }));
                   }}
-                  className="py-1"
+                  className="py-1 cursor-pointer"
                 />
                 <div className="flex justify-between text-[11px] font-mono text-slate-400">
-                  <span>1%</span>
-                  <span>10%</span>
-                  <span>20%</span>
+                  <span>0%</span>
+                  <span>8% (Conservative)</span>
+                  <span>12% (Balanced)</span>
+                  <span>30%</span>
                 </div>
                 {errors.returnRate && <p className="text-xs text-rose-500">{errors.returnRate}</p>}
               </div>
 
-              {/* Duration */}
+              {/* Time Horizon / Withdrawal Duration */}
               <div className="space-y-3">
-                <div className="flex justify-between items-center">
+                <div className="flex items-center justify-between">
                   <Label htmlFor="swp-duration" className="text-sm font-semibold flex items-center gap-1.5">
-                    <Calendar size={15} className="text-cyan-600 dark:text-cyan-400" />
-                    Time Period
+                    <Clock size={15} className="text-cyan-600 dark:text-cyan-400" />
+                    Time Horizon (Years)
                   </Label>
-                  <div className="relative w-28">
+                  <div className="relative w-24">
                     <Input
                       id="swp-duration"
                       type="number"
+                      min="1"
+                      max="35"
                       value={durationInputStr}
                       onChange={(e) => handleDurationChange(e.target.value)}
-                      className="pr-8 text-right font-mono text-sm h-9 border-slate-200 dark:border-slate-700"
+                      className="pr-6 text-right font-mono text-sm h-9 border-slate-200 dark:border-slate-700"
                     />
-                    <span className="absolute right-2.5 top-1/2 -translate-y-1/2 text-xs font-semibold text-slate-400 select-none">Yr</span>
+                    <span className="absolute right-2.5 top-1/2 -translate-y-1/2 text-xs font-semibold text-slate-400">Yr</span>
                   </div>
                 </div>
                 <Slider
@@ -605,195 +745,166 @@ export default function SWPCalculator() {
                     setDurationInputStr(val[0].toString());
                     setErrors((prev) => ({ ...prev, duration: undefined }));
                   }}
-                  className="py-1"
+                  className="py-1 cursor-pointer"
                 />
                 <div className="flex justify-between text-[11px] font-mono text-slate-400">
                   <span>1 Year</span>
-                  <span>15 Years</span>
+                  <span>10 Years</span>
+                  <span>25 Years</span>
                   <span>35 Years</span>
                 </div>
                 {errors.duration && <p className="text-xs text-rose-500">{errors.duration}</p>}
               </div>
             </CardContent>
           </Card>
-
-          {/* Sustainability Status Callout */}
-          {result.isExhausted ? (
-            <Card className="border-amber-200 dark:border-amber-900/60 bg-amber-50/50 dark:bg-amber-950/20 p-4 flex items-start gap-3">
-              <AlertTriangle className="w-5 h-5 text-amber-600 dark:text-amber-400 flex-shrink-0 mt-0.5" />
-              <div className="text-xs space-y-1">
-                <p className="font-semibold text-amber-900 dark:text-amber-300">
-                  Corpus Depleted Early (Year {result.exhaustionYear})
-                </p>
-                <p className="text-amber-700 dark:text-amber-400">
-                  At ₹{monthlyWithdrawal.toLocaleString('en-IN')}/mo, the corpus is completely exhausted by month {result.exhaustionMonthNumber}. Consider reducing the monthly withdrawal or increasing return assumptions.
-                </p>
-              </div>
-            </Card>
-          ) : (
-            <Card className="border-emerald-200 dark:border-emerald-900/60 bg-emerald-50/50 dark:bg-emerald-950/20 p-4 flex items-start gap-3">
-              <CheckCircle2 className="w-5 h-5 text-emerald-600 dark:text-emerald-400 flex-shrink-0 mt-0.5" />
-              <div className="text-xs space-y-1">
-                <p className="font-semibold text-emerald-900 dark:text-emerald-300">
-                  Sustainable Withdrawal Schedule
-                </p>
-                <p className="text-emerald-700 dark:text-emerald-400">
-                  Your corpus comfortably sustains all scheduled withdrawals for the entire {withdrawalDuration}-year period, leaving a remaining balance of {formatINR(result.remainingCorpus)}.
-                </p>
-              </div>
-            </Card>
-          )}
         </div>
 
-        {/* Right Results & Visualizations Column (7 Cols) */}
+        {/* Right Results Column (7 Cols) */}
         <div className="lg:col-span-7 space-y-6">
-          {/* Key Metric Summary Cards */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-3.5 min-w-0">
-            <Card className="border-slate-200/80 dark:border-slate-800 bg-white dark:bg-slate-900/60 shadow-sm p-3.5 min-w-0 overflow-hidden flex flex-col justify-between">
+          {/* Exhaustion Alert Banner (if applicable) */}
+          {result.isExhausted && (
+            <div className="p-4 rounded-2xl bg-amber-50 dark:bg-amber-950/40 border border-amber-300 dark:border-amber-800 text-amber-900 dark:text-amber-200 flex items-start gap-3 shadow-sm">
+              <AlertTriangle className="h-5 w-5 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
               <div>
-                <span className="text-[11px] font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 block mb-1">
-                  Initial Corpus
-                </span>
-                <p 
-                  className="text-lg sm:text-xl font-bold text-slate-900 dark:text-white font-mono tracking-tight break-words"
-                  title={formatINR(result.initialCorpus)}
-                >
-                  {result.initialCorpus >= 10000000 
-                    ? formatCompactINR(result.initialCorpus) 
-                    : formatINR(result.initialCorpus)}
+                <p className="font-bold text-sm">Corpus Depletion Warning</p>
+                <p className="text-xs mt-0.5 leading-relaxed">
+                  At this withdrawal rate ({formatINR(withdrawalAmount)}/{withdrawalFrequency === 'monthly' ? 'mo' : 'yr'}), your initial corpus will be fully exhausted in <strong>Year {result.exhaustionYear}</strong>. Withdrawals have been automatically capped at the available balance to prevent a negative balance.
                 </p>
-                {result.initialCorpus >= 10000000 && (
-                  <span className="text-[11px] font-mono text-slate-500 dark:text-slate-400 block truncate" title={formatINR(result.initialCorpus)}>
-                    {formatINR(result.initialCorpus)}
-                  </span>
-                )}
               </div>
-              <span className="text-[10px] text-slate-400 block mt-1">Opening</span>
-            </Card>
+            </div>
+          )}
 
-            <Card className="border-slate-200/80 dark:border-slate-800 bg-white dark:bg-slate-900/60 shadow-sm p-3.5 min-w-0 overflow-hidden flex flex-col justify-between">
-              <div>
-                <span className="text-[11px] font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 block mb-1">
-                  Total Withdrawn
+          {/* Primary Featured Card: Remaining Corpus & Payout Summary */}
+          <Card className="relative overflow-hidden bg-gradient-to-br from-slate-900 via-blue-950 to-slate-900 text-white rounded-3xl shadow-xl border border-slate-800">
+            <div className="p-6 sm:p-7 relative z-10">
+              <div className="flex items-center justify-between mb-4">
+                <span className="text-xs font-semibold uppercase tracking-widest text-cyan-400">
+                  SWP Portfolio Outcome
                 </span>
-                <p 
-                  className="text-lg sm:text-xl font-bold text-cyan-600 dark:text-cyan-400 font-mono tracking-tight break-words"
-                  title={formatINR(result.totalActualWithdrawals)}
-                >
-                  {result.totalActualWithdrawals >= 10000000 
-                    ? formatCompactINR(result.totalActualWithdrawals) 
-                    : formatINR(result.totalActualWithdrawals)}
-                </p>
-                {result.totalActualWithdrawals >= 10000000 && (
-                  <span className="text-[11px] font-mono text-slate-500 dark:text-slate-400 block truncate" title={formatINR(result.totalActualWithdrawals)}>
+                <span className="text-xs font-bold px-2.5 py-0.5 rounded-full bg-cyan-500/20 text-cyan-300 border border-cyan-400/30">
+                  {withdrawalFrequency === 'monthly' ? 'Monthly Payouts' : 'Annual Payout'}
+                </span>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                <div>
+                  <span className="text-xs text-slate-400 font-medium block mb-1">Total Capital Withdrawn</span>
+                  <div className="text-2xl sm:text-3xl font-extrabold text-white font-mono tracking-tight">
                     {formatINR(result.totalActualWithdrawals)}
+                  </div>
+                  <span className="text-[11px] text-slate-400 mt-1 block">
+                    Across {withdrawalDuration} years ({withdrawalFrequency === 'monthly' ? `${withdrawalDuration * 12} payouts` : `${withdrawalDuration} payouts`})
                   </span>
-                )}
-              </div>
-              <span className="text-[10px] text-slate-400 block mt-1">Received cash flow</span>
-            </Card>
+                </div>
 
-            <Card className="border-slate-200/80 dark:border-slate-800 bg-white dark:bg-slate-900/60 shadow-sm p-3.5 min-w-0 overflow-hidden flex flex-col justify-between">
-              <div>
-                <span className="text-[11px] font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 block mb-1">
-                  Growth Earned
-                </span>
-                <p 
-                  className="text-lg sm:text-xl font-bold text-emerald-600 dark:text-emerald-400 font-mono tracking-tight break-words"
-                  title={formatINR(result.totalGrowthEarned)}
-                >
-                  {result.totalGrowthEarned >= 10000000 
-                    ? formatCompactINR(result.totalGrowthEarned) 
-                    : formatINR(result.totalGrowthEarned)}
-                </p>
-                {result.totalGrowthEarned >= 10000000 && (
-                  <span className="text-[11px] font-mono text-slate-500 dark:text-slate-400 block truncate" title={formatINR(result.totalGrowthEarned)}>
-                    +{formatINR(result.totalGrowthEarned)}
-                  </span>
-                )}
-              </div>
-              <span className="text-[10px] text-slate-400 block mt-1">During tenure</span>
-            </Card>
-
-            <Card className="border-cyan-500/30 dark:border-cyan-500/40 bg-gradient-to-br from-cyan-50/50 via-white to-blue-50/30 dark:from-slate-900 dark:to-cyan-950/30 shadow-sm p-3.5 min-w-0 overflow-hidden flex flex-col justify-between">
-              <div>
-                <span className="text-[11px] font-semibold uppercase tracking-wider text-cyan-800 dark:text-cyan-300 block mb-1">
-                  Remaining Corpus
-                </span>
-                <p 
-                  className="text-lg sm:text-xl font-extrabold text-blue-700 dark:text-cyan-300 font-mono tracking-tight break-words"
-                  title={formatINR(result.remainingCorpus)}
-                >
-                  {result.remainingCorpus >= 10000000 
-                    ? formatCompactINR(result.remainingCorpus) 
-                    : formatINR(result.remainingCorpus)}
-                </p>
-                {result.remainingCorpus >= 10000000 && (
-                  <span className="text-[11px] font-mono text-slate-600 dark:text-slate-400 block truncate" title={formatINR(result.remainingCorpus)}>
+                <div>
+                  <span className="text-xs text-slate-400 font-medium block mb-1">Remaining Corpus</span>
+                  <div className={cn(
+                    "text-2xl sm:text-3xl font-extrabold font-mono tracking-tight",
+                    result.remainingCorpus > 0 ? "text-emerald-400" : "text-amber-400"
+                  )}>
                     {formatINR(result.remainingCorpus)}
+                  </div>
+                  <span className="text-[11px] text-slate-400 mt-1 block">
+                    {result.remainingCorpus > 0 ? "Continues compounding" : "Fully exhausted"}
                   </span>
-                )}
+                </div>
               </div>
-              <span className="text-[10px] text-slate-500 dark:text-slate-400 block mt-1">
-                Closing balance
+            </div>
+          </Card>
+
+          {/* 3 Metrics Cards */}
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <Card className="border-slate-200/80 dark:border-slate-800 bg-white dark:bg-slate-900/60 p-4 rounded-2xl">
+              <span className="text-xs text-slate-500 dark:text-slate-400 font-medium block mb-1">
+                Scheduled Payout
+              </span>
+              <div className="text-lg font-bold text-slate-900 dark:text-white font-mono">
+                {formatINR(withdrawalAmount)}
+              </div>
+              <span className="text-[11px] text-cyan-600 dark:text-cyan-400 font-medium">
+                /{withdrawalFrequency === 'monthly' ? 'month' : 'year'} ({withdrawalPercentage.toFixed(2)}%)
+              </span>
+            </Card>
+
+            <Card className="border-slate-200/80 dark:border-slate-800 bg-white dark:bg-slate-900/60 p-4 rounded-2xl">
+              <span className="text-xs text-slate-500 dark:text-slate-400 font-medium block mb-1">
+                Compound Growth Earned
+              </span>
+              <div className="text-lg font-bold text-emerald-600 dark:text-emerald-400 font-mono">
+                +{formatINR(result.totalGrowthEarned)}
+              </div>
+              <span className="text-[11px] text-slate-500 font-medium">
+                @ {expectedReturn}% annualized
+              </span>
+            </Card>
+
+            <Card className="border-slate-200/80 dark:border-slate-800 bg-white dark:bg-slate-900/60 p-4 rounded-2xl">
+              <span className="text-xs text-slate-500 dark:text-slate-400 font-medium block mb-1">
+                Longevity Status
+              </span>
+              <div className={cn(
+                "text-lg font-bold font-mono",
+                result.isExhausted ? "text-amber-600 dark:text-amber-400" : "text-blue-600 dark:text-cyan-400"
+              )}>
+                {result.isExhausted ? `Year ${result.exhaustionYear}` : 'Sustained'}
+              </div>
+              <span className="text-[11px] text-slate-500 font-medium">
+                {result.isExhausted ? 'Corpus depleted' : `${withdrawalDuration}y horizon`}
               </span>
             </Card>
           </div>
 
-          {/* Action CTAs */}
-          <CalculatorCTAButtons sourceCalculator="swp" />
-
-          {/* Visualization Section */}
-          <Card className="border-slate-200/80 dark:border-slate-800 bg-white dark:bg-slate-900/60 shadow-sm overflow-hidden">
-            <div className="p-4 border-b border-slate-100 dark:border-slate-800/80 flex items-center justify-between">
-              <span className="text-sm font-semibold text-slate-800 dark:text-slate-200">
-                Corpus Balance & Cumulative Withdrawals
-              </span>
-              <span className="text-xs font-mono text-slate-500">
-                {withdrawalDuration} Years Projection
+          {/* Balance vs Cumulative Withdrawals Chart */}
+          <Card className="border-slate-200/80 dark:border-slate-800 bg-white dark:bg-slate-900/60 p-5 rounded-2xl">
+            <div className="flex items-center justify-between mb-4">
+              <span className="text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300">
+                Corpus Balance vs Cumulative Withdrawals
               </span>
             </div>
-
-            <div className="p-6">
-              <div className="h-64">
-                <ResponsiveContainer width="100%" height="100%">
-                  <AreaChart data={areaData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
-                    <defs>
-                      <linearGradient id="swpBalanceGrad" x1="0%" y1="0%" x2="0%" y2="100%">
-                        <stop offset="0%" stopColor="#2563EB" stopOpacity={0.35} />
-                        <stop offset="100%" stopColor="#2563EB" stopOpacity={0.0} />
-                      </linearGradient>
-                      <linearGradient id="swpWithdrawalGrad" x1="0%" y1="0%" x2="0%" y2="100%">
-                        <stop offset="0%" stopColor="#06B6D4" stopOpacity={0.35} />
-                        <stop offset="100%" stopColor="#06B6D4" stopOpacity={0.0} />
-                      </linearGradient>
-                    </defs>
-                    <CartesianGrid strokeDasharray="3 3" opacity={0.15} />
-                    <XAxis dataKey="name" tick={{ fontSize: 11 }} />
-                    <YAxis tickFormatter={(val) => formatCompactINR(val)} tick={{ fontSize: 11 }} />
-                    <RechartsTooltip formatter={(val: number) => formatINR(val)} />
-                    <Area type="monotone" dataKey="Balance" stroke="#2563EB" strokeWidth={2.5} fill="url(#swpBalanceGrad)" name="Remaining Corpus" />
-                    <Area type="monotone" dataKey="CumulativeWithdrawals" stroke="#06B6D4" strokeWidth={2} fill="url(#swpWithdrawalGrad)" name="Cumulative Cash Withdrawn" />
-                  </AreaChart>
-                </ResponsiveContainer>
-              </div>
+            <div className="h-64 w-full">
+              <ResponsiveContainer width="100%" height="100%">
+                <AreaChart data={areaData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
+                  <defs>
+                    <linearGradient id="colorBalance" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="#10b981" stopOpacity={0.4} />
+                      <stop offset="95%" stopColor="#10b981" stopOpacity={0} />
+                    </linearGradient>
+                    <linearGradient id="colorWithdrawn" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="#06b6d4" stopOpacity={0.4} />
+                      <stop offset="95%" stopColor="#06b6d4" stopOpacity={0} />
+                    </linearGradient>
+                  </defs>
+                  <CartesianGrid strokeDasharray="3 3" opacity={0.15} />
+                  <XAxis dataKey="name" tick={{ fontSize: 11 }} />
+                  <YAxis tickFormatter={(v) => formatCompactINR(v)} tick={{ fontSize: 11 }} width={65} />
+                  <RechartsTooltip
+                    formatter={(val: number, name: string) => [
+                      formatINR(val),
+                      name === 'Balance' ? 'Remaining Corpus' : 'Total Withdrawn',
+                    ]}
+                  />
+                  <Area type="monotone" dataKey="Balance" stroke="#10b981" strokeWidth={2} fillOpacity={1} fill="url(#colorBalance)" />
+                  <Area type="monotone" dataKey="CumulativeWithdrawals" stroke="#06b6d4" strokeWidth={2} fillOpacity={1} fill="url(#colorWithdrawn)" />
+                </AreaChart>
+              </ResponsiveContainer>
             </div>
           </Card>
         </div>
       </div>
 
-      {/* Year-by-Year Withdrawal Schedule Table */}
-      <div className="border border-slate-200/80 dark:border-slate-800 rounded-xl overflow-hidden bg-white dark:bg-slate-900/60">
+      {/* 3. Year-by-Year Growth & Cash-Flow Projection Schedule */}
+      <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-sm overflow-hidden">
         <button
           type="button"
           onClick={() => setIsScheduleOpen(!isScheduleOpen)}
           className="w-full px-6 py-4 flex items-center justify-between text-left hover:bg-slate-50 dark:hover:bg-slate-800/40 transition-colors"
         >
           <div className="flex items-center gap-2">
-            <span className="text-sm font-semibold text-slate-800 dark:text-slate-200">
+            <span className="text-sm sm:text-base font-bold text-slate-900 dark:text-white">
               Annual SWP Cash-Flow & Balance Schedule
             </span>
-            <span className="text-xs text-slate-500 font-mono">({result.yearlySchedule.length} Years)</span>
+            <span className="text-xs text-slate-500 font-mono">({result.yearlySchedule.length} Years Schedule)</span>
           </div>
           {isScheduleOpen ? <ChevronUp size={18} className="text-slate-400" /> : <ChevronDown size={18} className="text-slate-400" />}
         </button>
@@ -832,21 +943,24 @@ export default function SWPCalculator() {
         )}
       </div>
 
-      {/* Assumptions Explanation */}
+      {/* 4. Download Results Section (PDF and Word .docx exports) */}
+      <DownloadResultsSection getData={getExportData} />
+
+      {/* 5. Assumptions Explanation */}
       <div className="p-4 rounded-xl bg-blue-50/50 dark:bg-slate-900/40 border border-blue-100 dark:border-slate-800 text-xs text-slate-600 dark:text-slate-400 space-y-1">
         <div className="font-semibold text-slate-800 dark:text-slate-200 flex items-center gap-1.5">
           <Info size={14} className="text-cyan-500" />
-          Calculation Assumptions
+          Withdrawal Timing & Calculation Convention
         </div>
         <p>
-          Each month, the remaining corpus earns interest at an effective monthly return rate equivalent to {expectedReturn}% per annum. The scheduled withdrawal of {formatINR(monthlyWithdrawal)} is then deducted at month-end. Withdrawals are capped at the remaining balance; once the corpus reaches zero, withdrawals cease.
+          For monthly withdrawals, monthly compound growth is applied followed by end-of-month withdrawals. For yearly withdrawals, annual compound growth is applied followed by end-of-year withdrawals. Withdrawals stop automatically once the remaining corpus reaches zero.
         </p>
       </div>
 
-      {/* Required Financial Disclaimer */}
+      {/* 6. Required Financial Disclaimer */}
       <CalculatorDisclaimer />
 
-      {/* VPF vs PPF Educational Comparison Section */}
+      {/* 7. VPF vs PPF Educational Comparison Section */}
       <VpfVsPpfComparison calculatorId="swp" />
     </div>
   );

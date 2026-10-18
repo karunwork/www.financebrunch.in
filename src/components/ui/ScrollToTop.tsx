@@ -4,13 +4,14 @@ import { useLocation } from 'react-router-dom';
 import { ArrowUp } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
+import { scrollToTop as scrollPageToTop } from '@/lib/scrollUtils';
 
 function ScrollToTop() {
   const { pathname } = useLocation();
   const [showScrollTop, setShowScrollTop] = useState(false);
 
   useEffect(() => {
-    window.scrollTo(0, 0);
+    scrollPageToTop(false);
   }, [pathname]);
 
   useEffect(() => {
@@ -23,7 +24,7 @@ function ScrollToTop() {
   }, []);
 
   const scrollToTop = () => {
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    scrollPageToTop();
   };
 
   return (

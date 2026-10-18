@@ -19,6 +19,8 @@ import {
   Sparkles,
 } from 'lucide-react';
 import { CalculatorCTAButtons } from './CalculatorCTAButtons';
+import { DownloadResultsSection } from './DownloadResultsSection';
+import { CalculatorExportData } from '@/utils/calculatorExportGenerator';
 import {
   PieChart,
   Pie,
@@ -95,6 +97,46 @@ export default function SIPCalculator({ className, showHeading = false }: SIPCal
     };
     return calculateSIP(inputs);
   }, [monthlyInvestment, expectedReturn, investmentDuration, isStepUpEnabled, stepUpPercentage]);
+
+  const getExportData = (): CalculatorExportData => {
+    return {
+      calculatorType: 'sip',
+      calculatorTitle: isStepUpEnabled ? 'Step-Up SIP Investment Calculator' : 'Systematic Investment Plan (SIP) Calculator',
+      generatedDateStr: new Date().toLocaleDateString('en-IN', {
+        day: 'numeric',
+        month: 'long',
+        year: 'numeric',
+      }),
+      inputs: [
+        { label: 'Monthly SIP Installment', value: formatINR(monthlyInvestment) },
+        { label: 'Expected Annual Return Rate', value: `${expectedReturn}% per annum` },
+        { label: 'Investment Time Horizon', value: `${investmentDuration} Years` },
+        ...(isStepUpEnabled ? [{ label: 'Annual Step-Up Increment', value: `${stepUpPercentage}% per year` }] : []),
+      ],
+      summaryMetrics: [
+        { label: 'Total Invested Capital', value: formatINR(calculationResult.totalInvested) },
+        { label: 'Estimated Wealth Returns', value: `+${formatINR(calculationResult.estimatedReturns)}` },
+        { label: 'Projected Portfolio Value', value: formatINR(calculationResult.futureValue), isHighlight: true },
+        { label: 'Wealth Multiplier', value: `${(calculationResult.futureValue / (calculationResult.totalInvested || 1)).toFixed(2)}x` },
+      ],
+      scheduleHeaders: [
+        'Year',
+        'Monthly Contribution',
+        'Cumulative Invested',
+        'Estimated Returns',
+        'Portfolio Value',
+      ],
+      growthSchedule: calculationResult.yearlyBreakdown.map((row) => ({
+        col1: `Year ${row.year}`,
+        col2: formatINR(row.monthlyContribution),
+        col3: formatINR(row.cumulativeInvested),
+        col4: `+${formatINR(row.estimatedReturns)}`,
+        col5: formatINR(row.futureValue),
+      })),
+      notes: `Based on ${Math.round(investmentDuration * 12)} beginning-of-month contributions at ${expectedReturn}% annualized growth compounding monthly.`,
+      disclaimer: 'These calculations are illustrative estimates based on the selected return assumptions and cash-flow schedule. Actual investment returns may vary and are not guaranteed. Market risks apply. This calculator does not constitute investment advice.',
+    };
+  };
 
   // Input change handlers with validation
   const handleMonthlyChange = (valStr: string) => {
@@ -891,6 +933,9 @@ export default function SIPCalculator({ className, showHeading = false }: SIPCal
           </div>
         )}
       </div>
+
+      {/* Download Calculation Results (PDF and Word exports) */}
+      <DownloadResultsSection getData={getExportData} className="mt-6 mb-6" />
 
       {/* Financial Accuracy & User Disclaimer */}
       <div className="p-4 sm:p-5 rounded-2xl bg-amber-50/80 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800/40 text-amber-900 dark:text-amber-300 text-xs sm:text-sm leading-relaxed">

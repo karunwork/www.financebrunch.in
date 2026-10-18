@@ -22,7 +22,6 @@ async function runTests() {
     { value: 'individual', label: 'Individual' },
     { value: 'nri', label: 'Non-Resident Indian (NRI)' },
     { value: 'professional', label: 'Professional/Freelancer' },
-    { value: 'startup', label: 'Startup' },
   ];
 
   expectedOptions.forEach((opt, idx) => {
@@ -30,12 +29,13 @@ async function runTests() {
     assert(selectorCode.includes(`label: "${opt.label}"`), `Label ${opt.label} must be present`);
   });
 
-  // Verify removed options are NOT in the dropdown
+  // Verify removed options are NOT in ALLOWED_TAXPAYER_OPTIONS
+  assert(!selectorCode.includes('value: "startup"'), 'Startup must not be in ALLOWED_TAXPAYER_OPTIONS dropdown');
   assert(!selectorCode.includes('value="llp"'), 'LLP must not be in dropdown');
   assert(!selectorCode.includes('value="msme"'), 'MSME must not be in dropdown');
   assert(!selectorCode.includes('value="company"'), 'Company must not be in dropdown');
-  console.log('✓ PASS: Exactly 4 Taxpayer Type options present in exact order (Individual, NRI, Professional/Freelancer, Startup)');
-  console.log('✓ PASS: LLP, MSME, and Company are completely excluded');
+  console.log('✓ PASS: Exactly 3 Taxpayer Type options present in exact order (Individual, NRI, Professional/Freelancer)');
+  console.log('✓ PASS: Startup, LLP, MSME, and Company are completely excluded');
 
   console.log('\n--- Testing Official Logo Embedding ---');
   const logoBuf = fs.readFileSync('./public/images/finance-brunch-logo-nobg.png');
@@ -151,14 +151,14 @@ async function runTests() {
   console.log('✓ PASS: Financial formatters and Assessment Year conversions verified');
 
   console.log('\n--- Testing Permanent Disclaimer & Exports ---');
-  const expectedDisclaimer = 'Disclaimer: This calculator provides estimates for informational purposes only and should not be considered professional tax advice. Actual tax liability may vary based on your individual circumstances and applicable tax rules. For an accurate assessment and personalized guidance, please consult a qualified Chartered Accountant or tax professional.';
-  const disclaimerBody = 'This calculator provides estimates for informational purposes only and should not be considered professional tax advice. Actual tax liability may vary based on your individual circumstances and applicable tax rules. For an accurate assessment and personalized guidance, please consult a qualified Chartered Accountant or tax professional.';
+  const expectedDisclaimer = 'This report provides an indicative estimate based on the information entered and the tax rules applicable to the selected financial year. It is intended for informational and planning purposes only and does not constitute professional tax, legal, or financial advice. Actual tax liability may vary depending on individual circumstances, eligible deductions, applicable legislation, and subsequent regulatory changes. For an accurate assessment of your tax position, please consult an independent qualified Chartered Accountant or other appropriately qualified tax professional.';
+  const disclaimerBody = 'This report provides an indicative estimate based on the information entered and the tax rules applicable to the selected financial year. It is intended for informational and planning purposes only and does not constitute professional tax, legal, or financial advice.';
   const reportGenCode = fs.readFileSync('./src/components/tax-calculator/utils/taxReportGenerator.ts', 'utf8');
   const taxResultsCode = fs.readFileSync('./src/components/tax-calculator/TaxResults.tsx', 'utf8');
 
   assert(reportGenCode.includes(expectedDisclaimer), 'taxReportGenerator.ts must contain the exact disclaimer text');
   assert(taxResultsCode.includes('id="tax-calculation-disclaimer"'), 'TaxResults.tsx must render the permanent disclaimer below the results card');
-  assert(taxResultsCode.includes(disclaimerBody), 'TaxResults.tsx must render the exact disclaimer body');
+  assert(taxResultsCode.includes('TAX_CALCULATOR_DISCLAIMER_TEXT'), 'TaxResults.tsx must render the TAX_CALCULATOR_DISCLAIMER_TEXT');
   assert(taxResultsCode.includes('Disclaimer:'), 'TaxResults.tsx must include Disclaimer: prefix');
   console.log('✓ PASS: Permanent disclaimer present on TaxResults page and in Print/PDF/Word export utilities');
 

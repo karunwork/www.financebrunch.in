@@ -113,8 +113,8 @@ export function ServiceCard({
 
         {/* Top-Right: Feature Badge */}
         {badge && (
-          <div className="absolute top-3.5 right-3.5 z-10">
-            <span className="backdrop-blur-md bg-blue-600/85 text-white text-xs font-medium px-2.5 py-1 rounded-full shadow-sm border border-white/20 inline-block">
+          <div className="absolute top-3.5 right-3.5 z-10 max-w-[60%]">
+            <span className="backdrop-blur-md bg-blue-600/85 text-white text-[10px] sm:text-xs font-medium px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-full shadow-sm border border-white/20 inline-block text-center whitespace-normal leading-tight">
               {badge}
             </span>
           </div>
