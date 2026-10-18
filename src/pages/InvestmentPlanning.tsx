@@ -352,7 +352,7 @@ const InvestmentPlanning = () => {
             className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none select-none z-0 opacity-[0.055] dark:opacity-[0.075] transition-opacity duration-500"
           >
             <img 
-              src="/images/fb-watermark.png" 
+              src={`${import.meta.env.BASE_URL}images/fb-watermark.png`} 
               alt="" 
               className="w-[280px] sm:w-[380px] md:w-[460px] lg:w-[540px] h-auto object-contain filter contrast-105 dark:brightness-110" 
               loading="eager"

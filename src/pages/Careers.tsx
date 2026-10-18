@@ -350,7 +350,7 @@ export default function Careers() {
             className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none select-none z-0 opacity-[0.05] dark:opacity-[0.07]"
           >
             <img 
-              src="/images/fb-watermark.png" 
+              src={`${import.meta.env.BASE_URL}images/fb-watermark.png`} 
               alt="" 
               className="w-[280px] sm:w-[420px] md:w-[500px] h-auto object-contain filter contrast-105 dark:brightness-110" 
               loading="eager"

@@ -88,7 +88,7 @@ function StandardPageFooter({ currentYear }: { currentYear: number }) {
       {/* Faint Subtle FB Watermark Centered Behind Section */}
       <div className="absolute inset-0 flex items-center justify-center pointer-events-none select-none z-0 overflow-hidden">
         <img
-          src="/images/fb-watermark.png"
+          src={`${import.meta.env.BASE_URL}images/fb-watermark.png`}
           alt=""
           className="w-[580px] max-w-[85%] h-auto object-contain opacity-[0.035] dark:opacity-[0.055] pointer-events-none select-none"
           loading="lazy"

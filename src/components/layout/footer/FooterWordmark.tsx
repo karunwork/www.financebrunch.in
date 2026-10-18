@@ -201,7 +201,7 @@ export const FooterWordmark: React.FC<FooterWordmarkProps> = ({ className }) => 
           className="absolute inset-0 flex items-center justify-center pointer-events-none select-none z-0"
         >
           <img
-            src="/images/fb-watermark.png"
+            src={`${import.meta.env.BASE_URL}images/fb-watermark.png`}
             alt=""
             className="w-56 sm:w-80 md:w-[440px] lg:w-[560px] xl:w-[640px] max-w-[85%] h-auto object-contain opacity-[0.065] dark:opacity-[0.09] filter contrast-125 dark:brightness-125 pointer-events-none select-none transition-opacity duration-500"
             loading="eager"

@@ -67,7 +67,7 @@ export function GlobalAmbientBackground() {
           className="w-[280px] sm:w-[380px] md:w-[480px] lg:w-[580px] xl:w-[680px] max-w-[85vw] max-h-[80vh] opacity-[0.085] dark:opacity-[0.11] transition-opacity duration-300 pointer-events-none select-none flex items-center justify-center"
         >
           <img
-            src="/images/fb-watermark.png"
+            src={`${import.meta.env.BASE_URL}images/fb-watermark.png`}
             alt=""
             className="w-full h-auto object-contain pointer-events-none select-none filter contrast-105 dark:brightness-110"
             loading="eager"

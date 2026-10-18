@@ -151,7 +151,7 @@ export const FooterNavigation: React.FC<FooterNavigationProps> = ({ className })
               className="absolute -right-3 -bottom-4 pointer-events-none select-none z-0 opacity-[0.035] dark:opacity-[0.05] group-hover/panel:opacity-[0.07] transition-opacity duration-300"
             >
               <img
-                src="/images/fb-watermark.png"
+                src={`${import.meta.env.BASE_URL}images/fb-watermark.png`}
                 alt=""
                 className="w-28 h-auto object-contain pointer-events-none select-none"
                 loading="lazy"
