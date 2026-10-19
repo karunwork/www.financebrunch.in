@@ -199,8 +199,7 @@ async function runLiveVerification() {
       const check = () => {
         const title = document.title;
         const logo = document.querySelector('nav img, nav svg, header img');
-        const ytCard = document.querySelector('#insights-youtube .group');
-        const ytThumb = document.querySelector('#insights-youtube .aspect-video');
+        const ytCard = document.querySelector('#insights-youtube .fb-youtube__video-card');
         const comprehensiveHeading = Array.from(document.querySelectorAll('h2, h3, span')).some(el => el.textContent.includes('Comprehensive Financial Solutions'));
         const incomeTaxInServices = Array.from(document.querySelectorAll('#services h3, #products h3')).some(el => el.textContent.trim() === 'Income Tax Filing');
 
@@ -208,9 +207,8 @@ async function runLiveVerification() {
         const testimonialsText = testimonialsSec ? testimonialsSec.innerText : '';
         const testimonialsLink = testimonialsSec ? testimonialsSec.querySelector('a')?.href : null;
 
-        if (ytCard && ytThumb && testimonialsSec) {
+        if (ytCard && testimonialsSec) {
           const ytRect = ytCard.getBoundingClientRect();
-          const thumbRect = ytThumb.getBoundingClientRect();
           resolve({
             status: 'success',
             title,
@@ -224,10 +222,9 @@ async function runLiveVerification() {
               linkUrl: testimonialsLink
             },
             youtubeCard: {
+              found: true,
               width: Math.round(ytRect.width),
-              height: Math.round(ytRect.height),
-              thumbnailWidth: Math.round(thumbRect.width),
-              aspectRatio: (thumbRect.width / thumbRect.height).toFixed(2)
+              height: Math.round(ytRect.height)
             }
           });
         } else if (++attempts > 40) {
