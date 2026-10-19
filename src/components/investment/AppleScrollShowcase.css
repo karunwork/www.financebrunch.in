@@ -180,7 +180,8 @@
   will-change: transform;
 }
 
-/* Two-Card Column (matches uploaded Reference 2 screenshot) */
+/* Card Slide & Column */
+.fb-investment-showcase__slide,
 .fb-investment-showcase__column {
   width: clamp(330px, 25vw, 360px);
   flex: 0 0 clamp(330px, 25vw, 360px);
@@ -372,26 +373,52 @@
   color: #ffffff;
 }
 
-/* Reduced Motion and Mobile Fallback */
-@media (prefers-reduced-motion: reduce), (max-width: 700px), (pointer: coarse) {
+/* Mobile Fallback: Native horizontal swipe without pin lock */
+@media (max-width: 700px) {
   .fb-investment-showcase__stage {
     height: auto;
     min-height: auto;
     max-height: none;
-    padding: 3rem 0;
+    padding: 2rem 0;
   }
 
   .fb-investment-showcase__rail-window {
     overflow-x: auto;
     scroll-snap-type: x mandatory;
-    padding-bottom: 1rem;
+    scroll-padding: 0 1rem;
+    padding: 0 1rem 1rem;
+    -webkit-overflow-scrolling: touch;
   }
 
+  .fb-investment-showcase__slide,
   .fb-investment-showcase__column {
     scroll-snap-align: center;
+    width: clamp(280px, 80vw, 340px);
+    flex: 0 0 clamp(280px, 80vw, 340px);
   }
 
   .fb-investment-showcase__progress-track {
+    display: none;
+  }
+}
+
+/* Reduced Motion: Accessible static scroll */
+@media (prefers-reduced-motion: reduce) {
+  .fb-investment-showcase__stage {
+    height: auto;
+    min-height: auto;
+    max-height: none;
+  }
+
+  .fb-investment-showcase__rail-window {
+    overflow-x: auto;
+  }
+
+  .fb-investment-showcase__track {
+    transform: none !important;
+  }
+
+  .fb-investment-showcase__particles {
     display: none;
   }
 }

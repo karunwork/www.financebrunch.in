@@ -204,7 +204,7 @@ export const whyChooseCards: WhyChooseItem[] = [
 ];
 
 // Group into 3 two-card columns to match Reference 2 screenshot (Card 1 on top, Card 4 on bottom)
-const columns = [
+export const columns = [
   { id: 'col-1', top: whyChooseCards[0], bottom: whyChooseCards[3] },
   { id: 'col-2', top: whyChooseCards[1], bottom: whyChooseCards[4] },
   { id: 'col-3', top: whyChooseCards[2], bottom: whyChooseCards[5] },
@@ -220,22 +220,24 @@ export function AppleScrollShowcase() {
   const progressRef = useRef<HTMLDivElement>(null);
   const paginationRef = useRef<HTMLDivElement>(null);
   const triggerRef = useRef<ScrollTrigger | null>(null);
+  const touchStartXRef = useRef<number | null>(null);
 
   const metricsRef = useRef({
     horizontalTravel: 0,
     viewportWidth: 0,
+    cardCenters: [] as number[],
     columnCenters: [] as number[],
     navbarHeight: PIN_OFFSET,
   });
 
-  const getProgressForColumn = (index: number) => {
-    const { horizontalTravel, viewportWidth, columnCenters } = metricsRef.current;
-    const center = columnCenters[index];
+  const getProgressForCard = (index: number) => {
+    const { horizontalTravel, viewportWidth, cardCenters } = metricsRef.current;
+    const center = cardCenters[index];
     if (!horizontalTravel || viewportWidth === 0 || center === undefined) return 0;
     return Math.min(1, Math.max(0, (center - viewportWidth / 2) / horizontalTravel));
   };
 
-  const setActiveColumn = (index: number) => {
+  const setActiveCard = (index: number) => {
     if (currentIndexRef.current === index) return;
     currentIndexRef.current = index;
     paginationRef.current?.querySelectorAll<HTMLButtonElement>('[data-column-dot]').forEach((dot, dotIndex) => {
@@ -246,36 +248,40 @@ export function AppleScrollShowcase() {
     });
   };
 
-  const navigateToColumn = (index: number) => {
-    const count = columns.length;
+  const navigateToCard = (index: number) => {
+    const count = whyChooseCards.length;
     if (!count) return;
     const targetIndex = Math.min(Math.max(index, 0), count - 1);
     const trigger = triggerRef.current;
     const viewport = viewportRef.current;
     const track = trackRef.current;
-    const colElement = track?.querySelectorAll<HTMLElement>('[data-column-slide]')[targetIndex];
+    const cardElement = track?.querySelectorAll<HTMLElement>('[data-column-slide]')[targetIndex];
 
-    setActiveColumn(targetIndex);
+    setActiveCard(targetIndex);
 
     if (trigger) {
-      const progress = getProgressForColumn(targetIndex);
+      const progress = getProgressForCard(targetIndex);
       scrollWindowTo(trigger.start + progress * (trigger.end - trigger.start), true);
-    } else if (viewport && colElement) {
+    } else if (viewport && cardElement) {
       viewport.scrollTo({
-        left: colElement.offsetLeft,
+        left: cardElement.offsetLeft,
         behavior: 'smooth',
       });
     }
   };
 
+  const focusCardInRail = (index: number) => {
+    navigateToCard(index);
+  };
+
   const goToPrev = () => {
-    const count = columns.length;
-    if (count) navigateToColumn((currentIndexRef.current - 1 + count) % count);
+    const count = whyChooseCards.length;
+    if (count) navigateToCard((currentIndexRef.current - 1 + count) % count);
   };
 
   const goToNext = () => {
-    const count = columns.length;
-    if (count) navigateToColumn((currentIndexRef.current + 1) % count);
+    const count = whyChooseCards.length;
+    if (count) navigateToCard((currentIndexRef.current + 1) % count);
   };
 
   const handleKeyDown = (event: React.KeyboardEvent<HTMLElement>) => {
@@ -286,6 +292,21 @@ export function AppleScrollShowcase() {
       event.preventDefault();
       goToNext();
     }
+  };
+
+  const handleTouchStart = (event: React.TouchEvent<HTMLDivElement>) => {
+    touchStartXRef.current = event.touches[0]?.clientX ?? null;
+  };
+
+  const handleTouchEnd = (event: React.TouchEvent<HTMLDivElement>) => {
+    if (touchStartXRef.current === null) return;
+    const touchEndX = event.changedTouches[0]?.clientX ?? touchStartXRef.current;
+    const diffX = touchStartXRef.current - touchEndX;
+    if (Math.abs(diffX) > 40 && triggerRef.current) {
+      if (diffX > 0) goToNext();
+      else goToPrev();
+    }
+    touchStartXRef.current = null;
   };
 
   const handleSkipToServices = () => {
@@ -317,11 +338,13 @@ export function AppleScrollShowcase() {
       );
       const navbarHeight = fixedHeader?.getBoundingClientRect().height ?? PIN_OFFSET;
       const viewportWidth = viewport.clientWidth;
-      const colSlides = Array.from(track.querySelectorAll<HTMLElement>('[data-column-slide]'));
+      const cardSlides = Array.from(track.querySelectorAll<HTMLElement>('[data-column-slide]'));
+      const centers = cardSlides.map((slide) => slide.offsetLeft + slide.offsetWidth / 2);
       metricsRef.current = {
         horizontalTravel: Math.max(track.scrollWidth - viewportWidth, 0),
         viewportWidth,
-        columnCenters: colSlides.map((slide) => slide.offsetLeft + slide.offsetWidth / 2),
+        cardCenters: centers,
+        columnCenters: centers,
         navbarHeight,
       };
       stage.style.setProperty('--fb-pin-offset', navbarHeight + 'px');
@@ -336,27 +359,26 @@ export function AppleScrollShowcase() {
       });
     };
 
-    const desktopQuery = '(prefers-reduced-motion: no-preference) and (min-width: 701px)';
-    media.add(desktopQuery + ' and (pointer: fine)', () => {
+    media.add('(prefers-reduced-motion: no-preference) and (min-width: 701px)', () => {
       measure();
       scroll.dataset.animated = 'true';
 
       const renderProgress = (progressValue: number) => {
-        const { horizontalTravel, viewportWidth, columnCenters } = metricsRef.current;
+        const { horizontalTravel, viewportWidth, cardCenters } = metricsRef.current;
         const offset = horizontalTravel * progressValue;
         progress.style.transform = 'scaleX(' + progressValue.toFixed(4) + ')';
 
         const viewportCenter = viewportWidth / 2;
         let activeIndex = 0;
         let nearestDistance = Number.POSITIVE_INFINITY;
-        for (const [index, center] of columnCenters.entries()) {
+        for (const [index, center] of cardCenters.entries()) {
           const distance = Math.abs(center - offset - viewportCenter);
           if (distance < nearestDistance) {
             activeIndex = index;
             nearestDistance = distance;
           }
         }
-        setActiveColumn(activeIndex);
+        setActiveCard(activeIndex);
       };
 
       const animation = gsap.to(track, {
@@ -562,107 +584,66 @@ export function AppleScrollShowcase() {
 
           {/* Horizontal Rail Viewport */}
           <div ref={viewportRef} className="fb-investment-showcase__viewport">
-            <div className="fb-investment-showcase__rail-window">
+            <div 
+              className="fb-investment-showcase__rail-window"
+              onTouchStart={handleTouchStart}
+              onTouchEnd={handleTouchEnd}
+            >
               <div ref={trackRef} className="fb-investment-showcase__track">
-                {columns.map((col, colIndex) => (
+                {whyChooseCards.map((card, index) => (
                   <div 
-                    key={col.id} 
-                    className="fb-investment-showcase__column"
+                    key={card.id} 
+                    className="fb-investment-showcase__slide fb-investment-showcase__column"
                     data-column-slide
-                    aria-label={`Column ${colIndex + 1}`}
+                    data-slide-card
+                    aria-label={`Pillar ${index + 1}: ${card.title}`}
+                    tabIndex={0}
+                    onFocus={() => focusCardInRail(index)}
                   >
-                    {/* Top Card */}
                     <div 
                       className={cn(
                         "fb-investment-showcase__card",
-                        col.top.accent.lightBg,
-                        col.top.accent.darkBg,
-                        col.top.accent.lightBorder,
-                        col.top.accent.darkBorder,
-                        col.top.accent.hoverGlow
+                        card.accent.lightBg,
+                        card.accent.darkBg,
+                        card.accent.lightBorder,
+                        card.accent.darkBorder,
+                        card.accent.hoverGlow
                       )}
                     >
-                      <div className={cn("fb-investment-showcase__card-accent bg-gradient-to-r", col.top.accent.topGlow)} />
+                      <div className={cn("fb-investment-showcase__card-accent bg-gradient-to-r", card.accent.topGlow)} />
                       
                       <div className="fb-investment-showcase__card-header">
                         <div className={cn(
                           "fb-investment-showcase__icon-badge",
-                          col.top.accent.iconBgLight,
-                          col.top.accent.iconBgDark,
-                          col.top.accent.iconColorLight,
-                          col.top.accent.iconColorDark,
-                          col.top.accent.lightBorder,
-                          col.top.accent.darkBorder
+                          card.accent.iconBgLight,
+                          card.accent.iconBgDark,
+                          card.accent.iconColorLight,
+                          card.accent.iconColorDark,
+                          card.accent.lightBorder,
+                          card.accent.darkBorder
                         )}>
-                          {col.top.icon}
+                          {card.icon}
                         </div>
 
                         <span className={cn(
                           "fb-investment-showcase__card-tag",
-                          col.top.accent.tagBgLight,
-                          col.top.accent.tagBgDark,
-                          col.top.accent.tagTextLight,
-                          col.top.accent.tagTextDark
+                          card.accent.tagBgLight,
+                          card.accent.tagBgDark,
+                          card.accent.tagTextLight,
+                          card.accent.tagTextDark
                         )}>
-                          {col.top.tag}
+                          {card.tag}
                         </span>
                       </div>
 
                       <h3 className="fb-investment-showcase__card-title text-slate-900 dark:text-white">
-                        {col.top.title}
+                        {card.title}
                       </h3>
 
                       <p className="fb-investment-showcase__card-desc text-slate-600 dark:text-slate-300">
-                        {col.top.description}
+                        {card.description}
                       </p>
                     </div>
-
-                    {/* Bottom Card */}
-                    <div 
-                      className={cn(
-                        "fb-investment-showcase__card",
-                        col.bottom.accent.lightBg,
-                        col.bottom.accent.darkBg,
-                        col.bottom.accent.lightBorder,
-                        col.bottom.accent.darkBorder,
-                        col.bottom.accent.hoverGlow
-                      )}
-                    >
-                      <div className={cn("fb-investment-showcase__card-accent bg-gradient-to-r", col.bottom.accent.topGlow)} />
-                      
-                      <div className="fb-investment-showcase__card-header">
-                        <div className={cn(
-                          "fb-investment-showcase__icon-badge",
-                          col.bottom.accent.iconBgLight,
-                          col.bottom.accent.iconBgDark,
-                          col.bottom.accent.iconColorLight,
-                          col.bottom.accent.iconColorDark,
-                          col.bottom.accent.lightBorder,
-                          col.bottom.accent.darkBorder
-                        )}>
-                          {col.bottom.icon}
-                        </div>
-
-                        <span className={cn(
-                          "fb-investment-showcase__card-tag",
-                          col.bottom.accent.tagBgLight,
-                          col.bottom.accent.tagBgDark,
-                          col.bottom.accent.tagTextLight,
-                          col.bottom.accent.tagTextDark
-                        )}>
-                          {col.bottom.tag}
-                        </span>
-                      </div>
-
-                      <h3 className="fb-investment-showcase__card-title text-slate-900 dark:text-white">
-                        {col.bottom.title}
-                      </h3>
-
-                      <p className="fb-investment-showcase__card-desc text-slate-600 dark:text-slate-300">
-                        {col.bottom.description}
-                      </p>
-                    </div>
-
                   </div>
                 ))}
               </div>
@@ -683,20 +664,20 @@ export function AppleScrollShowcase() {
                 size="icon"
                 className="fb-investment-showcase__arrow"
                 onClick={goToPrev}
-                aria-label="Previous columns"
+                aria-label="Previous investment card"
               >
                 <ChevronLeft size={17} aria-hidden="true" />
               </Button>
 
-              <div ref={paginationRef} className="fb-investment-showcase__pagination" aria-label="Choose pillars column">
-                {columns.map((col, index) => (
+              <div ref={paginationRef} className="fb-investment-showcase__pagination" aria-label="Choose pillars card">
+                {whyChooseCards.map((card, index) => (
                   <button
                     type="button"
-                    key={col.id}
+                    key={card.id}
                     className={cn('fb-investment-showcase__dot', index === currentIndexRef.current && 'is-active')}
                     data-column-dot
-                    onClick={() => navigateToColumn(index)}
-                    aria-label={`Go to column ${index + 1}: ${col.top.title} and ${col.bottom.title}`}
+                    onClick={() => navigateToCard(index)}
+                    aria-label={`Go to pillar ${index + 1}: ${card.title}`}
                     aria-current={index === currentIndexRef.current ? 'true' : undefined}
                   />
                 ))}
@@ -708,7 +689,7 @@ export function AppleScrollShowcase() {
                 size="icon"
                 className="fb-investment-showcase__arrow"
                 onClick={goToNext}
-                aria-label="Next columns"
+                aria-label="Next investment card"
               >
                 <ChevronRight size={17} aria-hidden="true" />
               </Button>

@@ -13,7 +13,7 @@
  *   (Finance Brunch | admin@financebrunch.in | +91 7842-494-981 | https://financebrunch.in)
  */
 
-import { jsPDF } from 'jspdf';
+import { GState, jsPDF } from 'jspdf';
 import {
   Document,
   Packer,
@@ -122,11 +122,23 @@ export async function downloadCalculatorPdf(data: CalculatorExportData) {
   doc.setLineWidth(0.6);
   doc.line(margin, 34, pageWidth - margin, 34);
 
-  // Subtle Watermark in Background
-  doc.setFont('ReportFont', 'bold');
-  doc.setFontSize(54);
-  doc.setTextColor(245, 248, 252);
-  doc.text('FINANCE BRUNCH', pageWidth / 2, 160, { align: 'center', angle: 45 });
+  // Helper: Draw subtle, isolated background watermark
+  const drawBackgroundWatermark = () => {
+    doc.saveGraphicsState();
+    try {
+      doc.setGState(new GState({ opacity: 0.04 }));
+    } catch {
+      // Fallback if GState unsupported
+    }
+    doc.setFont('ReportFont', 'bold');
+    doc.setFontSize(48);
+    doc.setTextColor(246, 248, 252);
+    doc.text('FINANCE BRUNCH', pageWidth / 2, pageHeight * 0.52, { align: 'center', angle: 45 });
+    doc.restoreGraphicsState();
+  };
+
+  // 1. Draw background watermark first
+  drawBackgroundWatermark();
 
   let currentY = 40;
 
@@ -246,6 +258,7 @@ export async function downloadCalculatorPdf(data: CalculatorExportData) {
     // Check if new page is needed
     if (currentY + 12 > pageHeight - 32) {
       doc.addPage();
+      drawBackgroundWatermark();
       currentY = printTableHeader(margin);
     }
 
@@ -283,6 +296,7 @@ export async function downloadCalculatorPdf(data: CalculatorExportData) {
 
   if (currentY + neededBottomHeight > pageHeight - margin) {
     doc.addPage();
+    drawBackgroundWatermark();
     currentY = margin + 5;
   }
 

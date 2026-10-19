@@ -477,21 +477,31 @@ export async function downloadTaxReportPdf(data: TaxReportData) {
   const currency = data.taxResult.currencySymbol || '₹';
   const pageWidth = 210;
   const margin = 14;
-  const contentWidth = pageWidth - margin * 2; // 182mm
+  const pageHeight = 297;
 
-  // 1. Top-Right Logo: width 42mm, height = 42 / LOGO_ASPECT_RATIO (~13.2mm)
+  // Helper: Draw subtle, isolated background watermark
+  const drawBackgroundWatermark = () => {
+    doc.saveGraphicsState();
+    try {
+      doc.setGState(new GState({ opacity: 0.04 }));
+    } catch {
+      // Fallback if GState unsupported
+    }
+    doc.setFont('ReportFont', 'bold');
+    doc.setFontSize(48);
+    doc.setTextColor(246, 248, 252);
+    doc.text('FINANCE BRUNCH', pageWidth / 2, pageHeight * 0.52, { align: 'center', angle: 45 });
+    doc.restoreGraphicsState();
+  };
+
+  // 1. Draw background watermark first so it sits strictly behind all content
+  drawBackgroundWatermark();
+
+  // 2. Top-Right Logo: width 42mm, height = 42 / LOGO_ASPECT_RATIO (~13.2mm)
   const logoWidth = 42;
   const logoHeight = logoWidth / LOGO_ASPECT_RATIO;
   const logoX = pageWidth - margin - logoWidth;
   const logoY = 10;
-
-  // Draw the watermark before every report element so it can never cover content.
-  doc.setGState(new GState({ opacity: 0.06 }));
-  doc.setFont('ReportFont', 'bold');
-  doc.setFontSize(54);
-  doc.setTextColor(203, 213, 225);
-  doc.text('FINANCE BRUNCH', pageWidth / 2, 175, { align: 'center', angle: 45 });
-  doc.setGState(new GState({ opacity: 1 }));
 
   try {
     doc.addImage(FINANCE_BRUNCH_LOGO_RAW, 'PNG', logoX, logoY, logoWidth, logoHeight);
@@ -634,7 +644,14 @@ export async function downloadTaxReportPdf(data: TaxReportData) {
     isTotal: true,
   });
 
-  rows.forEach((r, idx) => {
+  rows.forEach((r) => {
+    // Check if table row fits on page
+    if (currentY + 10 > pageHeight - margin - 20) {
+      doc.addPage();
+      drawBackgroundWatermark();
+      currentY = margin + 10;
+    }
+
     if (r.isTotal) {
       doc.setFillColor(239, 246, 255);
       doc.rect(margin, currentY, contentWidth, 8, 'F');
@@ -660,6 +677,12 @@ export async function downloadTaxReportPdf(data: TaxReportData) {
 
   // 5. Old vs New Regime Comparison Box (if available)
   if (data.regimeComparison) {
+    if (currentY + 32 > pageHeight - margin - 20) {
+      doc.addPage();
+      drawBackgroundWatermark();
+      currentY = margin + 10;
+    }
+
     doc.setFillColor(240, 253, 244);
     doc.setDrawColor(187, 247, 208);
     doc.setLineWidth(0.3);
@@ -683,7 +706,17 @@ export async function downloadTaxReportPdf(data: TaxReportData) {
     currentY += 32;
   }
 
-  // 6. Disclaimer
+  // 6. Disclaimer & Brand Footer
+  const splitDisclaimer = doc.splitTextToSize(TAX_CALCULATOR_DISCLAIMER_TEXT, contentWidth);
+  const disclaimerHeight = splitDisclaimer.length * 3.2;
+  const neededBottomHeight = disclaimerHeight + 22;
+
+  if (currentY + neededBottomHeight > pageHeight - margin) {
+    doc.addPage();
+    drawBackgroundWatermark();
+    currentY = margin + 10;
+  }
+
   doc.setFont('ReportFont', 'bold');
   doc.setFontSize(8);
   doc.setTextColor(100, 116, 139);
@@ -692,10 +725,8 @@ export async function downloadTaxReportPdf(data: TaxReportData) {
   doc.setFont('ReportFont', 'normal');
   doc.setFontSize(6.8);
   doc.setTextColor(100, 116, 139);
-  const splitDisclaimer = doc.splitTextToSize(TAX_CALCULATOR_DISCLAIMER_TEXT, contentWidth);
   doc.text(splitDisclaimer, margin, currentY + 3.8);
 
-  const disclaimerHeight = splitDisclaimer.length * 3.2;
   const footerY = currentY + 5 + disclaimerHeight;
 
   // Divider above Brand Footer
