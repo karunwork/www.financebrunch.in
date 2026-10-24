@@ -23,6 +23,11 @@ const {
   TableRow,
   TableCell,
   ImageRun,
+  Header,
+  HorizontalPositionRelativeFrom,
+  HorizontalPositionAlign,
+  VerticalPositionRelativeFrom,
+  VerticalPositionAlign,
   AlignmentType,
   WidthType,
   BorderStyle,
@@ -39,6 +44,12 @@ async function runCalculatorExportTests() {
   const LOGO_HEIGHT = 280;
   const LOGO_ASPECT_RATIO = LOGO_WIDTH / LOGO_HEIGHT;
   assert(FINANCE_BRUNCH_LOGO_RAW.length > 50000, 'Logo base64 must be valid');
+
+  // Verify FB Watermark Asset
+  const watermarkBuf = fs.readFileSync('./public/images/fb-watermark-subtle.png');
+  const FINANCE_BRUNCH_WATERMARK_RAW = watermarkBuf.toString('base64');
+  const WATERMARK_ASPECT_RATIO = 600 / 487;
+  assert(FINANCE_BRUNCH_WATERMARK_RAW.length > 20000, 'Watermark base64 must be valid');
 
   // Load TrueType font for jsPDF
   const regPath = 'C:\\Windows\\Fonts\\verdana.ttf';
@@ -156,6 +167,11 @@ async function runCalculatorExportTests() {
     const logoHeight = logoWidth / LOGO_ASPECT_RATIO;
     const logoX = pageWidth - margin - logoWidth;
 
+    // Draw Centered Background Watermark FIRST (behind all content)
+    const wWidth = 110;
+    const wHeight = wWidth / WATERMARK_ASPECT_RATIO;
+    pdfDoc.addImage(FINANCE_BRUNCH_WATERMARK_RAW, 'PNG', (pageWidth - wWidth) / 2, (297 - wHeight) / 2, wWidth, wHeight);
+
     // Embed Logo
     pdfDoc.addImage(FINANCE_BRUNCH_LOGO_RAW, 'PNG', logoX, 10, logoWidth, logoHeight);
 
@@ -197,11 +213,37 @@ async function runCalculatorExportTests() {
 
     // --- 2. Test DOCX Generation ---
     const imageBuffer = Buffer.from(FINANCE_BRUNCH_LOGO_RAW, 'base64');
+    const watermarkBytes = Buffer.from(FINANCE_BRUNCH_WATERMARK_RAW, 'base64');
     const wordDoc = new Document({
       sections: [
         {
           properties: {
             page: { margin: { top: 1000, bottom: 1000, left: 1200, right: 1200 } },
+          },
+          headers: {
+            default: new Header({
+              children: [
+                new Paragraph({
+                  children: [
+                    new ImageRun({
+                      data: watermarkBytes,
+                      transformation: { width: 380, height: Math.round(380 / WATERMARK_ASPECT_RATIO) },
+                      floating: {
+                        horizontalPosition: {
+                          relative: HorizontalPositionRelativeFrom.PAGE,
+                          align: HorizontalPositionAlign.CENTER,
+                        },
+                        verticalPosition: {
+                          relative: VerticalPositionRelativeFrom.PAGE,
+                          align: VerticalPositionAlign.CENTER,
+                        },
+                        behindDocument: true,
+                      },
+                    }),
+                  ],
+                }),
+              ],
+            }),
           },
           children: [
             new Table({

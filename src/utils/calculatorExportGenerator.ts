@@ -33,6 +33,10 @@ import {
   LOGO_ASPECT_RATIO,
 } from '@/components/tax-calculator/utils/reportLogo';
 import { registerReportFonts } from '@/components/tax-calculator/utils/reportFont';
+import {
+  drawPdfBackgroundWatermark,
+  getDocxWatermarkHeader,
+} from '@/utils/reportWatermark';
 
 export interface CalculatorExportRow {
   col1: string | number; // Year
@@ -216,7 +220,8 @@ export function buildCalculatorPdfDoc(data: CalculatorExportData): jsPDF {
     return tableY + 7;
   };
 
-  // Start on Page 1
+  // Start on Page 1: draw background watermark first so it sits strictly behind all content
+  drawPdfBackgroundWatermark(doc, pageWidth, pageHeight);
   let currentY = printPage1Header();
 
   // --- Inputs and Summary Dashboard Cards ---
@@ -355,6 +360,7 @@ export function buildCalculatorPdfDoc(data: CalculatorExportData): jsPDF {
     // Check if new page is needed for this row
     if (currentY + rowHeight > maxContentBottom) {
       doc.addPage();
+      drawPdfBackgroundWatermark(doc, pageWidth, pageHeight);
       currentY = printSubsequentPageHeader();
       currentY = printTableHeader(currentY, true);
     }
@@ -392,6 +398,7 @@ export function buildCalculatorPdfDoc(data: CalculatorExportData): jsPDF {
   // If disclaimer doesn't fit on this page, push cleanly to a new page
   if (currentY + disclaimerHeight + 4 > maxContentBottom) {
     doc.addPage();
+    drawPdfBackgroundWatermark(doc, pageWidth, pageHeight);
     currentY = printSubsequentPageHeader();
   }
 
@@ -585,6 +592,9 @@ export async function downloadCalculatorDocx(data: CalculatorExportData) {
           page: {
             margin: { top: 1000, bottom: 1000, left: 1200, right: 1200 },
           },
+        },
+        headers: {
+          default: getDocxWatermarkHeader(),
         },
         children: [
           // Header Table with Title on Left, Logo on Right

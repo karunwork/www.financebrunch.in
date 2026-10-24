@@ -48,6 +48,12 @@ async function runTests() {
   assert.strictEqual(LOGO_HEIGHT, 280);
   console.log(`✓ PASS: Official Finance Brunch logo asset verified (dimensions: ${LOGO_WIDTH}x${LOGO_HEIGHT}, ratio: ${LOGO_ASPECT_RATIO.toFixed(2)})`);
 
+  // Verify Official FB Watermark Asset
+  const watermarkBuf = fs.readFileSync('./public/images/fb-watermark-subtle.png');
+  const FINANCE_BRUNCH_WATERMARK_RAW = watermarkBuf.toString('base64');
+  assert(FINANCE_BRUNCH_WATERMARK_RAW.length > 20000, 'Watermark asset base64 must be valid');
+  console.log('✓ PASS: Official Finance Brunch FB watermark asset verified');
+
   console.log('\n--- Testing PDF Generation with Embedded Logo & Unicode Font ---');
   const { jsPDF } = require('jspdf');
   const regPath = 'C:\\Windows\\Fonts\\verdana.ttf';

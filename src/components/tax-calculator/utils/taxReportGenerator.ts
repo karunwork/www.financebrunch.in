@@ -28,6 +28,10 @@ import {
   LOGO_ASPECT_RATIO,
 } from './reportLogo';
 import { registerReportFonts } from './reportFont';
+import {
+  drawPdfBackgroundWatermark,
+  getDocxWatermarkHeader,
+} from '@/utils/reportWatermark';
 
 export const TAX_CALCULATOR_DISCLAIMER_TEXT =
   'This report provides an indicative estimate based on the information entered and the tax rules applicable to the selected financial year. It is intended for informational and planning purposes only and does not constitute professional tax, legal, or financial advice. Actual tax liability may vary depending on individual circumstances, eligible deductions, applicable legislation, and subsequent regulatory changes. For an accurate assessment of your tax position, please consult an independent qualified Chartered Accountant or other appropriately qualified tax professional.';
@@ -479,19 +483,9 @@ export async function downloadTaxReportPdf(data: TaxReportData) {
   const margin = 14;
   const pageHeight = 297;
 
-  // Helper: Draw subtle, isolated background watermark
+  // Helper: Draw subtle, isolated background watermark using centralized utility
   const drawBackgroundWatermark = () => {
-    doc.saveGraphicsState();
-    try {
-      doc.setGState(new GState({ opacity: 0.04 }));
-    } catch {
-      // Fallback if GState unsupported
-    }
-    doc.setFont('ReportFont', 'bold');
-    doc.setFontSize(48);
-    doc.setTextColor(246, 248, 252);
-    doc.text('FINANCE BRUNCH', pageWidth / 2, pageHeight * 0.52, { align: 'center', angle: 45 });
-    doc.restoreGraphicsState();
+    drawPdfBackgroundWatermark(doc, pageWidth, pageHeight);
   };
 
   // 1. Draw background watermark first so it sits strictly behind all content
@@ -769,6 +763,9 @@ export async function downloadTaxReportDocx(data: TaxReportData) {
           page: {
             margin: { top: 1000, bottom: 1000, left: 1200, right: 1200 },
           },
+        },
+        headers: {
+          default: getDocxWatermarkHeader(),
         },
         children: [
           // Header Table: Title on left, Logo in top-right corner
