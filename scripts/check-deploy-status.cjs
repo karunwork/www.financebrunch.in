@@ -1,6 +1,6 @@
 const https = require('https');
 
-const commitSha = '178f9533604880e12ba01f75bdf156eefaa3b106';
+const commitSha = 'c1cd9393dd9d9d4b8c7c312e0e6cc16246449612';
 
 function getRuns() {
   const options = {
