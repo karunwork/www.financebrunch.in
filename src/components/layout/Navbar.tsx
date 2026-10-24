@@ -164,7 +164,7 @@ export default function Navbar() {
       animate={{ y: 0, opacity: 1 }}
       transition={{ duration: DURATIONS.normal, ease: EASING.decelerate }}
       className={cn(
-        "fixed top-0 left-0 right-0 z-50 transition-all duration-300",
+        "fixed top-0 left-0 right-0 z-50 transition-all duration-300 print:hidden",
         isScrollingDown && "shadow-md",
         isScrolled || location.pathname !== '/' 
           ? "bg-white/85 dark:bg-[#080F1F]/85 backdrop-blur-lg shadow-sm border-b border-gray-100 dark:border-gray-800" 

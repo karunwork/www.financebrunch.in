@@ -32,7 +32,7 @@ export function GlobalAmbientBackground() {
 
   return (
     <div 
-      className="fixed inset-0 pointer-events-none z-0 overflow-hidden select-none transition-colors duration-300"
+      className="global-ambient-background print:hidden fixed inset-0 pointer-events-none z-0 overflow-hidden select-none transition-colors duration-300"
       aria-hidden="true"
     >
       {/* 1. Subtle Ambient Blue Radial Gradients (Preserving brand background atmosphere) */}

@@ -21,7 +21,7 @@ function HomepageFooter({ currentYear }: { currentYear: number }) {
   return (
     <footer 
       id="contact" 
-      className="relative overflow-hidden bg-gradient-to-b from-white via-slate-50/90 to-blue-50/20 dark:from-[#070D1B] dark:via-[#081022] dark:to-[#040812] border-t border-slate-200/80 dark:border-slate-800/80 pt-20 pb-12 transition-colors duration-300"
+      className="relative overflow-hidden bg-gradient-to-b from-white via-slate-50/90 to-blue-50/20 dark:from-[#070D1B] dark:via-[#081022] dark:to-[#040812] border-t border-slate-200/80 dark:border-slate-800/80 pt-20 pb-12 transition-colors duration-300 print:hidden"
     >
       {/* Top Subtle Border Accent */}
       <div className="absolute top-0 inset-x-0 h-[1px] bg-gradient-to-r from-transparent via-cyan-500/40 dark:via-cyan-400/30 to-transparent" />
@@ -70,7 +70,7 @@ function StandardPageFooter({ currentYear }: { currentYear: number }) {
   return (
     <footer 
       id="footer" 
-      className="relative overflow-hidden bg-gradient-to-b from-white via-slate-50/80 to-blue-50/20 dark:from-[#070D1B] dark:via-[#081022] dark:to-[#040812] border-t border-slate-200/80 dark:border-slate-800/80 pt-12 sm:pt-16 pb-10 sm:pb-12 transition-colors duration-300 mt-auto"
+      className="relative overflow-hidden bg-gradient-to-b from-white via-slate-50/80 to-blue-50/20 dark:from-[#070D1B] dark:via-[#081022] dark:to-[#040812] border-t border-slate-200/80 dark:border-slate-800/80 pt-12 sm:pt-16 pb-10 sm:pb-12 transition-colors duration-300 mt-auto print:hidden"
     >
       {/* Top Subtle Border Accent */}
       <div className="absolute top-0 inset-x-0 h-[1px] bg-gradient-to-r from-transparent via-cyan-500/40 dark:via-cyan-400/30 to-transparent" />

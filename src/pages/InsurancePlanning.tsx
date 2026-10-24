@@ -70,50 +70,56 @@ const InsurancePlanning: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col pt-16 bg-white dark:bg-slate-950 transition-colors">
+    <div className="min-h-screen flex flex-col pt-16 bg-white dark:bg-slate-950 transition-colors insurance-planning-page">
       <main className="flex-grow">
-        {/* Section A — Hero & Pathway Introduction */}
-        <InsuranceHero
-          onSelectPathway={handleSelectPathway}
-          onScrollToEstimator={scrollToEstimator}
-          onScrollToProducts={scrollToProducts}
-          onWhatsApp={handleWhatsApp}
-        />
+        {/* Sections above checklist (Excluded from Print) */}
+        <div className="print:hidden">
+          {/* Section A — Hero & Pathway Introduction */}
+          <InsuranceHero
+            onSelectPathway={handleSelectPathway}
+            onScrollToEstimator={scrollToEstimator}
+            onScrollToProducts={scrollToProducts}
+            onWhatsApp={handleWhatsApp}
+          />
 
-        {/* Section B — Insurance Products Deep-Dive (Health & Term) */}
-        <InsuranceProducts
-          activeTab={activeTab}
-          onTabChange={setActiveTab}
-          onWhatsApp={handleWhatsApp}
-          onOpenEstimator={scrollToEstimator}
-        />
+          {/* Section B — Insurance Products Deep-Dive (Health & Term) */}
+          <InsuranceProducts
+            activeTab={activeTab}
+            onTabChange={setActiveTab}
+            onWhatsApp={handleWhatsApp}
+            onOpenEstimator={scrollToEstimator}
+          />
 
-        {/* Section C — The Finance Brunch Insurance Experience (3-Stage Journey) */}
-        <InsuranceProcess onWhatsApp={handleWhatsApp} />
+          {/* Section C — The Finance Brunch Insurance Experience (3-Stage Journey) */}
+          <InsuranceProcess onWhatsApp={handleWhatsApp} />
 
-        {/* Section D — Expert Guidance and Personalized Recommendations */}
-        <InsuranceExpertGuidance onWhatsApp={handleWhatsApp} />
+          {/* Section D — Expert Guidance and Personalized Recommendations */}
+          <InsuranceExpertGuidance onWhatsApp={handleWhatsApp} />
 
-        {/* Section E — Insurance Buying Journey Comparison (Guided vs Self-Directed) */}
-        <InsuranceJourneyComparison onWhatsApp={handleWhatsApp} />
+          {/* Section E — Insurance Buying Journey Comparison (Guided vs Self-Directed) */}
+          <InsuranceJourneyComparison onWhatsApp={handleWhatsApp} />
 
-        {/* Section F — Why Choose Finance Brunch (Authentic Trust Pillars) */}
-        <InsuranceWhyTrust />
+          {/* Section F — Why Choose Finance Brunch (Authentic Trust Pillars) */}
+          <InsuranceWhyTrust />
+        </div>
 
         {/* Section G — Interactive Insurance Checklists (Health & Term) */}
         <InsuranceChecklists />
 
-        {/* Section H — Interactive Term Insurance Needs Estimator */}
-        <InsuranceNeedsEstimator onWhatsApp={handleWhatsApp} />
+        {/* Sections below checklist (Excluded from Print) */}
+        <div className="print:hidden">
+          {/* Section H — Interactive Term Insurance Needs Estimator */}
+          <InsuranceNeedsEstimator onWhatsApp={handleWhatsApp} />
 
-        {/* Section I — Frequently Asked Questions Accordion */}
-        <InsuranceFAQ onWhatsApp={handleWhatsApp} />
+          {/* Section I — Frequently Asked Questions Accordion */}
+          <InsuranceFAQ onWhatsApp={handleWhatsApp} />
 
-        {/* Section J — Final Call to Action */}
-        <InsuranceFinalCTA onWhatsApp={handleWhatsApp} />
+          {/* Section J — Final Call to Action */}
+          <InsuranceFinalCTA onWhatsApp={handleWhatsApp} />
 
-        {/* Section K — Educational & Regulatory Disclaimer */}
-        <InsuranceDisclaimer />
+          {/* Section K — Educational & Regulatory Disclaimer */}
+          <InsuranceDisclaimer />
+        </div>
       </main>
     </div>
   );

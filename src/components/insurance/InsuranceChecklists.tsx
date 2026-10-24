@@ -16,6 +16,7 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
+import './insurance-print.css';
 
 interface ChecklistItem {
   id: string;
@@ -165,8 +166,8 @@ export const InsuranceChecklists: React.FC = () => {
   return (
     <section id="insurance-checklists" className="py-16 md:py-24 bg-slate-50 dark:bg-slate-900/60 border-y border-slate-200/80 dark:border-slate-800">
       <div className="container px-4 md:px-6 mx-auto">
-        {/* Header */}
-        <div className="max-w-3xl mx-auto text-center mb-10 md:mb-14">
+        {/* Header (Excluded from Print) */}
+        <div className="max-w-3xl mx-auto text-center mb-10 md:mb-14 print:hidden">
           <Badge variant="outline" className="mb-3 px-3.5 py-1 text-xs font-semibold uppercase tracking-wider text-blue-600 dark:text-cyan-400 border-blue-200 dark:border-blue-900 bg-blue-50 dark:bg-blue-950/60">
             Interactive Due Diligence
           </Badge>
@@ -201,20 +202,20 @@ export const InsuranceChecklists: React.FC = () => {
           </div>
         </div>
 
-        {/* Checklists Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 max-w-6xl mx-auto">
+        {/* Checklists Print Container */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 max-w-6xl mx-auto insurance-checklists-print">
           {/* Health Insurance Checklist Panel */}
-          <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-md overflow-hidden">
-            <div className="p-6 md:p-7 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between bg-blue-50/50 dark:bg-blue-950/30">
+          <div className="insurance-checklist-card bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-md overflow-hidden">
+            <div className="insurance-checklist-card-header p-6 md:p-7 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between bg-blue-50/50 dark:bg-blue-950/30">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-blue-100 dark:bg-blue-900/50 text-blue-600 dark:text-cyan-400 flex items-center justify-center">
+                <div className="insurance-header-icon w-10 h-10 rounded-xl bg-blue-100 dark:bg-blue-900/50 text-blue-600 dark:text-cyan-400 flex items-center justify-center">
                   <Heart className="h-5 w-5" />
                 </div>
                 <div>
-                  <h3 className="font-bold text-lg text-slate-900 dark:text-white flex items-center gap-2">
+                  <h3 className="insurance-card-title font-bold text-lg text-slate-900 dark:text-white flex items-center gap-2">
                     Health Insurance Checklist
                   </h3>
-                  <p className="text-xs text-slate-500 dark:text-slate-400">
+                  <p className="insurance-card-counter text-xs text-slate-500 dark:text-slate-400">
                     {healthCheckedCount} of {HEALTH_CHECKLIST.length} completed
                   </p>
                 </div>
@@ -222,76 +223,87 @@ export const InsuranceChecklists: React.FC = () => {
 
               <button
                 onClick={() => setHealthExpanded(!healthExpanded)}
-                className="p-2 rounded-lg hover:bg-slate-200/50 dark:hover:bg-slate-800 text-slate-500 transition-colors"
+                className="p-2 rounded-lg hover:bg-slate-200/50 dark:hover:bg-slate-800 text-slate-500 transition-colors print:hidden"
                 aria-label={healthExpanded ? "Collapse health checklist" : "Expand health checklist"}
               >
                 {healthExpanded ? <ChevronUp className="h-5 w-5" /> : <ChevronDown className="h-5 w-5" />}
               </button>
             </div>
 
-            {/* Health Checklist Items */}
-            {healthExpanded && (
-              <div className="p-5 md:p-6 divide-y divide-slate-100 dark:divide-slate-800/80 space-y-4">
-                {HEALTH_CHECKLIST.map(item => {
-                  const isChecked = !!checkedItems[item.id];
-                  return (
-                    <div
-                      key={item.id}
-                      onClick={() => toggleCheck(item.id)}
-                      className={cn(
-                        "pt-4 first:pt-0 flex items-start gap-3 cursor-pointer group select-none transition-colors",
-                        isChecked && "opacity-85"
-                      )}
+            {/* Health Checklist Items (Always rendered; hidden via CSS on screen when collapsed, always visible in print) */}
+            <div className={cn(
+              "insurance-checklist-items-container p-5 md:p-6 divide-y divide-slate-100 dark:divide-slate-800/80 space-y-4",
+              !healthExpanded && "hidden print:block"
+            )}>
+              {HEALTH_CHECKLIST.map(item => {
+                const isChecked = !!checkedItems[item.id];
+                return (
+                  <div
+                    key={item.id}
+                    onClick={() => toggleCheck(item.id)}
+                    className={cn(
+                      "insurance-checklist-item pt-4 first:pt-0 flex items-start gap-3 cursor-pointer group select-none transition-colors",
+                      isChecked && "opacity-85"
+                    )}
+                  >
+                    <button
+                      type="button"
+                      className="mt-0.5 text-blue-600 dark:text-cyan-400 focus:outline-none shrink-0 print:pointer-events-none"
+                      aria-label={`Toggle check for ${item.title}`}
                     >
-                      <button
-                        type="button"
-                        className="mt-0.5 text-blue-600 dark:text-cyan-400 focus:outline-none shrink-0"
-                        aria-label={`Toggle check for ${item.title}`}
-                      >
+                      <span className={cn(
+                        "insurance-checkbox-box",
+                        isChecked && "is-checked"
+                      )}>
                         {isChecked ? (
-                          <CheckSquare className="h-5 w-5 text-emerald-500" />
+                          <CheckSquare className="h-5 w-5 text-emerald-500 print:hidden" />
                         ) : (
-                          <Square className="h-5 w-5 text-slate-400 group-hover:text-blue-500" />
+                          <Square className="h-5 w-5 text-slate-400 group-hover:text-blue-500 print:hidden" />
                         )}
-                      </button>
+                        {isChecked ? (
+                          <svg className="hidden print:block w-3 h-3 text-white" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                            <polyline points="3 8.5 6.5 12 13 4" />
+                          </svg>
+                        ) : null}
+                      </span>
+                    </button>
 
-                      <div className="flex-1">
-                        <div className="flex items-center gap-2 flex-wrap">
-                          <p className={cn(
-                            "text-sm font-semibold text-slate-900 dark:text-white transition-all",
-                            isChecked && "line-through text-slate-500 dark:text-slate-400"
-                          )}>
-                            {item.title}
-                          </p>
-                          {item.mandatory && (
-                            <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-rose-100 dark:bg-rose-950/60 text-rose-700 dark:text-rose-300">
-                              Crucial
-                            </span>
-                          )}
-                        </div>
-                        <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 leading-relaxed">
-                          {item.description}
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <p className={cn(
+                          "insurance-item-title text-sm font-semibold text-slate-900 dark:text-white transition-all",
+                          isChecked && "line-through text-slate-500 dark:text-slate-400"
+                        )}>
+                          {item.title}
                         </p>
+                        {item.mandatory && (
+                          <span className="insurance-item-badge-crucial text-[10px] font-bold px-1.5 py-0.5 rounded bg-rose-100 dark:bg-rose-950/60 text-rose-700 dark:text-rose-300">
+                            Crucial
+                          </span>
+                        )}
                       </div>
+                      <p className="insurance-item-desc text-xs text-slate-500 dark:text-slate-400 mt-1 leading-relaxed">
+                        {item.description}
+                      </p>
                     </div>
-                  );
-                })}
-              </div>
-            )}
+                  </div>
+                );
+              })}
+            </div>
           </div>
 
           {/* Term Insurance Checklist Panel */}
-          <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-md overflow-hidden">
-            <div className="p-6 md:p-7 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between bg-indigo-50/50 dark:bg-indigo-950/30">
+          <div className="insurance-checklist-card bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-md overflow-hidden">
+            <div className="insurance-checklist-card-header p-6 md:p-7 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between bg-indigo-50/50 dark:bg-indigo-950/30">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-indigo-100 dark:bg-indigo-900/50 text-indigo-600 dark:text-indigo-400 flex items-center justify-center">
+                <div className="insurance-header-icon w-10 h-10 rounded-xl bg-indigo-100 dark:bg-indigo-900/50 text-indigo-600 dark:text-indigo-400 flex items-center justify-center">
                   <Umbrella className="h-5 w-5" />
                 </div>
                 <div>
-                  <h3 className="font-bold text-lg text-slate-900 dark:text-white flex items-center gap-2">
+                  <h3 className="insurance-card-title font-bold text-lg text-slate-900 dark:text-white flex items-center gap-2">
                     Term Life Insurance Checklist
                   </h3>
-                  <p className="text-xs text-slate-500 dark:text-slate-400">
+                  <p className="insurance-card-counter text-xs text-slate-500 dark:text-slate-400">
                     {termCheckedCount} of {TERM_CHECKLIST.length} completed
                   </p>
                 </div>
@@ -299,62 +311,73 @@ export const InsuranceChecklists: React.FC = () => {
 
               <button
                 onClick={() => setTermExpanded(!termExpanded)}
-                className="p-2 rounded-lg hover:bg-slate-200/50 dark:hover:bg-slate-800 text-slate-500 transition-colors"
+                className="p-2 rounded-lg hover:bg-slate-200/50 dark:hover:bg-slate-800 text-slate-500 transition-colors print:hidden"
                 aria-label={termExpanded ? "Collapse term checklist" : "Expand term checklist"}
               >
                 {termExpanded ? <ChevronUp className="h-5 w-5" /> : <ChevronDown className="h-5 w-5" />}
               </button>
             </div>
 
-            {/* Term Checklist Items */}
-            {termExpanded && (
-              <div className="p-5 md:p-6 divide-y divide-slate-100 dark:divide-slate-800/80 space-y-4">
-                {TERM_CHECKLIST.map(item => {
-                  const isChecked = !!checkedItems[item.id];
-                  return (
-                    <div
-                      key={item.id}
-                      onClick={() => toggleCheck(item.id)}
-                      className={cn(
-                        "pt-4 first:pt-0 flex items-start gap-3 cursor-pointer group select-none transition-colors",
-                        isChecked && "opacity-85"
-                      )}
+            {/* Term Checklist Items (Always rendered; hidden via CSS on screen when collapsed, always visible in print) */}
+            <div className={cn(
+              "insurance-checklist-items-container p-5 md:p-6 divide-y divide-slate-100 dark:divide-slate-800/80 space-y-4",
+              !termExpanded && "hidden print:block"
+            )}>
+              {TERM_CHECKLIST.map(item => {
+                const isChecked = !!checkedItems[item.id];
+                return (
+                  <div
+                    key={item.id}
+                    onClick={() => toggleCheck(item.id)}
+                    className={cn(
+                      "insurance-checklist-item pt-4 first:pt-0 flex items-start gap-3 cursor-pointer group select-none transition-colors",
+                      isChecked && "opacity-85"
+                    )}
+                  >
+                    <button
+                      type="button"
+                      className="mt-0.5 text-indigo-600 dark:text-indigo-400 focus:outline-none shrink-0 print:pointer-events-none"
+                      aria-label={`Toggle check for ${item.title}`}
                     >
-                      <button
-                        type="button"
-                        className="mt-0.5 text-indigo-600 dark:text-indigo-400 focus:outline-none shrink-0"
-                        aria-label={`Toggle check for ${item.title}`}
-                      >
+                      <span className={cn(
+                        "insurance-checkbox-box",
+                        isChecked && "is-checked"
+                      )}>
                         {isChecked ? (
-                          <CheckSquare className="h-5 w-5 text-emerald-500" />
+                          <CheckSquare className="h-5 w-5 text-emerald-500 print:hidden" />
                         ) : (
-                          <Square className="h-5 w-5 text-slate-400 group-hover:text-indigo-500" />
+                          <Square className="h-5 w-5 text-slate-400 group-hover:text-indigo-500 print:hidden" />
                         )}
-                      </button>
+                        {isChecked ? (
+                          <svg className="hidden print:block w-3 h-3 text-white" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                            <polyline points="3 8.5 6.5 12 13 4" />
+                          </svg>
+                        ) : null}
+                      </span>
+                    </button>
 
-                      <div className="flex-1">
-                        <div className="flex items-center gap-2 flex-wrap">
-                          <p className={cn(
-                            "text-sm font-semibold text-slate-900 dark:text-white transition-all",
-                            isChecked && "line-through text-slate-500 dark:text-slate-400"
-                          )}>
-                            {item.title}
-                          </p>
-                          {item.mandatory && (
-                            <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-rose-100 dark:bg-rose-950/60 text-rose-700 dark:text-rose-300">
-                              Crucial
-                            </span>
-                          )}
-                        </div>
-                        <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 leading-relaxed">
-                          {item.description}
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <p className={cn(
+                          "insurance-item-title text-sm font-semibold text-slate-900 dark:text-white transition-all",
+                          isChecked && "line-through text-slate-500 dark:text-slate-400"
+                        )}>
+                          {item.title}
                         </p>
+                        {item.mandatory && (
+                          <span className="insurance-item-badge-crucial text-[10px] font-bold px-1.5 py-0.5 rounded bg-rose-100 dark:bg-rose-950/60 text-rose-700 dark:text-rose-300">
+                            Crucial
+                          </span>
+                        )}
                       </div>
+                      <p className="insurance-item-desc text-xs text-slate-500 dark:text-slate-400 mt-1 leading-relaxed">
+                        {item.description}
+                      </p>
                     </div>
-                  );
-                })}
-              </div>
-            )}
+                  </div>
+                );
+              })}
+            </div>
           </div>
         </div>
       </div>

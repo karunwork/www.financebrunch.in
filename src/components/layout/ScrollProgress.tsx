@@ -43,7 +43,7 @@ export function ScrollProgress() {
   return (
     <div
       ref={progressRef}
-      className="scroll-progress"
+      className="scroll-progress print:hidden"
       role="progressbar"
       aria-label="Page scroll progress"
       aria-valuemin={0}
