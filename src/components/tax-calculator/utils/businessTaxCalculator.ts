@@ -20,7 +20,7 @@ export const calculateBusinessTax = (
     } else {
       taxableIncome = income * 0.7;
     }
-  } else if (taxpayerType === "msme") {
+  } else if ((taxpayerType as string) === "msme") {
     taxableIncome = income * 0.9;
   }
   
@@ -52,7 +52,7 @@ export const calculateBusinessTax = (
   }
   
   let surcharge = 0;
-  if (taxpayerType === "company" || taxpayerType === "llp") {
+  if ((taxpayerType as string) === "company" || (taxpayerType as string) === "llp") {
     if (taxableIncome > 10000000) {
       surcharge = taxBeforeCess * 0.12;
     }

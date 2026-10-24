@@ -664,6 +664,7 @@ export async function downloadCalculatorDocx(data: CalculatorExportData) {
                         alignment: AlignmentType.RIGHT,
                         children: [
                           new ImageRun({
+                            type: 'png',
                             data: rawBytes,
                             transformation: {
                               width: 160,

@@ -482,6 +482,7 @@ export async function downloadTaxReportPdf(data: TaxReportData) {
   const pageWidth = 210;
   const margin = 14;
   const pageHeight = 297;
+  const contentWidth = pageWidth - 2 * margin;
 
   // Helper: Draw subtle, isolated background watermark using centralized utility
   const drawBackgroundWatermark = () => {
@@ -823,6 +824,7 @@ export async function downloadTaxReportDocx(data: TaxReportData) {
                         alignment: AlignmentType.RIGHT,
                         children: [
                           new ImageRun({
+                            type: 'png',
                             data: rawBytes,
                             transformation: {
                               width: 150,

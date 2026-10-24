@@ -53,6 +53,7 @@ export interface StepUpSIPCalculationResult {
     futureValue: number;
     differenceFV: number;
   };
+  stepUpAdvantage: number;
   isValid: boolean;
   validationError?: string;
 }
@@ -95,6 +96,7 @@ export function calculateStepUpSIP(inputs: StepUpSIPCalculatorInputs): StepUpSIP
         futureValue: 0,
         differenceFV: 0,
       },
+      stepUpAdvantage: 0,
       isValid: false,
       validationError: 'Please provide valid non-negative numbers for all inputs.',
     };
@@ -118,6 +120,7 @@ export function calculateStepUpSIP(inputs: StepUpSIPCalculatorInputs): StepUpSIP
         futureValue: 0,
         differenceFV: 0,
       },
+      stepUpAdvantage: 0,
       isValid: false,
       validationError: 'Input values exceed maximum supported limits (₹100 Crore).',
     };
@@ -203,6 +206,7 @@ export function calculateStepUpSIP(inputs: StepUpSIPCalculatorInputs): StepUpSIP
         futureValue: 0,
         differenceFV: 0,
       },
+      stepUpAdvantage: 0,
       isValid: false,
       validationError: 'Projected value exceeds calculation precision bounds. Please adjust duration or returns.',
     };
@@ -233,6 +237,7 @@ export function calculateStepUpSIP(inputs: StepUpSIPCalculatorInputs): StepUpSIP
       futureValue: roundedFixedFV,
       differenceFV: roundedDifferenceFV,
     },
+    stepUpAdvantage: roundedDifferenceFV,
     isValid: true,
   };
 }

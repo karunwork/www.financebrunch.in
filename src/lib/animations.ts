@@ -186,25 +186,31 @@ export function getAccessibleVariants(variants: Variants, shouldReduceMotion: bo
     const variantValue = variants[key];
     if (typeof variantValue === 'function') {
       accessible[key] = (custom: unknown) => {
-        const result = variantValue(custom);
-        const opacity =
-          typeof result === 'object' && result !== null && 'opacity' in result
-            ? (result as Record<string, unknown>).opacity
-            : key === 'hidden'
-              ? 0
-              : 1;
+        let opacity: number = key === 'hidden' ? 0 : 1;
+        try {
+          const result = (variantValue as (arg?: unknown) => unknown)(custom);
+          if (typeof result === 'object' && result !== null && 'opacity' in result) {
+            const val = (result as Record<string, unknown>).opacity;
+            if (typeof val === 'number') {
+              opacity = val;
+            }
+          }
+        } catch {
+          // Fallback to default key-based opacity
+        }
         return {
           opacity,
           transition: { duration: DURATIONS.fast },
         };
       };
     } else if (typeof variantValue === 'object' && variantValue !== null) {
-      const opacity =
-        'opacity' in variantValue
-          ? (variantValue as Record<string, unknown>).opacity
-          : key === 'hidden'
-            ? 0
-            : 1;
+      let opacity: number = key === 'hidden' ? 0 : 1;
+      if ('opacity' in variantValue) {
+        const val = (variantValue as Record<string, unknown>).opacity;
+        if (typeof val === 'number') {
+          opacity = val;
+        }
+      }
       accessible[key] = {
         opacity,
         transition: { duration: DURATIONS.fast },

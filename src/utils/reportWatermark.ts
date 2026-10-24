@@ -84,6 +84,7 @@ export function getDocxWatermarkHeader(targetWidth: number = 380): Header {
       new Paragraph({
         children: [
           new ImageRun({
+            type: 'png',
             data: watermarkBytes,
             transformation: {
               width: targetWidth,

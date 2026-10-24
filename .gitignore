@@ -25,6 +25,7 @@ dist-ssr
 
 # Test artifacts and generated output
 scripts/*.pdf
+*.tsbuildinfo
 
 # Environment files & secrets
 .env

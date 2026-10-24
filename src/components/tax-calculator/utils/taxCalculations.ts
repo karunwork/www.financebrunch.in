@@ -10,12 +10,19 @@ import calculateInternationalTax from "./internationalTaxCalculator";
 export { getCurrencySymbol };
 export type { TaxBreakdown };
 
+export interface RegimeComparisonResult {
+  newRegime: TaxBreakdown;
+  oldRegime: TaxBreakdown;
+  difference: number;
+  betterRegime: 'new' | 'old';
+}
+
 export const compareTaxRegimes = (
   income: number,
   age: string,
   financialYear: FinancialYear,
   deductions: DeductionsType
-) => {
+): RegimeComparisonResult => {
   const newRegimeTax = calculateIndianIncomeTax(income, "new", age, financialYear);
   const oldRegimeTax = calculateIndianIncomeTax(income, "old", age, financialYear, deductions);
   

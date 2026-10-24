@@ -10,6 +10,7 @@ export interface TaxSlab {
   min: number;
   max: number | null;
   rate: number;
+  baseAmount?: number;
 }
 
 export interface TaxBreakdown {

@@ -222,8 +222,8 @@ const MutualFundCalculator = () => {
       </div>
       
       <AdvisorPopup 
-        isOpen={showAdvisorPopup} 
-        onClose={() => setShowAdvisorPopup(false)} 
+        open={showAdvisorPopup} 
+        onOpenChange={setShowAdvisorPopup} 
       />
     </>
   );
