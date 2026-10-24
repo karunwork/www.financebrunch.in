@@ -71,11 +71,18 @@ function downloadBlob(blob: Blob, fileName: string) {
 /**
  * 1. DOWNLOAD AS PDF (jsPDF with embedded official logo and unicode font)
  */
-export async function downloadCalculatorPdf(data: CalculatorExportData) {
+/**
+ * 1. BUILD CALCULATOR PDF DOCUMENT
+ * Generates an authentic, beautifully styled, non-overlapping jsPDF document
+ * with Finance Brunch logo, structured inputs, metrics dashboard, multi-page projection schedule,
+ * disclaimer, and consistent headers/footers on every page.
+ */
+export function buildCalculatorPdfDoc(data: CalculatorExportData): jsPDF {
   const doc = new jsPDF({
     orientation: 'portrait',
     unit: 'mm',
     format: 'a4',
+    compress: false,
   });
 
   registerReportFonts(doc);
@@ -84,67 +91,216 @@ export async function downloadCalculatorPdf(data: CalculatorExportData) {
   const pageHeight = 297;
   const margin = 14;
   const contentWidth = pageWidth - margin * 2; // 182mm
+  const maxContentBottom = pageHeight - 21; // 276mm, leaving 6mm safe space above footer line
 
-  // Top-Right Official Logo
-  const logoWidth = 42;
-  const logoHeight = logoWidth / LOGO_ASPECT_RATIO;
-  const logoX = pageWidth - margin - logoWidth;
-  const logoY = 10;
-
-  try {
-    doc.addImage(FINANCE_BRUNCH_LOGO_RAW, 'PNG', logoX, logoY, logoWidth, logoHeight);
-  } catch (err) {
-    console.warn('Failed to embed logo into PDF, falling back to text:', err);
-    doc.setFont('ReportFont', 'bold');
-    doc.setFontSize(14);
-    doc.setTextColor(2, 132, 199);
-    doc.text('FINANCE BRUNCH', logoX, logoY + 8);
-  }
-
-  // Header Title on Left
-  doc.setFont('ReportFont', 'bold');
-  doc.setFontSize(9);
-  doc.setTextColor(2, 132, 199);
-  doc.text('FINANCE BRUNCH WEALTH PLANNING', margin, 15);
-
-  doc.setFont('ReportFont', 'bold');
-  doc.setFontSize(16);
-  doc.setTextColor(15, 23, 42);
-  doc.text(data.calculatorTitle, margin, 23);
-
-  doc.setFont('ReportFont', 'normal');
-  doc.setFontSize(8.5);
-  doc.setTextColor(100, 116, 139);
-  doc.text(`Report Generated: ${data.generatedDateStr}   |   Mode: Deterministic Compound Simulation`, margin, 29);
-
-  // Divider Line
-  doc.setDrawColor(2, 132, 199);
-  doc.setLineWidth(0.6);
-  doc.line(margin, 34, pageWidth - margin, 34);
-
-  // Helper: Draw subtle, isolated background watermark
-  const drawBackgroundWatermark = () => {
-    doc.saveGraphicsState();
-    try {
-      doc.setGState(new GState({ opacity: 0.04 }));
-    } catch {
-      // Fallback if GState unsupported
-    }
-    doc.setFont('ReportFont', 'bold');
-    doc.setFontSize(48);
-    doc.setTextColor(246, 248, 252);
-    doc.text('FINANCE BRUNCH', pageWidth / 2, pageHeight * 0.52, { align: 'center', angle: 45 });
-    doc.restoreGraphicsState();
+  // Column X alignment coordinates for 5-column projection table
+  const colX = {
+    c1: margin + 3,                 // Year (left-aligned)
+    c2: margin + 52,                // Col 2 (right-aligned)
+    c3: margin + 94,                // Col 3 (right-aligned)
+    c4: margin + 138,               // Col 4 (right-aligned)
+    c5: margin + contentWidth - 3,  // Col 5 (right-aligned)
   };
 
-  // 1. Draw background watermark first
-  drawBackgroundWatermark();
+  // --- Header for Page 1 ---
+  const printPage1Header = (): number => {
+    const logoWidth = 38;
+    const logoHeight = logoWidth / LOGO_ASPECT_RATIO;
+    const logoX = pageWidth - margin - logoWidth;
+    const logoY = 9.5;
 
-  let currentY = 40;
+    // 1. Embed Logo on Top-Right
+    try {
+      doc.addImage(FINANCE_BRUNCH_LOGO_RAW, 'PNG', logoX, logoY, logoWidth, logoHeight);
+    } catch (err) {
+      console.warn('Failed to embed logo into PDF, falling back to text:', err);
+      doc.setFont('ReportFont', 'bold');
+      doc.setFontSize(13);
+      doc.setTextColor(2, 132, 199);
+      doc.text('FINANCE BRUNCH', logoX, logoY + 8);
+    }
 
-  // Inputs and Summary Dashboard Side-by-Side Cards
-  const colWidth = (contentWidth - 6) / 2;
-  const cardHeight = Math.max(38, Math.max(data.inputs.length, data.summaryMetrics.length) * 6.5 + 14);
+    // 2. Title block on Left (bounded strictly so it NEVER overlaps logo)
+    const titleMaxWidth = logoX - margin - 6; // 138mm of clear horizontal space
+
+    doc.setFont('ReportFont', 'bold');
+    doc.setFontSize(8.5);
+    doc.setTextColor(2, 132, 199);
+    doc.text('FINANCE BRUNCH WEALTH PLANNING', margin, 14);
+
+    doc.setFont('ReportFont', 'bold');
+    doc.setFontSize(14.5);
+    doc.setTextColor(15, 23, 42);
+    const splitTitle = doc.splitTextToSize(data.calculatorTitle, titleMaxWidth);
+    doc.text(splitTitle, margin, 20);
+    const titleBottomY = 20 + (splitTitle.length - 1) * 5.2;
+
+    const metaY = Math.max(titleBottomY + 5.2, 25.5);
+    doc.setFont('ReportFont', 'normal');
+    doc.setFontSize(8);
+    doc.setTextColor(100, 116, 139);
+    doc.text(`Report Generated: ${data.generatedDateStr}   |   Mode: Deterministic Compound Simulation`, margin, metaY);
+
+    // 3. Dynamic divider line placed strictly below BOTH logo and title/meta
+    const headerBottom = Math.max(logoY + logoHeight + 2, metaY + 3.5);
+    doc.setDrawColor(2, 132, 199);
+    doc.setLineWidth(0.6);
+    doc.line(margin, headerBottom, pageWidth - margin, headerBottom);
+
+    return headerBottom + 5.5;
+  };
+
+  // --- Header for Continuation Pages (Page 2, 3...) ---
+  const printSubsequentPageHeader = (): number => {
+    const subLogoWidth = 30;
+    const subLogoHeight = subLogoWidth / LOGO_ASPECT_RATIO;
+    const subLogoX = pageWidth - margin - subLogoWidth;
+    const subLogoY = 8.5;
+
+    try {
+      doc.addImage(FINANCE_BRUNCH_LOGO_RAW, 'PNG', subLogoX, subLogoY, subLogoWidth, subLogoHeight);
+    } catch {
+      doc.setFont('ReportFont', 'bold');
+      doc.setFontSize(11);
+      doc.setTextColor(2, 132, 199);
+      doc.text('FINANCE BRUNCH', subLogoX, subLogoY + 6);
+    }
+
+    const subTitleMaxWidth = subLogoX - margin - 5;
+    doc.setFont('ReportFont', 'bold');
+    doc.setFontSize(8);
+    doc.setTextColor(2, 132, 199);
+    doc.text('FINANCE BRUNCH WEALTH PLANNING', margin, 12.5);
+
+    doc.setFont('ReportFont', 'bold');
+    doc.setFontSize(10.5);
+    doc.setTextColor(15, 23, 42);
+    const splitSubTitle = doc.splitTextToSize(`${data.calculatorTitle} — Projection Schedule`, subTitleMaxWidth);
+    doc.text(splitSubTitle, margin, 17.5);
+
+    const subHeaderBottom = Math.max(subLogoY + subLogoHeight + 2, 17.5 + (splitSubTitle.length - 1) * 4.5 + 2.5);
+    doc.setDrawColor(226, 232, 240);
+    doc.setLineWidth(0.35);
+    doc.line(margin, subHeaderBottom, pageWidth - margin, subHeaderBottom);
+
+    return subHeaderBottom + 4.5;
+  };
+
+  // --- Table Header Function ---
+  const printTableHeader = (yPos: number, isContinuation = false): number => {
+    doc.setFont('ReportFont', 'bold');
+    doc.setFontSize(9.5);
+    doc.setTextColor(15, 23, 42);
+    doc.text(
+      isContinuation 
+        ? 'Investment Growth & Projection Schedule (Continued)' 
+        : 'Investment Growth & Projection Schedule',
+      margin,
+      yPos
+    );
+
+    const tableY = yPos + 3.5;
+    doc.setFillColor(241, 245, 249);
+    doc.rect(margin, tableY, contentWidth, 7, 'F');
+
+    doc.setFont('ReportFont', 'bold');
+    doc.setFontSize(7.5);
+    doc.setTextColor(51, 65, 85);
+
+    doc.text(data.scheduleHeaders[0], colX.c1, tableY + 4.8);
+    doc.text(data.scheduleHeaders[1], colX.c2, tableY + 4.8, { align: 'right' });
+    doc.text(data.scheduleHeaders[2], colX.c3, tableY + 4.8, { align: 'right' });
+    doc.text(data.scheduleHeaders[3], colX.c4, tableY + 4.8, { align: 'right' });
+    doc.text(data.scheduleHeaders[4], colX.c5, tableY + 4.8, { align: 'right' });
+
+    return tableY + 7;
+  };
+
+  // Start on Page 1
+  let currentY = printPage1Header();
+
+  // --- Inputs and Summary Dashboard Cards ---
+  const colWidth = (contentWidth - 6) / 2; // 88mm
+  const innerCardW = colWidth - 10; // 78mm
+
+  const measureItemHeight = (item: { label: string; value: string }): number => {
+    doc.setFont('ReportFont', 'normal');
+    doc.setFontSize(7.5);
+    const labelW = doc.getTextWidth(item.label);
+    doc.setFont('ReportFont', 'bold');
+    doc.setFontSize(8);
+    const valW = doc.getTextWidth(item.value);
+    if (labelW + valW + 4 <= innerCardW) {
+      return 5.8;
+    }
+    return 9.5;
+  };
+
+  const calcCardHeight = (items: Array<{ label: string; value: string; isHighlight?: boolean }>): number => {
+    let h = 13.5; // title + top padding
+    items.forEach((item) => {
+      h += measureItemHeight(item);
+    });
+    return h + 4; // bottom padding
+  };
+
+  const cardHeight = Math.max(
+    36,
+    calcCardHeight(data.inputs),
+    calcCardHeight(data.summaryMetrics)
+  );
+
+  const renderCardItems = (
+    items: Array<{ label: string; value: string; isHighlight?: boolean }>,
+    startX: number,
+    startY: number
+  ) => {
+    let itemY = startY + 13.5;
+
+    items.forEach((item) => {
+      doc.setFont('ReportFont', 'normal');
+      doc.setFontSize(7.5);
+      doc.setTextColor(100, 116, 139);
+      const labelW = doc.getTextWidth(item.label);
+
+      doc.setFont('ReportFont', 'bold');
+      doc.setFontSize(8);
+      const valW = doc.getTextWidth(item.value);
+
+      if (labelW + valW + 4 <= innerCardW) {
+        doc.setFont('ReportFont', 'normal');
+        doc.setFontSize(7.5);
+        doc.setTextColor(100, 116, 139);
+        doc.text(item.label, startX + 5, itemY);
+
+        doc.setFont('ReportFont', 'bold');
+        doc.setFontSize(8);
+        if (item.isHighlight) {
+          doc.setTextColor(2, 132, 199);
+        } else {
+          doc.setTextColor(15, 23, 42);
+        }
+        doc.text(item.value, startX + colWidth - 5, itemY, { align: 'right' });
+        itemY += 5.8;
+      } else {
+        // Multi-line layout: label on top, value below (right-aligned) to prevent collision
+        doc.setFont('ReportFont', 'normal');
+        doc.setFontSize(7.2);
+        doc.setTextColor(100, 116, 139);
+        doc.text(item.label, startX + 5, itemY);
+
+        doc.setFont('ReportFont', 'bold');
+        doc.setFontSize(8);
+        if (item.isHighlight) {
+          doc.setTextColor(2, 132, 199);
+        } else {
+          doc.setTextColor(15, 23, 42);
+        }
+        doc.text(item.value, startX + colWidth - 5, itemY + 4, { align: 'right' });
+        itemY += 9.5;
+      }
+    });
+  };
 
   // Card 1: User Inputs & Assumptions
   doc.setFillColor(248, 250, 252);
@@ -153,51 +309,25 @@ export async function downloadCalculatorPdf(data: CalculatorExportData) {
   doc.roundedRect(margin, currentY, colWidth, cardHeight, 2, 2, 'FD');
 
   doc.setFont('ReportFont', 'bold');
-  doc.setFontSize(10);
+  doc.setFontSize(9.5);
   doc.setTextColor(30, 41, 59);
   doc.text('Inputs & Assumptions', margin + 5, currentY + 7);
-
-  let inputY = currentY + 14;
-  data.inputs.forEach((item) => {
-    doc.setFont('ReportFont', 'normal');
-    doc.setFontSize(8);
-    doc.setTextColor(100, 116, 139);
-    doc.text(item.label, margin + 5, inputY);
-
-    doc.setFont('ReportFont', 'bold');
-    doc.setTextColor(15, 23, 42);
-    doc.text(item.value, margin + colWidth - 5, inputY, { align: 'right' });
-    inputY += 6.5;
-  });
+  renderCardItems(data.inputs, margin, currentY);
 
   // Card 2: Calculation Results Dashboard
   const card2X = margin + colWidth + 6;
   doc.setFillColor(248, 250, 252);
+  doc.setDrawColor(226, 232, 240);
+  doc.setLineWidth(0.3);
   doc.roundedRect(card2X, currentY, colWidth, cardHeight, 2, 2, 'FD');
 
   doc.setFont('ReportFont', 'bold');
-  doc.setFontSize(10);
+  doc.setFontSize(9.5);
   doc.setTextColor(30, 41, 59);
   doc.text('Key Results & Metrics', card2X + 5, currentY + 7);
+  renderCardItems(data.summaryMetrics, card2X, currentY);
 
-  let metricY = currentY + 14;
-  data.summaryMetrics.forEach((item) => {
-    doc.setFont('ReportFont', 'normal');
-    doc.setFontSize(8);
-    doc.setTextColor(100, 116, 139);
-    doc.text(item.label, card2X + 5, metricY);
-
-    doc.setFont('ReportFont', 'bold');
-    if (item.isHighlight) {
-      doc.setTextColor(2, 132, 199);
-    } else {
-      doc.setTextColor(15, 23, 42);
-    }
-    doc.text(item.value, card2X + colWidth - 5, metricY, { align: 'right' });
-    metricY += 6.5;
-  });
-
-  currentY += cardHeight + 8;
+  currentY += cardHeight + 6;
 
   // Notes or Educational guidance (if provided)
   if (data.notes) {
@@ -205,130 +335,123 @@ export async function downloadCalculatorPdf(data: CalculatorExportData) {
     doc.setDrawColor(191, 219, 254);
     doc.setLineWidth(0.3);
     const splitNotes = doc.splitTextToSize(data.notes, contentWidth - 10);
-    const noteBoxHeight = splitNotes.length * 3.5 + 8;
+    const noteBoxHeight = splitNotes.length * 3.4 + 7;
     doc.roundedRect(margin, currentY, contentWidth, noteBoxHeight, 2, 2, 'FD');
 
     doc.setFont('ReportFont', 'normal');
-    doc.setFontSize(7.5);
+    doc.setFontSize(7.3);
     doc.setTextColor(30, 58, 138);
-    doc.text(splitNotes, margin + 5, currentY + 5.5);
+    doc.text(splitNotes, margin + 5, currentY + 4.8);
 
-    currentY += noteBoxHeight + 6;
+    currentY += noteBoxHeight + 5;
   }
 
-  // Projection Table Header
-  const printTableHeader = (yPos: number) => {
-    doc.setFont('ReportFont', 'bold');
-    doc.setFontSize(10);
-    doc.setTextColor(15, 23, 42);
-    doc.text('Investment Growth & Projection Schedule', margin, yPos);
-
-    const tableY = yPos + 4;
-    doc.setFillColor(241, 245, 249);
-    doc.rect(margin, tableY, contentWidth, 7.5, 'F');
-
-    doc.setFont('ReportFont', 'bold');
-    doc.setFontSize(7.5);
-    doc.setTextColor(51, 65, 85);
-
-    const c1 = margin + 4;
-    const c2 = margin + 48;
-    const c3 = margin + 92;
-    const c4 = margin + 138;
-    const c5 = margin + contentWidth - 4;
-
-    doc.text(data.scheduleHeaders[0], c1, tableY + 5);
-    doc.text(data.scheduleHeaders[1], c2, tableY + 5, { align: 'right' });
-    doc.text(data.scheduleHeaders[2], c3, tableY + 5, { align: 'right' });
-    doc.text(data.scheduleHeaders[3], c4, tableY + 5, { align: 'right' });
-    doc.text(data.scheduleHeaders[4], c5, tableY + 5, { align: 'right' });
-
-    return tableY + 7.5;
-  };
-
+  // Projection Table
   currentY = printTableHeader(currentY);
 
-  const c1 = margin + 4;
-  const c2 = margin + 48;
-  const c3 = margin + 92;
-  const c4 = margin + 138;
-  const c5 = margin + contentWidth - 4;
+  const rowHeight = 6.2;
 
   data.growthSchedule.forEach((row, idx) => {
-    // Check if new page is needed
-    if (currentY + 12 > pageHeight - 32) {
+    // Check if new page is needed for this row
+    if (currentY + rowHeight > maxContentBottom) {
       doc.addPage();
-      drawBackgroundWatermark();
-      currentY = printTableHeader(margin);
+      currentY = printSubsequentPageHeader();
+      currentY = printTableHeader(currentY, true);
     }
 
     if (idx % 2 === 1) {
       doc.setFillColor(248, 250, 252);
-      doc.rect(margin, currentY, contentWidth, 6.5, 'F');
+      doc.rect(margin, currentY, contentWidth, rowHeight, 'F');
     }
 
     doc.setFont('ReportFont', 'normal');
     doc.setFontSize(7.5);
     doc.setTextColor(15, 23, 42);
 
-    doc.text(String(row.col1), c1, currentY + 4.5);
-    doc.text(String(row.col2), c2, currentY + 4.5, { align: 'right' });
-    doc.text(String(row.col3), c3, currentY + 4.5, { align: 'right' });
-    doc.text(String(row.col4), c4, currentY + 4.5, { align: 'right' });
+    doc.text(String(row.col1), colX.c1, currentY + 4.3);
+    doc.text(String(row.col2), colX.c2, currentY + 4.3, { align: 'right' });
+    doc.text(String(row.col3), colX.c3, currentY + 4.3, { align: 'right' });
+    doc.text(String(row.col4), colX.c4, currentY + 4.3, { align: 'right' });
 
     doc.setFont('ReportFont', 'bold');
     doc.setTextColor(2, 132, 199);
-    doc.text(String(row.col5), c5, currentY + 4.5, { align: 'right' });
+    doc.text(String(row.col5), colX.c5, currentY + 4.3, { align: 'right' });
 
     doc.setDrawColor(241, 245, 249);
     doc.setLineWidth(0.2);
-    doc.line(margin, currentY + 6.5, margin + contentWidth, currentY + 6.5);
+    doc.line(margin, currentY + rowHeight, margin + contentWidth, currentY + rowHeight);
 
-    currentY += 6.5;
+    currentY += rowHeight;
   });
 
-  currentY += 6;
-
-  // Disclaimer & Brand Footer (check if space permits or add page)
+  // Disclaimer block
   const disclaimerText = data.disclaimer || DEFAULT_CALCULATOR_DISCLAIMER;
-  const splitDisclaimer = doc.splitTextToSize(disclaimerText, contentWidth);
-  const neededBottomHeight = splitDisclaimer.length * 3.2 + 20;
+  const splitDisclaimer = doc.splitTextToSize(disclaimerText, contentWidth - 8);
+  const disclaimerHeight = splitDisclaimer.length * 3.3 + 9;
 
-  if (currentY + neededBottomHeight > pageHeight - margin) {
+  // If disclaimer doesn't fit on this page, push cleanly to a new page
+  if (currentY + disclaimerHeight + 4 > maxContentBottom) {
     doc.addPage();
-    drawBackgroundWatermark();
-    currentY = margin + 5;
+    currentY = printSubsequentPageHeader();
   }
 
-  // Disclaimer block
+  currentY += 4;
+  doc.setFillColor(248, 250, 252);
+  doc.setDrawColor(226, 232, 240);
+  doc.setLineWidth(0.3);
+  doc.roundedRect(margin, currentY, contentWidth, disclaimerHeight, 1.5, 1.5, 'FD');
+
   doc.setFont('ReportFont', 'bold');
   doc.setFontSize(7.5);
-  doc.setTextColor(100, 116, 139);
-  doc.text('Important Disclaimer:', margin, currentY);
+  doc.setTextColor(71, 85, 105);
+  doc.text('Important Disclaimer:', margin + 4, currentY + 5);
 
   doc.setFont('ReportFont', 'normal');
   doc.setFontSize(6.8);
   doc.setTextColor(100, 116, 139);
-  doc.text(splitDisclaimer, margin, currentY + 4);
+  doc.text(splitDisclaimer, margin + 4, currentY + 9);
 
-  const footerY = currentY + splitDisclaimer.length * 3.2 + 6;
+  // Apply consistent footers and page numbers across ALL pages
+  const totalPages = doc.getNumberOfPages();
+  for (let pageNum = 1; pageNum <= totalPages; pageNum++) {
+    doc.setPage(pageNum);
 
-  // Divider Line
-  doc.setDrawColor(203, 213, 225);
-  doc.setLineWidth(0.3);
-  doc.line(margin, footerY, margin + contentWidth, footerY);
+    const footerDividerY = pageHeight - 15;
+    doc.setDrawColor(226, 232, 240);
+    doc.setLineWidth(0.3);
+    doc.line(margin, footerDividerY, pageWidth - margin, footerDividerY);
 
-  // Professional Finance Brunch Brand Footer
-  doc.setFont('ReportFont', 'bold');
-  doc.setFontSize(8);
-  doc.setTextColor(15, 23, 42);
-  doc.text('Finance Brunch', margin, footerY + 5);
+    // Left: Brand
+    doc.setFont('ReportFont', 'bold');
+    doc.setFontSize(7.5);
+    doc.setTextColor(15, 23, 42);
+    doc.text('Finance Brunch', margin, footerDividerY + 4.5);
 
-  doc.setFont('ReportFont', 'normal');
-  doc.setFontSize(7.2);
-  doc.setTextColor(100, 116, 139);
-  doc.text('Email: admin@financebrunch.in   |   Phone: +91 7842-494-981   |   Website: https://financebrunch.in', margin + 26, footerY + 5);
+    // Center: Verified Contact Details
+    doc.setFont('ReportFont', 'normal');
+    doc.setFontSize(7);
+    doc.setTextColor(100, 116, 139);
+    doc.text(
+      'Email: admin@financebrunch.in   |   Phone: +91 7842-494-981   |   Website: https://financebrunch.in',
+      margin + 24,
+      footerDividerY + 4.5
+    );
 
+    // Right: Page Number
+    doc.setFont('ReportFont', 'normal');
+    doc.setFontSize(7);
+    doc.setTextColor(100, 116, 139);
+    doc.text(`Page ${pageNum} of ${totalPages}`, pageWidth - margin, footerDividerY + 4.5, { align: 'right' });
+  }
+
+  return doc;
+}
+
+/**
+ * 2. DOWNLOAD AS PDF (Client-side Blob Download)
+ */
+export async function downloadCalculatorPdf(data: CalculatorExportData) {
+  const doc = buildCalculatorPdfDoc(data);
   const safeTitle = data.calculatorTitle.replace(/[^a-zA-Z0-9_-]/g, '_');
   const blob = doc.output('blob');
   downloadBlob(blob, `${safeTitle}_Report.pdf`);
