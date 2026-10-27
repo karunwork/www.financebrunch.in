@@ -36,6 +36,7 @@ import { motion, useReducedMotion } from 'framer-motion';
 
 import { scrollToSection } from '@/lib/scrollUtils';
 import { RegulatoryDisclaimerGuard } from '@/components/compliance/RegulatoryDisclaimerGuard';
+import { PullCordThemeToggle } from '@/components/theme/PullCordThemeToggle';
 
 // Initialize React Query client
 const queryClient = new QueryClient({
@@ -137,6 +138,7 @@ function App() {
               <ScrollLinkedMotion />
               <GlobalAmbientBackground />
               <Navbar />
+              <PullCordThemeToggle />
               <PageTransition>
                 <Suspense fallback={<RouteLoadingFallback />}>
                   <Routes>

@@ -6,9 +6,7 @@ export function ThemeToggle() {
   const { theme, setTheme } = useTheme();
 
   const toggleTheme = () => {
-    const isDark = document.documentElement.classList.contains("dark") || theme === "dark";
-    const nextTheme = isDark ? "light" : "dark";
-    setTheme(nextTheme);
+    window.dispatchEvent(new CustomEvent('financebrunch:pull-cord'));
   };
 
   return (
