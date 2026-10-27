@@ -12,7 +12,7 @@ function fetch(url) {
 
 async function verify() {
   console.log('Fetching live index.html...');
-  const res = await fetch('https://arasadaanishkarthik.github.io/Finance-Brunch/index.html');
+  const res = await fetch('https://www.financebrunch.in/index.html');
   console.log('Status:', res.status);
   
   // Find all js chunks
@@ -22,7 +22,7 @@ async function verify() {
   // Check the subtle watermark image asset directly on GitHub Pages
   console.log('\nChecking live fb-watermark-subtle.png...');
   const imgRes = await new Promise((resolve) => {
-    https.get('https://arasadaanishkarthik.github.io/Finance-Brunch/images/fb-watermark-subtle.png', (r) => {
+    https.get('https://www.financebrunch.in/images/fb-watermark-subtle.png', (r) => {
       let size = 0;
       r.on('data', d => size += d.length);
       r.on('end', () => resolve({ status: r.statusCode, size }));
@@ -33,7 +33,7 @@ async function verify() {
   // Check the index js bundle
   const indexJsMatch = res.data.match(/\/assets\/index-[^"]+\.js/);
   if (indexJsMatch) {
-    const jsUrl = `https://arasadaanishkarthik.github.io/Finance-Brunch${indexJsMatch[0]}`;
+    const jsUrl = `https://www.financebrunch.in${indexJsMatch[0]}`;
     console.log(`\nFetching ${jsUrl}...`);
     const jsRes = await fetch(jsUrl);
     console.log(`Index JS Status: ${jsRes.status}, size: ${jsRes.data.length}`);
@@ -43,7 +43,7 @@ async function verify() {
     console.log('MutualFundCalculator chunk in bundle:', calcChunkMatch ? calcChunkMatch[0] : 'not found');
 
     if (calcChunkMatch) {
-      const chunkUrl = `https://arasadaanishkarthik.github.io/Finance-Brunch/assets/${calcChunkMatch[0]}`;
+      const chunkUrl = `https://www.financebrunch.in/assets/${calcChunkMatch[0]}`;
       console.log(`\nFetching live chunk: ${chunkUrl}...`);
       const chunkRes = await fetch(chunkUrl);
       console.log(`Chunk status: ${chunkRes.status}, size: ${chunkRes.data.length}`);

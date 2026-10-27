@@ -13,7 +13,7 @@ services:
       - key: PORT
         value: 10000
       - key: ALLOWED_ORIGINS
-        value: https://arasadaanishkarthik.github.io,http://localhost:8080
+        value: https://www.financebrunch.in,https://financebrunch.in,https://arasadaanishkarthik.github.io,http://localhost:8080
       - key: YOUTUBE_CHANNEL_ID
         value: UCgtssmXPtGcirH61m0MjrLQ
       - key: YOUTUBE_API_KEY

@@ -25,29 +25,6 @@
         }
       }(window.location));
     </script>
-    <!-- Asset URL resolver for GitHub Pages subpath hosting -->
-    <script type="text/javascript">
-      (function() {
-        var base = '/Finance-Brunch/';
-        if (window.location.pathname.startsWith(base)) {
-          var descriptor = Object.getOwnPropertyDescriptor(HTMLImageElement.prototype, 'src');
-          if (descriptor && descriptor.set) {
-            var originalSet = descriptor.set;
-            Object.defineProperty(HTMLImageElement.prototype, 'src', {
-              set: function(val) {
-                if (typeof val === 'string') {
-                  if (val.startsWith('/images/') || val.startsWith('/lovable-uploads/')) {
-                    val = base + val.slice(1);
-                  }
-                }
-                return originalSet.call(this, val);
-              },
-              get: descriptor.get
-            });
-          }
-        }
-      })();
-    </script>
   </head>
 
   <body>

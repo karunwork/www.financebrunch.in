@@ -40,7 +40,7 @@ app.get('/', (req, res) => {
       youtube: '/api/youtube',
       reviews: '/api/reviews'
     },
-    documentation: 'https://github.com/arasadaanishkarthik/Finance-Brunch#backend-service'
+    documentation: 'https://github.com/karunwork/www.financebrunch.in#backend-service'
   });
 });
 

@@ -1,11 +1,19 @@
+const { execSync } = require('child_process');
 const https = require('https');
 
-const commitSha = 'c1cd9393dd9d9d4b8c7c312e0e6cc16246449612';
+let commitSha = process.argv[2];
+if (!commitSha) {
+  try {
+    commitSha = execSync('git rev-parse HEAD', { encoding: 'utf8' }).trim();
+  } catch (e) {
+    commitSha = 'HEAD';
+  }
+}
 
 function getRuns() {
   const options = {
     hostname: 'api.github.com',
-    path: `/repos/arasadaanishkarthik/Finance-Brunch/actions/runs?head_sha=${commitSha}`,
+    path: `/repos/karunwork/www.financebrunch.in/actions/runs?head_sha=${commitSha}`,
     headers: { 'User-Agent': 'NodeJS' }
   };
 

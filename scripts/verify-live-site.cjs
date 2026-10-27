@@ -4,7 +4,7 @@ const net = require('net');
 const crypto = require('crypto');
 
 const chromePath = 'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe';
-const LIVE_URL = 'https://arasadaanishkarthik.github.io/Finance-Brunch/';
+const LIVE_URL = 'https://www.financebrunch.in/';
 
 function createWebSocketConnection(wsUrl) {
   return new Promise((resolve, reject) => {

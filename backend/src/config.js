@@ -4,7 +4,7 @@ dotenv.config();
 export const config = {
   port: parseInt(process.env.PORT || '5000', 10),
   nodeEnv: process.env.NODE_ENV || 'development',
-  allowedOrigins: (process.env.ALLOWED_ORIGINS || 'https://arasadaanishkarthik.github.io,http://localhost:8080,http://localhost:5173')
+  allowedOrigins: (process.env.ALLOWED_ORIGINS || 'https://www.financebrunch.in,https://financebrunch.in,https://arasadaanishkarthik.github.io,http://localhost:8080,http://localhost:5173')
     .split(',')
     .map(o => o.trim())
     .filter(Boolean),
