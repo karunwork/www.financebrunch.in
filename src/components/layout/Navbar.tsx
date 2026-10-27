@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { motion, useReducedMotion } from 'framer-motion';
-import { Menu, X, ChevronDown, ArrowRight } from 'lucide-react';
+import { Menu, X, ChevronDown } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { cn } from '@/lib/utils';
 import { ThemeToggle } from '@/components/theme/theme-toggle';
@@ -358,7 +358,6 @@ export default function Navbar() {
             <ThemeToggle />
             <Button 
               category="primary"
-              rightIcon={<ArrowRight className="h-4 w-4" />}
               onClick={() => navigate('/contact')}
             >
               Get Started
@@ -478,7 +477,6 @@ export default function Navbar() {
           <div className="pt-3">
             <Button
               category="primary"
-              rightIcon={<ArrowRight className="h-4 w-4" />}
               className="w-full"
               onClick={() => {
                 setIsMobileMenuOpen(false);

@@ -679,7 +679,7 @@
 .fb-btn-animated {
   position: relative;
   overflow: hidden;
-  border-radius: 0.75rem;
+  border-radius: 0.375rem;
   font-weight: 600;
   transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1),
               box-shadow 0.2s cubic-bezier(0.16, 1, 0.3, 1),
@@ -713,32 +713,32 @@
   z-index: 1;
 }
 
-/* Individual thin horizontal glowing light streak */
+/* Individual thin horizontal glowing light streak (GPU-accelerated, zero repaints) */
 .fb-btn-streak {
   position: absolute;
   height: 1.5px;
   background: linear-gradient(
     90deg,
     transparent 0%,
-    rgba(255, 255, 255, 0.15) 20%,
+    rgba(255, 255, 255, 0.2) 20%,
     rgba(255, 255, 255, 0.95) 50%,
-    rgba(255, 255, 255, 0.15) 80%,
+    rgba(255, 255, 255, 0.2) 80%,
     transparent 100%
   );
-  filter: drop-shadow(0 0 3px rgba(255, 255, 255, 0.85));
   border-radius: 9999px;
   pointer-events: none;
+  will-change: transform;
 }
 
 .fb-btn-streak-1 {
-  top: 24%;
+  top: 25%;
   width: 45%;
   animation: fb-streak-slide-1 2.5s cubic-bezier(0.4, 0, 0.2, 1) infinite;
 }
 
 .fb-btn-streak-2 {
-  top: 54%;
-  width: 60%;
+  top: 68%;
+  width: 55%;
   animation: fb-streak-slide-2 3.2s cubic-bezier(0.4, 0, 0.2, 1) 0.85s infinite;
 }
 
@@ -763,11 +763,12 @@
   );
   animation: fb-streak-glow-slide 2.8s ease-in-out infinite;
   pointer-events: none;
+  will-change: transform;
 }
 
 @keyframes fb-streak-slide-1 {
   0% {
-    transform: translateX(-130%);
+    transform: translate3d(-130%, 0, 0);
     opacity: 0;
   }
   15% {
@@ -777,14 +778,14 @@
     opacity: 0.9;
   }
   100% {
-    transform: translateX(320%);
+    transform: translate3d(320%, 0, 0);
     opacity: 0;
   }
 }
 
 @keyframes fb-streak-slide-2 {
   0% {
-    transform: translateX(-140%);
+    transform: translate3d(-140%, 0, 0);
     opacity: 0;
   }
   20% {
@@ -794,14 +795,14 @@
     opacity: 0.85;
   }
   100% {
-    transform: translateX(300%);
+    transform: translate3d(300%, 0, 0);
     opacity: 0;
   }
 }
 
 @keyframes fb-streak-slide-3 {
   0% {
-    transform: translateX(-150%);
+    transform: translate3d(-150%, 0, 0);
     opacity: 0;
   }
   25% {
@@ -811,17 +812,17 @@
     opacity: 0.95;
   }
   100% {
-    transform: translateX(350%);
+    transform: translate3d(350%, 0, 0);
     opacity: 0;
   }
 }
 
 @keyframes fb-streak-glow-slide {
   0% {
-    transform: translateX(-110%);
+    transform: translate3d(-110%, 0, 0);
   }
   100% {
-    transform: translateX(320%);
+    transform: translate3d(320%, 0, 0);
   }
 }
 

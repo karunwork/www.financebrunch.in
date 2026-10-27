@@ -181,6 +181,7 @@ export function PullCordThemeToggle() {
     let isRunning = false;
     let lastTime = 0;
     let prevDt = 0;
+    let wakeTimestamp = 0;
 
     const renderSvg = () => {
       const pathD = pointsToSvgPath(pts);
@@ -201,7 +202,7 @@ export function PullCordThemeToggle() {
     };
 
     const step = (time: number) => {
-      const { gravity, damping, iterations, sleepVelocity } = configRef.current;
+      const { gravity, damping, iterations } = configRef.current;
       const dt = lastTime ? Math.min(0.04, Math.max(0.004, (time - lastTime) / 1000)) : 1 / 60;
       lastTime = time;
 
@@ -228,6 +229,7 @@ export function PullCordThemeToggle() {
 
       // Trailing point follows user pointer while dragging
       if (isDraggingRef.current) {
+        wakeTimestamp = time;
         pts[lastIdx].ox = pts[lastIdx].x;
         pts[lastIdx].oy = pts[lastIdx].y;
         pts[lastIdx].x = targetPosRef.current.x;
@@ -260,13 +262,27 @@ export function PullCordThemeToggle() {
       prevDt = dt;
       renderSvg();
 
-      // 3. Kinetic energy sleep detection
-      let totalMovement = 0;
+      // 3. Kinetic energy & settle sleep detection
+      let maxHorizontalDev = 0;
+      let totalSpeed = 0;
       for (let i = 1; i < pts.length; i++) {
-        totalMovement += Math.abs(pts[i].x - pts[i].ox) + Math.abs(pts[i].y - pts[i].oy);
+        maxHorizontalDev = Math.max(maxHorizontalDev, Math.abs(pts[i].x - 32));
+        totalSpeed += Math.abs(pts[i].x - pts[i].ox) + Math.abs(pts[i].y - pts[i].oy);
       }
 
-      if (!isDraggingRef.current && totalMovement < sleepVelocity * dt * 60) {
+      const elapsed = time - wakeTimestamp;
+      const isSettled =
+        (elapsed > 500 && maxHorizontalDev < 0.25 && totalSpeed < 0.6) ||
+        elapsed > 2000;
+
+      if (!isDraggingRef.current && isSettled) {
+        // Snap cleanly to rest alignment and sleep
+        for (let i = 0; i < pts.length; i++) {
+          pts[i].x = 32;
+          pts[i].ox = 32;
+          pts[i].y = i * SEGMENT_LEN;
+          pts[i].oy = i * SEGMENT_LEN;
+        }
         renderSvg();
         isRunning = false;
         return;
@@ -276,6 +292,7 @@ export function PullCordThemeToggle() {
     };
 
     wakePhysicsRef.current = () => {
+      wakeTimestamp = performance.now();
       if (!isRunning) {
         isRunning = true;
         lastTime = 0;

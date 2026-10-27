@@ -32,18 +32,18 @@ export const categoryClassMap: Record<ButtonCategory, string> = {
 export const sizeClasses = {
   sm: {
     btn: "h-9 text-xs",
-    text: "px-3.5 py-1.5",
-    icon: "px-2.5",
+    text: "px-3 py-1",
+    icon: "px-2",
   },
   default: {
     btn: "h-10 text-sm",
-    text: "px-4 py-2",
-    icon: "px-3",
+    text: "px-3.5 py-1.5",
+    icon: "px-2.5",
   },
   lg: {
-    btn: "h-12 text-base",
-    text: "px-6 py-2.5",
-    icon: "px-4",
+    btn: "h-11 text-sm font-semibold",
+    text: "px-5 py-2",
+    icon: "px-3",
   },
 };
 
@@ -52,8 +52,6 @@ export function LightStreaksOverlay() {
     <span className="fb-btn-streaks-container" aria-hidden="true">
       <span className="fb-btn-streak fb-btn-streak-1" />
       <span className="fb-btn-streak fb-btn-streak-2" />
-      <span className="fb-btn-streak fb-btn-streak-3" />
-      <span className="fb-btn-streak-glow" />
     </span>
   );
 }
