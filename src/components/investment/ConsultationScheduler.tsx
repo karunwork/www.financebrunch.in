@@ -293,7 +293,11 @@ export function ConsultationScheduler({ open, onOpenChange }: ConsultationSchedu
                 <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
                   Cancel
                 </Button>
-                <Button type="submit" className="bg-blue-600 hover:bg-blue-700">
+                <Button
+                  type="submit"
+                  category="primary"
+                  rightIcon={<CalendarIcon className="h-4 w-4" />}
+                >
                   Request Consultation
                 </Button>
               </DialogFooter>
@@ -341,11 +345,13 @@ export function ConsultationScheduler({ open, onOpenChange }: ConsultationSchedu
               </Alert>
             </div>
             
-            <DialogFooter>
-              <Button onClick={() => onOpenChange(false)} className="w-full bg-blue-600 hover:bg-blue-700">
+              <Button
+                onClick={() => onOpenChange(false)}
+                category="primary"
+                className="w-full"
+              >
                 Close
               </Button>
-            </DialogFooter>
           </div>
         )}
       </DialogContent>

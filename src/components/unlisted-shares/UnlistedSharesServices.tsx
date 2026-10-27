@@ -77,20 +77,12 @@ export function UnlistedSharesServices({ handleContactAdvisor }: UnlistedSharesS
           
           <Button 
             size="lg"
-            className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white"
+            category="investment"
+            rightIcon={isMobile ? <Phone className="h-5 w-5" /> : <ExternalLink className="h-5 w-5" />}
+            className="font-semibold"
             onClick={handleContactAdvisor}
           >
-            {isMobile ? (
-              <>
-                Call Our Unlisted Shares Specialist
-                <Phone className="ml-2 h-5 w-5" />
-              </>
-            ) : (
-              <>
-                Connect with Unlisted Shares Specialist
-                <ExternalLink className="ml-2 h-5 w-5" />
-              </>
-            )}
+            {isMobile ? "Call Our Unlisted Shares Specialist" : "Connect with Unlisted Shares Specialist"}
           </Button>
         </div>
       </div>

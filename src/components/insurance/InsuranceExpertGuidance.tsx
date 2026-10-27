@@ -171,20 +171,21 @@ export const InsuranceExpertGuidance: React.FC<InsuranceExpertGuidanceProps> = (
                 <Link to="/contact?service=Health+Insurance" className="block w-full">
                   <Button
                     size="lg"
-                    className="w-full bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-500 hover:to-cyan-500 text-white font-semibold rounded-xl gap-2 shadow-lg shadow-blue-600/30 text-sm"
+                    category="insurance"
+                    rightIcon={<ArrowRight className="h-4 w-4" />}
+                    className="w-full font-semibold rounded-xl shadow-lg text-sm"
                   >
-                    <span>Schedule Consultation via Web Form</span>
-                    <ArrowRight className="h-4 w-4" />
+                    Schedule Consultation via Web Form
                   </Button>
                 </Link>
 
                 <Button
                   size="lg"
-                  variant="outline"
+                  category="success"
+                  rightIcon={<Phone className="h-4 w-4" />}
                   onClick={() => onWhatsApp('Health Insurance')}
-                  className="w-full border-emerald-400/30 bg-emerald-950/30 hover:bg-emerald-900/40 text-emerald-300 font-semibold rounded-xl gap-2 text-sm"
+                  className="w-full font-semibold rounded-xl text-sm"
                 >
-                  <Phone className="h-4 w-4 text-emerald-400" />
                   Chat on WhatsApp Now
                 </Button>
               </div>

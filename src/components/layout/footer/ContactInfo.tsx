@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { Mail, Phone, MapPin } from 'lucide-react';
+import { Mail, Phone, MapPin, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { toast } from 'sonner';
@@ -72,9 +72,9 @@ export const ContactInfo = () => {
           />
           <Button 
             type="submit" 
-            variant="default" 
             size="sm" 
-            className="button-hover hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98] transition-all duration-200"
+            category="secondary"
+            rightIcon={<Sparkles className="h-3.5 w-3.5" />}
           >
             Subscribe
           </Button>

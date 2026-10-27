@@ -83,17 +83,18 @@ export default function GlobalPresence() {
             <div className="pt-1 flex flex-col sm:flex-row gap-2.5">
               <Button 
                 onClick={() => navigate('/contact')}
-                className="flex-1 h-9 text-xs sm:text-sm button-hover group hover:-translate-y-0.5 active:translate-y-0 hover:shadow-xs transition-all duration-200"
+                category="primary"
+                rightIcon={<Users className="h-3.5 w-3.5" />}
+                className="flex-1 h-9 text-xs sm:text-sm font-semibold"
               >
-                <Users className="mr-2 h-3.5 w-3.5 transition-transform duration-200 group-hover:scale-110" />
                 Schedule a Consultation
               </Button>
               <Button 
-                variant="outline"
                 onClick={() => navigate('/nri-services')}
-                className="flex-1 h-9 text-xs sm:text-sm border-primary/20 hover:border-primary/50 text-primary hover:bg-primary/5 transition-all duration-200 hover:-translate-y-0.5"
+                category="secondary"
+                rightIcon={<Plane className="h-3.5 w-3.5" />}
+                className="flex-1 h-9 text-xs sm:text-sm font-semibold"
               >
-                <Plane className="mr-2 h-3.5 w-3.5" />
                 NRI Services
               </Button>
             </div>

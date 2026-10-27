@@ -41,23 +41,26 @@ export const CalculatorCTAButtons: React.FC<CalculatorCTAButtonsProps> = ({
       <Button
         type="button"
         onClick={handleInvestNow}
-        className="flex-1 h-11 sm:h-12 px-6 rounded-xl font-semibold text-sm sm:text-base bg-blue-600 hover:bg-blue-700 text-white dark:bg-cyan-500 dark:hover:bg-cyan-400 dark:text-slate-950 shadow-md hover:shadow-lg transition-all duration-200 flex items-center justify-center gap-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 dark:focus-visible:ring-cyan-400 cursor-pointer"
+        category="investment"
+        size="lg"
+        rightIcon={<ArrowUpRight className="h-4 w-4" />}
+        className="flex-1"
         aria-label="Invest Now in Mutual Funds"
       >
-        <span>Invest Now</span>
-        <ArrowUpRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+        Invest Now
       </Button>
 
       {/* 2. Secondary Call-to-Action: Connect With Mutual Fund Advisor */}
       <Button
         type="button"
-        variant="outline"
         onClick={handleConnectAdvisor}
-        className="flex-1 h-11 sm:h-12 px-5 rounded-xl font-semibold text-sm sm:text-base border-2 border-blue-600/80 text-blue-600 hover:bg-blue-50/80 dark:border-cyan-400/80 dark:text-cyan-300 dark:hover:bg-cyan-950/40 shadow-xs hover:shadow-sm transition-all duration-200 flex items-center justify-center gap-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-500 focus-visible:ring-offset-2 dark:focus-visible:ring-cyan-400 cursor-pointer text-center"
+        category="primary"
+        size="lg"
+        rightIcon={<MessageSquare className="h-4 w-4" />}
+        className="flex-1"
         aria-label="Connect With Mutual Fund Advisor"
       >
-        <MessageSquare className="h-4 w-4 shrink-0 text-blue-600 dark:text-cyan-400" />
-        <span className="truncate sm:whitespace-normal">Connect With Mutual Fund Advisor</span>
+        Connect With Mutual Fund Advisor
       </Button>
     </div>
   );

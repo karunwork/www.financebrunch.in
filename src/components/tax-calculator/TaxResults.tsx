@@ -293,30 +293,33 @@ const TaxResults: React.FC<TaxResultsProps> = ({
           <CardTitle>Tax Calculation Results</CardTitle>
           <div className="flex gap-2 items-center flex-wrap">
             <Button
-              variant="outline"
+              category="secondary"
               size="sm"
               className="text-xs"
+              rightIcon={<Printer className="h-3 w-3" />}
               onClick={handlePrint}
               aria-label="Print Tax Calculation Report"
             >
-              <Printer className="h-3 w-3 mr-1" /> Print
+              Print
             </Button>
 
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button
-                  variant="outline"
+                  category="primary"
                   size="sm"
                   className="text-xs"
                   disabled={isExporting}
+                  rightIcon={
+                    isExporting ? (
+                      <Loader2 className="h-3 w-3 animate-spin" />
+                    ) : (
+                      <ChevronDown className="h-3 w-3" />
+                    )
+                  }
                   aria-label="Download Tax Calculation Report"
                 >
-                  {isExporting ? (
-                    <Loader2 className="h-3 w-3 mr-1 animate-spin" />
-                  ) : (
-                    <Download className="h-3 w-3 mr-1" />
-                  )}
-                  Download <ChevronDown className="h-3 w-3 ml-1 opacity-70" />
+                  Download Report
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-56">
@@ -344,13 +347,14 @@ const TaxResults: React.FC<TaxResultsProps> = ({
             </DropdownMenu>
 
             <Button
-              variant="outline"
+              category="calculator"
               size="sm"
               className="text-xs"
+              rightIcon={<Share2 className="h-3 w-3" />}
               onClick={handleShare}
               aria-label="Share Tax Calculation Summary"
             >
-              <Share2 className="h-3 w-3 mr-1" /> Share
+              Share
             </Button>
           </div>
         </div>

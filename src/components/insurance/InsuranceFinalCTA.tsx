@@ -47,20 +47,21 @@ export const InsuranceFinalCTA: React.FC<InsuranceFinalCTAProps> = ({ onWhatsApp
               <Link to="/contact?service=Insurance+Planning" className="w-full sm:w-auto">
                 <Button
                   size="lg"
-                  className="w-full sm:w-auto bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-500 hover:to-cyan-500 text-white font-bold px-8 py-6 rounded-xl shadow-xl shadow-blue-600/30 gap-2 text-base"
+                  category="insurance"
+                  rightIcon={<ArrowRight className="h-4 w-4" />}
+                  className="w-full sm:w-auto font-bold px-8 py-6 rounded-xl shadow-xl text-base"
                 >
                   Schedule Free Insurance Consultation
-                  <ArrowRight className="h-4 w-4" />
                 </Button>
               </Link>
 
               <Button
                 size="lg"
-                variant="outline"
+                category="success"
+                rightIcon={<Phone className="h-4 w-4" />}
                 onClick={() => onWhatsApp('General Insurance')}
-                className="w-full sm:w-auto border-emerald-400/30 bg-emerald-950/40 hover:bg-emerald-900/50 text-emerald-300 font-bold px-7 py-6 rounded-xl gap-2 text-base backdrop-blur-md"
+                className="w-full sm:w-auto font-bold px-7 py-6 rounded-xl text-base"
               >
-                <Phone className="h-4 w-4 text-emerald-400" />
                 Chat on WhatsApp Now
               </Button>
             </div>

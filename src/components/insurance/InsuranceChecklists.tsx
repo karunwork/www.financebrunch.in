@@ -182,13 +182,13 @@ export const InsuranceChecklists: React.FC = () => {
           {/* Action Toolbar */}
           <div className="flex flex-wrap items-center justify-center gap-3 mt-6 print:hidden">
             <Button
-              variant="outline"
               size="sm"
+              category="secondary"
+              rightIcon={<Printer className="h-3.5 w-3.5" />}
               onClick={handlePrint}
-              className="border-slate-300 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200 text-xs font-medium gap-1.5"
+              className="text-xs font-medium"
             >
-              <Printer className="h-3.5 w-3.5 text-blue-600 dark:text-cyan-400" />
-              <span>Print / Save Checklist</span>
+              Print / Save Checklist
             </Button>
             <Button
               variant="ghost"

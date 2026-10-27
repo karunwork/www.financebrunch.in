@@ -118,9 +118,13 @@ export const InsuranceWhyTrust: React.FC = () => {
           </div>
 
           <Link to="/about" className="shrink-0">
-            <Button variant="outline" className="border-blue-300 dark:border-blue-800 hover:bg-blue-50 dark:hover:bg-blue-950 text-xs sm:text-sm font-semibold gap-1.5">
-              <span>About Finance Brunch</span>
-              <ArrowRight className="h-4 w-4" />
+            <Button
+              size="sm"
+              category="secondary"
+              rightIcon={<ArrowRight className="h-4 w-4" />}
+              className="text-xs sm:text-sm font-semibold"
+            >
+              About Finance Brunch
             </Button>
           </Link>
         </div>

@@ -229,7 +229,7 @@ export function USAStockPopup({ open, onOpenChange }: USAStockPopupProps) {
                       growth investing, and international portfolio diversification for Indian investors.
                     </p>
                     <Button 
-                      variant="outline" 
+                      category="primary" 
                       className="w-full"
                       onClick={() => setScheduleOpen(true)}
                     >
@@ -250,11 +250,11 @@ export function USAStockPopup({ open, onOpenChange }: USAStockPopupProps) {
             </Button>
             
             <Button 
+              category="investment"
+              rightIcon={<ExternalLink className="h-4 w-4" />}
               onClick={() => window.open('https://www.indmoney.com/', '_blank')}
-              className="bg-blue-600 hover:bg-blue-700 dark:bg-blue-600 dark:hover:bg-blue-700"
             >
               Invest via INDmoney
-              <ExternalLink className="ml-2 h-4 w-4" />
             </Button>
           </DialogFooter>
         </DialogContent>

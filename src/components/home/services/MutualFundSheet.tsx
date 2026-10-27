@@ -118,10 +118,12 @@ export function MutualFundSheet() {
                 </div>
                 <div className="p-8 pt-0">
                   <Button 
-                    className="w-full group-hover:bg-blue-600 transition-colors"
+                    category="investment"
+                    rightIcon={<ChevronRight className="h-4 w-4" />}
+                    className="w-full font-semibold shadow-md"
                     onClick={() => window.open('https://angel-one.onelink.me/Wjgr/f6agg88z', '_blank')}
                   >
-                    Open Account <ChevronRight className="ml-1 h-4 w-4 transition-transform group-hover:translate-x-1" />
+                    Open Account
                   </Button>
                 </div>
               </Card>
@@ -160,10 +162,12 @@ export function MutualFundSheet() {
                 </div>
                 <div className="p-8 pt-0">
                   <Button 
-                    className="w-full bg-primary hover:bg-primary/90 text-white font-semibold transition-colors shadow-md"
+                    category="investment"
+                    rightIcon={<ChevronRight className="h-4 w-4" />}
+                    className="w-full font-semibold shadow-md"
                     onClick={() => window.open('https://njwealth.in/', '_blank')}
                   >
-                    Open Account <ChevronRight className="ml-1 h-4 w-4 transition-transform group-hover:translate-x-1" />
+                    Open Account
                   </Button>
                 </div>
               </Card>
@@ -180,10 +184,11 @@ export function MutualFundSheet() {
                 </div>
                 <Button 
                   size="lg" 
-                  className="bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary"
+                  category="success"
+                  rightIcon={<ExternalLink className="h-4 w-4" />}
                   onClick={() => window.open('https://wa.me/917842494981?text=Hi%20Finance%20Brunch%20Team%2C%20I%27m%20interested%20in%20mutual%20fund%20investments.%20Can%20we%20connect%3F', '_blank')}
                 >
-                  Contact Us <ExternalLink className="ml-2 h-4 w-4" />
+                  Contact Us
                 </Button>
               </div>
             </div>

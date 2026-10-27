@@ -63,9 +63,13 @@ export function CalculatorResults({ amount, years, result }: CalculatorResultsPr
         
         <div className="mt-8 flex justify-center">
           <Link to="/calculator">
-            <Button size="lg" className="button-hover group bg-white text-blue-600 hover:bg-blue-50 transition-all shadow-md hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98] hover:shadow-lg">
+            <Button
+              size="lg"
+              category="calculator"
+              rightIcon={<ArrowRight size={16} />}
+              className="font-semibold shadow-md"
+            >
               Explore More Calculators
-              <ArrowRight size={16} className="ml-2 transition-transform duration-300 group-hover:translate-x-1.5" />
             </Button>
           </Link>
         </div>

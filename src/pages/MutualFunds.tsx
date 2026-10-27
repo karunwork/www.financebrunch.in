@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { 
   ArrowLeft, TrendingUp, ShieldCheck, Sparkles, PieChart, 
-  CheckCircle2, ChevronRight, Shield, ExternalLink 
+  CheckCircle2, ChevronRight, Shield, ExternalLink, ChevronDown
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -95,17 +95,18 @@ const MutualFunds = () => {
               <Button
                 onClick={handleConsultantClick}
                 size="lg"
-                className="bg-blue-600 hover:bg-blue-700 text-white font-semibold shadow-lg shadow-blue-600/30"
+                category="investment"
+                rightIcon={<TrendingUp className="h-4 w-4" />}
               >
                 Start Your SIP with an Advisor
               </Button>
               <Button
-                variant="outline"
                 size="lg"
+                category="calculator"
+                rightIcon={<ChevronDown className="h-4 w-4" />}
                 onClick={() => {
                   document.getElementById('calculator-section')?.scrollIntoView({ behavior: 'smooth' });
                 }}
-                className="bg-white/10 hover:bg-white/20 text-white border-white/20 backdrop-blur-md"
               >
                 Calculate Returns Below
               </Button>
@@ -238,10 +239,12 @@ const MutualFunds = () => {
               </div>
               <div className="p-7 sm:p-8 pt-0">
                 <Button 
-                  className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold transition-colors shadow-md"
+                  category="investment"
+                  rightIcon={<ChevronRight className="h-4 w-4" />}
+                  className="w-full font-semibold shadow-md"
                   onClick={() => window.open('https://angel-one.onelink.me/Wjgr/f6agg88z', '_blank')}
                 >
-                  Open Account <ChevronRight className="ml-1 h-4 w-4 transition-transform group-hover:translate-x-1" />
+                  Open Account
                 </Button>
               </div>
             </Card>
@@ -278,10 +281,12 @@ const MutualFunds = () => {
               </div>
               <div className="p-7 sm:p-8 pt-0">
                 <Button 
-                  className="w-full bg-primary hover:bg-primary/90 text-white font-semibold transition-colors shadow-md"
+                  category="investment"
+                  rightIcon={<ChevronRight className="h-4 w-4" />}
+                  className="w-full font-semibold shadow-md"
                   onClick={() => window.open('https://njwealth.in/', '_blank')}
                 >
-                  Open Account <ChevronRight className="ml-1 h-4 w-4 transition-transform group-hover:translate-x-1" />
+                  Open Account
                 </Button>
               </div>
             </Card>
@@ -369,10 +374,11 @@ const MutualFunds = () => {
               </div>
               <Button 
                 size="lg" 
-                className="bg-white text-blue-700 hover:bg-slate-100 font-bold px-8 shadow-md shrink-0"
+                category="success"
+                rightIcon={<ExternalLink className="h-4 w-4" />}
                 onClick={handleConsultantClick}
               >
-                Connect on WhatsApp <ExternalLink className="ml-2 h-4 w-4" />
+                Connect on WhatsApp
               </Button>
             </div>
           </div>

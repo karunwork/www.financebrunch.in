@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { motion, useReducedMotion } from 'framer-motion';
-import { Menu, X, ChevronDown } from 'lucide-react';
+import { Menu, X, ChevronDown, ArrowRight } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { cn } from '@/lib/utils';
 import { ThemeToggle } from '@/components/theme/theme-toggle';
@@ -357,7 +357,8 @@ export default function Navbar() {
           <div className="hidden md:flex items-center space-x-3">
             <ThemeToggle />
             <Button 
-              className="bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 text-white font-medium shadow-sm transition-all duration-200 hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98] hover:shadow-md focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-darkblue-950"
+              category="primary"
+              rightIcon={<ArrowRight className="h-4 w-4" />}
               onClick={() => navigate('/contact')}
             >
               Get Started
@@ -476,7 +477,9 @@ export default function Navbar() {
           ))}
           <div className="pt-3">
             <Button
-              className="w-full bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 text-white font-medium shadow-sm transition-all duration-200 hover:shadow-md focus-visible:ring-2 focus-visible:ring-blue-500"
+              category="primary"
+              rightIcon={<ArrowRight className="h-4 w-4" />}
+              className="w-full"
               onClick={() => {
                 setIsMobileMenuOpen(false);
                 navigate('/contact');

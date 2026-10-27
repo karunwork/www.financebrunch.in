@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
 import { motion, useReducedMotion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
+import { ArrowRight, Calculator } from 'lucide-react';
 import { EASING, DURATIONS } from '@/lib/animations';
 import { AnimatedNumber } from '@/components/ui/AnimatedNumber';
 import HeroFloatingGraph from './HeroFloatingGraph';
@@ -63,15 +64,17 @@ const Hero = () => {
               <Button 
                 onClick={handleConsultantClick}
                 size="lg" 
-                className="text-white bg-primary hover:bg-primary/90 shadow-sm transition-all duration-200 hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98] hover:shadow-md focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-darkblue-950"
+                category="primary"
+                rightIcon={<ArrowRight className="h-4 w-4" />}
               >
                 Schedule a Consultation
               </Button>
-              <Link to="/calculator">
+              <Link to="/calculator" className="w-full sm:w-auto">
                 <Button 
                   size="lg" 
-                  variant="outline" 
-                  className="w-full sm:w-auto shadow-sm border border-gray-200 dark:border-gray-800 hover:border-primary/50 transition-all duration-200 hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98] hover:shadow-md focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-darkblue-950"
+                  category="calculator"
+                  rightIcon={<Calculator className="h-4 w-4" />}
+                  className="w-full sm:w-auto"
                 >
                   Try Our Calculators
                 </Button>

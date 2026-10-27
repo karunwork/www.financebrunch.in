@@ -86,39 +86,22 @@ export const DownloadResultsSection: React.FC<DownloadResultsSectionProps> = ({
               onClick={handleDownloadPdf}
               disabled={isExportingPdf || isExportingDocx}
               size="sm"
-              className="flex-1 sm:flex-none bg-blue-600 hover:bg-blue-700 text-white font-semibold shadow-sm transition-all"
+              category="primary"
+              rightIcon={isExportingPdf ? <Loader2 className="w-4 h-4 animate-spin" /> : <FileText className="w-4 h-4" />}
+              className="flex-1 sm:flex-none font-semibold shadow-sm"
             >
-              {isExportingPdf ? (
-                <>
-                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                  Generating PDF...
-                </>
-              ) : (
-                <>
-                  <FileText className="w-4 h-4 mr-2" />
-                  Download PDF
-                </>
-              )}
+              {isExportingPdf ? 'Generating PDF...' : 'Download PDF'}
             </Button>
 
             <Button
               onClick={handleDownloadDocx}
               disabled={isExportingPdf || isExportingDocx}
-              variant="outline"
               size="sm"
-              className="flex-1 sm:flex-none border-slate-300 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-900 dark:text-white font-semibold transition-all"
+              category="secondary"
+              rightIcon={isExportingDocx ? <Loader2 className="w-4 h-4 animate-spin" /> : <FileDown className="w-4 h-4" />}
+              className="flex-1 sm:flex-none font-semibold shadow-sm"
             >
-              {isExportingDocx ? (
-                <>
-                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                  Generating Word...
-                </>
-              ) : (
-                <>
-                  <FileDown className="w-4 h-4 mr-2 text-blue-600 dark:text-cyan-400" />
-                  Download Word (.docx)
-                </>
-              )}
+              {isExportingDocx ? 'Generating Word...' : 'Download Word (.docx)'}
             </Button>
           </div>
         </div>

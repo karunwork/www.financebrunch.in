@@ -92,19 +92,11 @@ const AdvisorPopup = ({ open, onOpenChange }: AdvisorPopupProps) => {
         <DialogFooter className="sm:justify-center mt-4">
           <Button 
             onClick={handleConnect}
-            className="w-full sm:w-auto bg-blue-600 hover:bg-blue-700 text-white"
+            category={isMobile ? "primary" : "success"}
+            rightIcon={isMobile ? <Phone className="h-4 w-4" /> : <ExternalLink className="h-4 w-4" />}
+            className="w-full sm:w-auto font-semibold"
           >
-            {isMobile ? (
-              <>
-                Call Advisor Now
-                <Phone className="ml-2 h-4 w-4" />
-              </>
-            ) : (
-              <>
-                Connect with Advisor on WhatsApp
-                <ExternalLink className="ml-2 h-4 w-4" />
-              </>
-            )}
+            {isMobile ? "Call Advisor Now" : "Connect with Advisor on WhatsApp"}
           </Button>
         </DialogFooter>
       </DialogContent>

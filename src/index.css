@@ -659,3 +659,241 @@
   }
 }
 
+/* ==========================================================================
+   Finance Brunch — Animated Button System with Horizontal Light Streaks
+   ========================================================================== */
+.fb-btn-animated {
+  position: relative;
+  overflow: hidden;
+  border-radius: 0.75rem;
+  font-weight: 600;
+  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1),
+              box-shadow 0.2s cubic-bezier(0.16, 1, 0.3, 1),
+              filter 0.2s ease;
+}
+
+.fb-btn-animated:hover:not(:disabled) {
+  transform: translateY(-1.5px);
+  filter: brightness(1.05);
+}
+
+.fb-btn-animated:active:not(:disabled) {
+  transform: translateY(0) scale(0.985);
+  filter: brightness(0.98);
+}
+
+.fb-btn-animated:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+  pointer-events: none;
+  filter: grayscale(0.2);
+}
+
+/* Light streaks container */
+.fb-btn-streaks-container {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  border-radius: inherit;
+  z-index: 1;
+}
+
+/* Individual thin horizontal glowing light streak */
+.fb-btn-streak {
+  position: absolute;
+  height: 1.5px;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.15) 20%,
+    rgba(255, 255, 255, 0.95) 50%,
+    rgba(255, 255, 255, 0.15) 80%,
+    transparent 100%
+  );
+  filter: drop-shadow(0 0 3px rgba(255, 255, 255, 0.85));
+  border-radius: 9999px;
+  pointer-events: none;
+}
+
+.fb-btn-streak-1 {
+  top: 24%;
+  width: 45%;
+  animation: fb-streak-slide-1 2.5s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+}
+
+.fb-btn-streak-2 {
+  top: 54%;
+  width: 60%;
+  animation: fb-streak-slide-2 3.2s cubic-bezier(0.4, 0, 0.2, 1) 0.85s infinite;
+}
+
+.fb-btn-streak-3 {
+  top: 80%;
+  width: 38%;
+  animation: fb-streak-slide-3 2.7s cubic-bezier(0.4, 0, 0.2, 1) 1.55s infinite;
+}
+
+.fb-btn-streak-glow {
+  top: 0;
+  bottom: 0;
+  width: 45%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.03) 30%,
+    rgba(255, 255, 255, 0.18) 50%,
+    rgba(255, 255, 255, 0.03) 70%,
+    transparent 100%
+  );
+  animation: fb-streak-glow-slide 2.8s ease-in-out infinite;
+  pointer-events: none;
+}
+
+@keyframes fb-streak-slide-1 {
+  0% {
+    transform: translateX(-130%);
+    opacity: 0;
+  }
+  15% {
+    opacity: 0.9;
+  }
+  85% {
+    opacity: 0.9;
+  }
+  100% {
+    transform: translateX(320%);
+    opacity: 0;
+  }
+}
+
+@keyframes fb-streak-slide-2 {
+  0% {
+    transform: translateX(-140%);
+    opacity: 0;
+  }
+  20% {
+    opacity: 0.85;
+  }
+  80% {
+    opacity: 0.85;
+  }
+  100% {
+    transform: translateX(300%);
+    opacity: 0;
+  }
+}
+
+@keyframes fb-streak-slide-3 {
+  0% {
+    transform: translateX(-150%);
+    opacity: 0;
+  }
+  25% {
+    opacity: 0.95;
+  }
+  75% {
+    opacity: 0.95;
+  }
+  100% {
+    transform: translateX(350%);
+    opacity: 0;
+  }
+}
+
+@keyframes fb-streak-glow-slide {
+  0% {
+    transform: translateX(-110%);
+  }
+  100% {
+    transform: translateX(320%);
+  }
+}
+
+/* Category Palette Gradients */
+.fb-btn-primary {
+  background: linear-gradient(135deg, #1d4ed8 0%, #2563eb 45%, #06b6d4 100%);
+  box-shadow: 0 4px 14px -2px rgba(37, 99, 235, 0.35);
+  border: 1px solid rgba(147, 197, 253, 0.35);
+}
+.fb-btn-primary:hover:not(:disabled) {
+  box-shadow: 0 6px 20px -2px rgba(37, 99, 235, 0.45);
+}
+
+.fb-btn-investment {
+  background: linear-gradient(135deg, #0f766e 0%, #0d9488 45%, #10b981 100%);
+  box-shadow: 0 4px 14px -2px rgba(13, 148, 136, 0.35);
+  border: 1px solid rgba(110, 231, 183, 0.35);
+}
+.fb-btn-investment:hover:not(:disabled) {
+  box-shadow: 0 6px 20px -2px rgba(13, 148, 136, 0.45);
+}
+
+.fb-btn-calculator {
+  background: linear-gradient(135deg, #6d28d9 0%, #7c3aed 45%, #2563eb 100%);
+  box-shadow: 0 4px 14px -2px rgba(124, 58, 237, 0.35);
+  border: 1px solid rgba(196, 181, 253, 0.35);
+}
+.fb-btn-calculator:hover:not(:disabled) {
+  box-shadow: 0 6px 20px -2px rgba(124, 58, 237, 0.45);
+}
+
+.fb-btn-insurance {
+  background: linear-gradient(135deg, #4338ca 0%, #4f46e5 45%, #0891b2 100%);
+  box-shadow: 0 4px 14px -2px rgba(79, 70, 229, 0.35);
+  border: 1px solid rgba(165, 180, 252, 0.35);
+}
+.fb-btn-insurance:hover:not(:disabled) {
+  box-shadow: 0 6px 20px -2px rgba(79, 70, 229, 0.45);
+}
+
+.fb-btn-secondary {
+  background: linear-gradient(135deg, #334155 0%, #475569 50%, #64748b 100%);
+  box-shadow: 0 4px 12px -2px rgba(71, 85, 105, 0.3);
+  border: 1px solid rgba(203, 213, 225, 0.25);
+}
+.fb-btn-secondary:hover:not(:disabled) {
+  box-shadow: 0 6px 18px -2px rgba(71, 85, 105, 0.4);
+}
+
+.fb-btn-success {
+  background: linear-gradient(135deg, #047857 0%, #059669 45%, #0d9488 100%);
+  box-shadow: 0 4px 14px -2px rgba(5, 150, 105, 0.35);
+  border: 1px solid rgba(110, 231, 183, 0.35);
+}
+.fb-btn-success:hover:not(:disabled) {
+  box-shadow: 0 6px 20px -2px rgba(5, 150, 105, 0.45);
+}
+
+.fb-btn-warning {
+  background: linear-gradient(135deg, #b45309 0%, #d97706 45%, #ea580c 100%);
+  box-shadow: 0 4px 14px -2px rgba(217, 119, 6, 0.35);
+  border: 1px solid rgba(253, 230, 138, 0.35);
+}
+.fb-btn-warning:hover:not(:disabled) {
+  box-shadow: 0 6px 20px -2px rgba(217, 119, 6, 0.45);
+}
+
+.fb-btn-destructive {
+  background: linear-gradient(135deg, #b91c1c 0%, #dc2626 45%, #e11d48 100%);
+  box-shadow: 0 4px 14px -2px rgba(220, 38, 38, 0.35);
+  border: 1px solid rgba(254, 202, 202, 0.35);
+}
+.fb-btn-destructive:hover:not(:disabled) {
+  box-shadow: 0 6px 20px -2px rgba(220, 38, 38, 0.45);
+}
+
+/* Reduced motion preference */
+@media (prefers-reduced-motion: reduce) {
+  .fb-btn-streak,
+  .fb-btn-streak-glow {
+    animation: none !important;
+    display: none !important;
+  }
+  .fb-btn-animated {
+    transition: none !important;
+  }
+}
+
+

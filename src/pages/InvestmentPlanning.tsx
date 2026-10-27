@@ -400,18 +400,22 @@ const InvestmentPlanning = () => {
                     <div className="flex justify-center mt-auto">
                       {card.linkTo ? (
                         <Link to={card.linkTo} className="w-full">
-                          <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium shadow-sm transition-colors">
-                            <span>{card.buttonText}</span>
-                            {card.icon}
+                          <Button
+                            category="investment"
+                            rightIcon={card.icon}
+                            className="w-full font-medium shadow-sm"
+                          >
+                            {card.buttonText}
                           </Button>
                         </Link>
                       ) : (
                         <Button 
-                          className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium shadow-sm transition-colors"
+                          category="investment"
+                          rightIcon={card.icon}
+                          className="w-full font-medium shadow-sm"
                           onClick={card.onClick}
                         >
-                          <span>{card.buttonText}</span>
-                          {card.icon}
+                          {card.buttonText}
                         </Button>
                       )}
                     </div>
@@ -440,20 +444,12 @@ const InvestmentPlanning = () => {
               </p>
               <Button 
                 size="lg" 
-                className="bg-white text-slate-950 hover:bg-blue-50 font-bold rounded-full px-8 py-3 text-sm sm:text-base shadow-xl shadow-blue-950/20 hover:scale-105 active:scale-100 transition-all duration-300"
+                category="investment"
+                rightIcon={isMobile ? <Phone className="h-4 w-4" /> : <ExternalLink className="h-4 w-4" />}
+                className="font-bold rounded-full px-8 py-3 text-sm sm:text-base shadow-xl"
                 onClick={handleContactAdvisor}
               >
-                {isMobile ? (
-                  <>
-                    <span>Call an Advisor</span>
-                    <Phone className="ml-2 h-4 w-4" />
-                  </>
-                ) : (
-                  <>
-                    <span>Connect with an Advisor</span>
-                    <ExternalLink className="ml-2 h-4 w-4" />
-                  </>
-                )}
+                {isMobile ? 'Call an Advisor' : 'Connect with an Advisor'}
               </Button>
             </div>
           </div>

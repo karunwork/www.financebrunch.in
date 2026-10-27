@@ -190,14 +190,15 @@ export function FixedDepositSheet() {
                 </ul>
                 <div className="mt-6">
                   <Button 
-                    className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700"
+                    category="success"
+                    rightIcon={<ExternalLink className="h-4 w-4" />}
+                    className="w-full font-semibold"
                     onClick={() => {
                       const message = encodeURIComponent("Hi Finance Brunch Team, I'm an NRI interested in your Fixed Deposit investment options. Can you share the details?");
                       window.open(`https://wa.me/917842494981?text=${message}`, '_blank');
                     }}
                   >
                     Connect with NRI Specialist
-                    <ExternalLink className="ml-2 h-4 w-4" />
                   </Button>
                 </div>
               </CardContent>
@@ -328,10 +329,12 @@ export function FixedDepositSheet() {
                 </div>
                 <Button 
                   size="lg" 
-                  className="bg-gradient-to-r from-yellow-600 to-amber-600 hover:from-yellow-700 hover:to-amber-700 text-white"
+                  category="investment"
+                  rightIcon={<ExternalLink className="h-4 w-4" />}
+                  className="font-semibold shadow-md"
                   onClick={handleContactClick}
                 >
-                  Get Best FD Rates <ExternalLink className="ml-2 h-4 w-4" />
+                  Get Best FD Rates
                 </Button>
               </div>
             </div>
