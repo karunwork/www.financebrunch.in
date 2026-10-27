@@ -10,12 +10,17 @@ interface Point {
   fixed: boolean;
 }
 
+// 16 segments of 13px = 208px resting length
+const TOTAL_SEGMENTS = 16;
+const SEGMENT_LEN = 13;
+const RESTING_Y = TOTAL_SEGMENTS * SEGMENT_LEN; // 208px
+
 const DEFAULT_CONFIG = {
   gravity: 1250,
   damping: 0.94,
   iterations: 20,
-  stretchMax: 28,
-  stretchToggle: 20,
+  stretchMax: 32,
+  stretchToggle: 22,
   maxVelocity: 22,
   sleepVelocity: 0.15,
 };
@@ -34,11 +39,11 @@ function pointsToSvgPath(pts: Point[]): string {
   return d;
 }
 
-// Initialize 17 points with 11px segment length (16 * 11 = 176px total length)
+// Initialize Verlet rope points
 function createInitialPoints(): Point[] {
   const pts: Point[] = [];
-  for (let i = 0; i <= 16; i++) {
-    const y = 11 * i;
+  for (let i = 0; i <= TOTAL_SEGMENTS; i++) {
+    const y = SEGMENT_LEN * i;
     pts.push({
       x: 32,
       y,
@@ -85,6 +90,8 @@ export function PullCordThemeToggle() {
 
   const pointsRef = useRef<Point[]>(createInitialPoints());
   const pathRef = useRef<SVGPathElement>(null);
+  const shadowPathRef = useRef<SVGPathElement>(null);
+  const texturePathRef = useRef<SVGPathElement>(null);
   const knobRef = useRef<SVGGElement>(null);
 
   const isDraggingRef = useRef(false);
@@ -92,7 +99,7 @@ export function PullCordThemeToggle() {
   const hasToggledRef = useRef(false);
   const hasEnteredRef = useRef(false);
 
-  const targetPosRef = useRef({ x: 32, y: 176 });
+  const targetPosRef = useRef({ x: 32, y: RESTING_Y });
   const wakePhysicsRef = useRef<() => void>(() => {});
   const configRef = useRef(DEFAULT_CONFIG);
 
@@ -131,8 +138,8 @@ export function PullCordThemeToggle() {
     if (shouldReduceMotion) return;
     const pts = pointsRef.current;
     if (pts && pts.length > 0) {
-      pts[pts.length - 1].oy -= 13;
-      pts[pts.length - 1].ox -= 6;
+      pts[pts.length - 1].oy -= 14;
+      pts[pts.length - 1].ox -= 7;
       wakePhysicsRef.current();
     }
   }, [shouldReduceMotion]);
@@ -176,12 +183,19 @@ export function PullCordThemeToggle() {
     let prevDt = 0;
 
     const renderSvg = () => {
+      const pathD = pointsToSvgPath(pts);
       if (pathRef.current) {
-        pathRef.current.setAttribute('d', pointsToSvgPath(pts));
+        pathRef.current.setAttribute('d', pathD);
+      }
+      if (shadowPathRef.current) {
+        shadowPathRef.current.setAttribute('d', pathD);
+      }
+      if (texturePathRef.current) {
+        texturePathRef.current.setAttribute('d', pathD);
       }
       if (knobRef.current) {
         const dx = (pts[lastIdx].x - 32).toFixed(2);
-        const dy = (pts[lastIdx].y - 176).toFixed(2);
+        const dy = (pts[lastIdx].y - RESTING_Y).toFixed(2);
         knobRef.current.setAttribute('transform', `translate(${dx} ${dy})`);
       }
     };
@@ -220,7 +234,7 @@ export function PullCordThemeToggle() {
         pts[lastIdx].y = targetPosRef.current.y;
       }
 
-      // 2. Relaxation constraints (segment distance = 11px)
+      // 2. Relaxation constraints (segment distance = SEGMENT_LEN)
       for (let iter = 0; iter < iterations; iter++) {
         for (let i = 0; i < lastIdx; i++) {
           const p1 = pts[i];
@@ -228,7 +242,7 @@ export function PullCordThemeToggle() {
           const dx = p2.x - p1.x;
           const dy = p2.y - p1.y;
           const dist = Math.hypot(dx, dy) || 0.0001;
-          const diff = ((11 - dist) / dist) * 0.5;
+          const diff = ((SEGMENT_LEN - dist) / dist) * 0.5;
           const ox = dx * diff;
           const oy = dy * diff;
 
@@ -289,7 +303,7 @@ export function PullCordThemeToggle() {
           right: 'var(--pullcord-right, 2.5rem)',
           zIndex: 'var(--pullcord-z, 70)',
           width: 64,
-          height: 340,
+          height: 380,
           pointerEvents: 'none',
         }}
       >
@@ -302,50 +316,249 @@ export function PullCordThemeToggle() {
           }}
         >
           <svg
-            viewBox="0 0 64 340"
+            viewBox="0 0 64 380"
             width={64}
-            height={340}
+            height={380}
             aria-hidden="true"
             style={{ overflow: 'visible' }}
           >
             <defs>
-              <linearGradient id="fb-pc-knob" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor={isDark ? '#f8fafc' : '#ffffff'} />
-                <stop offset="100%" stopColor={isDark ? '#cbd5e1' : '#e2e8f0'} />
+              {/* Rope Braided Gradient */}
+              <linearGradient id="fb-rope-grad" x1="0" y1="0" x2="1" y2="0">
+                {isDark ? (
+                  <>
+                    <stop offset="0%" stopColor="#0284c7" />
+                    <stop offset="50%" stopColor="#38bdf8" />
+                    <stop offset="100%" stopColor="#0369a1" />
+                  </>
+                ) : (
+                  <>
+                    <stop offset="0%" stopColor="#94a3b8" />
+                    <stop offset="50%" stopColor="#cbd5e1" />
+                    <stop offset="100%" stopColor="#64748b" />
+                  </>
+                )}
               </linearGradient>
-              <filter id="fb-pc-knob-sh" x="-70%" y="-70%" width="240%" height="240%">
-                <feDropShadow dx="0" dy="1.4" stdDeviation="1.5" floodColor="rgba(0,0,0,0.35)" />
+
+              {/* Metallic Ring / Accents Gradient */}
+              <linearGradient id="fb-knob-ring-grad" x1="0" y1="0" x2="1" y2="1">
+                {isDark ? (
+                  <>
+                    <stop offset="0%" stopColor="#e0f2fe" />
+                    <stop offset="35%" stopColor="#38bdf8" />
+                    <stop offset="70%" stopColor="#0284c7" />
+                    <stop offset="100%" stopColor="#0369a1" />
+                  </>
+                ) : (
+                  <>
+                    <stop offset="0%" stopColor="#fef08a" />
+                    <stop offset="35%" stopColor="#fbbf24" />
+                    <stop offset="70%" stopColor="#d97706" />
+                    <stop offset="100%" stopColor="#92400e" />
+                  </>
+                )}
+              </linearGradient>
+
+              {/* Spherical Orb 3D Body Gradient */}
+              <radialGradient id="fb-knob-body-grad" cx="35%" cy="32%" r="68%">
+                {isDark ? (
+                  <>
+                    <stop offset="0%" stopColor="#38bdf8" />
+                    <stop offset="45%" stopColor="#0284c7" />
+                    <stop offset="80%" stopColor="#1e3a8a" />
+                    <stop offset="100%" stopColor="#0f172a" />
+                  </>
+                ) : (
+                  <>
+                    <stop offset="0%" stopColor="#ffffff" />
+                    <stop offset="50%" stopColor="#f8fafc" />
+                    <stop offset="85%" stopColor="#e2e8f0" />
+                    <stop offset="100%" stopColor="#cbd5e1" />
+                  </>
+                )}
+              </radialGradient>
+
+              {/* Ambient Glow & Depth Filter */}
+              <filter id="fb-knob-glow" x="-60%" y="-60%" width="220%" height="220%">
+                {isDark ? (
+                  <>
+                    <feDropShadow dx="0" dy="2" stdDeviation="5" floodColor="rgba(56, 189, 248, 0.75)" />
+                    <feDropShadow dx="0" dy="1" stdDeviation="2" floodColor="rgba(14, 165, 233, 0.9)" />
+                  </>
+                ) : (
+                  <>
+                    <feDropShadow dx="0" dy="3" stdDeviation="4" floodColor="rgba(217, 119, 6, 0.3)" />
+                    <feDropShadow dx="0" dy="1" stdDeviation="2" floodColor="rgba(0, 0, 0, 0.15)" />
+                  </>
+                )}
               </filter>
             </defs>
 
-            {/* Simulated physics rope path */}
+            {/* Ceiling Rosette / Bracket Mount at y=0 */}
+            <rect
+              x={22}
+              y={0}
+              width={20}
+              height={4.5}
+              rx={2.25}
+              fill="url(#fb-knob-ring-grad)"
+            />
+            <circle
+              cx={32}
+              cy={5}
+              r={3.2}
+              fill="url(#fb-knob-ring-grad)"
+            />
+            <circle
+              cx={32}
+              cy={5}
+              r={1.3}
+              fill={isDark ? '#0f172a' : '#ffffff'}
+            />
+
+            {/* Ambient Shadow Path for depth */}
+            <path
+              ref={shadowPathRef}
+              d={pointsToSvgPath(createInitialPoints())}
+              stroke={isDark ? 'rgba(56, 189, 248, 0.25)' : 'rgba(0, 0, 0, 0.12)'}
+              strokeWidth={4.5}
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              fill="none"
+              vectorEffect="non-scaling-stroke"
+              opacity={0.7}
+            />
+
+            {/* Main Rope Path */}
             <path
               ref={pathRef}
               d={pointsToSvgPath(createInitialPoints())}
-              stroke="var(--pullcord-ink, rgba(120, 120, 120, 0.45))"
-              strokeWidth={1.5}
+              stroke="url(#fb-rope-grad)"
+              strokeWidth={2.75}
               strokeLinecap="round"
               strokeLinejoin="round"
               fill="none"
               vectorEffect="non-scaling-stroke"
             />
 
-            {/* Hanging knob handle */}
-            <g ref={knobRef}>
-              <g filter="url(#fb-pc-knob-sh)">
-                <circle
-                  cx={32}
-                  cy={176}
-                  r={7}
-                  fill="url(#fb-pc-knob)"
-                  stroke={isDark ? 'rgba(59, 130, 246, 0.3)' : 'rgba(0,0,0,0.15)'}
-                  strokeWidth={0.75}
-                />
-              </g>
+            {/* Braided Silk Texture Overlay */}
+            <path
+              ref={texturePathRef}
+              d={pointsToSvgPath(createInitialPoints())}
+              stroke={isDark ? 'rgba(255, 255, 255, 0.45)' : 'rgba(255, 255, 255, 0.7)'}
+              strokeWidth={1.2}
+              strokeDasharray="3 3"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              fill="none"
+              vectorEffect="non-scaling-stroke"
+            />
+
+            {/* Enlarged & Themed Knob / Pendant */}
+            <g ref={knobRef} className="pullcord-knob-visual">
+              {/* Ferrule / Cap connecting rope to knob */}
+              <path
+                d={`M 27.5 ${RESTING_Y - 12} L 36.5 ${RESTING_Y - 12} L 34.5 ${RESTING_Y - 17} L 29.5 ${RESTING_Y - 17} Z`}
+                fill="url(#fb-knob-ring-grad)"
+                stroke={isDark ? '#0284c7' : '#b45309'}
+                strokeWidth={0.6}
+              />
+              <circle
+                cx={32}
+                cy={RESTING_Y - 17}
+                r={2.2}
+                fill="url(#fb-knob-ring-grad)"
+              />
+
+              {/* Outer Metallic Bezel Ring with Glow */}
+              <circle
+                cx={32}
+                cy={RESTING_Y}
+                r={14.5}
+                fill="none"
+                stroke="url(#fb-knob-ring-grad)"
+                strokeWidth={2}
+                filter="url(#fb-knob-glow)"
+              />
+
+              {/* Main Sphere Body */}
+              <circle
+                cx={32}
+                cy={RESTING_Y}
+                r={12.5}
+                fill="url(#fb-knob-body-grad)"
+                stroke={isDark ? 'rgba(56, 189, 248, 0.4)' : 'rgba(0, 0, 0, 0.08)'}
+                strokeWidth={0.75}
+              />
+
+              {/* 3D Specular Highlight */}
+              <ellipse
+                cx={29}
+                cy={RESTING_Y - 5}
+                rx={5.5}
+                ry={2.8}
+                fill="#ffffff"
+                opacity={isDark ? 0.65 : 0.85}
+              />
+
+              {/* Central Motif: Sun in Light Mode, Moon in Dark Mode */}
+              {isDark ? (
+                <g transform={`translate(32, ${RESTING_Y})`}>
+                  {/* Crescent Moon */}
+                  <path
+                    d="M -1.8 -4.8 C 1.2 -4.8, 3.8 -2.2, 3.2 2.2 C 1.4 3, -1 2.8, -2.6 1.4 C -4.2 -0.2 -4.4 -2.8 -1.8 -4.8 Z"
+                    fill="#ffffff"
+                  />
+                  {/* Mini 4-point star */}
+                  <path
+                    d="M 3.2 -3 Q 3.2 -1.6 4.6 -1.6 Q 3.2 -1.6 3.2 -0.2 Q 3.2 -1.6 1.8 -1.6 Q 3.2 -1.6 3.2 -3 Z"
+                    fill="#a5f3fc"
+                  />
+                </g>
+              ) : (
+                <g transform={`translate(32, ${RESTING_Y})`}>
+                  {/* Sun glyph */}
+                  <circle cx={0} cy={0} r={3.3} fill="#d97706" />
+                  <g stroke="#d97706" strokeWidth={1.2} strokeLinecap="round">
+                    <line x1={0} y1={-5.2} x2={0} y2={-7.2} />
+                    <line x1={0} y1={5.2} x2={0} y2={7.2} />
+                    <line x1={-5.2} y1={0} x2={-7.2} y2={0} />
+                    <line x1={5.2} y1={0} x2={7.2} y2={0} />
+                    <line x1={-3.6} y1={-3.6} x2={-5.1} y2={-5.1} />
+                    <line x1={3.6} y1={-3.6} x2={5.1} y2={-5.1} />
+                    <line x1={-3.6} y1={3.6} x2={-5.1} y2={5.1} />
+                    <line x1={3.6} y1={3.6} x2={5.1} y2={5.1} />
+                  </g>
+                </g>
+              )}
+
+              {/* Bottom Finial Teardrop / Bead */}
+              <line
+                x1={32}
+                y1={RESTING_Y + 12}
+                x2={32}
+                y2={RESTING_Y + 16.5}
+                stroke="url(#fb-knob-ring-grad)"
+                strokeWidth={2}
+                strokeLinecap="round"
+              />
+              <circle
+                cx={32}
+                cy={RESTING_Y + 19.5}
+                r={3}
+                fill="url(#fb-knob-ring-grad)"
+              />
+              <circle
+                cx={31.2}
+                cy={RESTING_Y + 18.7}
+                r={1}
+                fill="#ffffff"
+                opacity={0.7}
+              />
             </g>
           </svg>
 
-          {/* Interactive touch/pan button centered over the knob */}
+          {/* Interactive touch/pan button centered over the enlarged knob */}
           <motion.button
             type="button"
             className="pullcord-knob"
@@ -368,9 +581,9 @@ export function PullCordThemeToggle() {
                 : (_e, info: PanInfo) => {
                     const { stretchMax, stretchToggle } = configRef.current;
                     const offsetX = info.offset.x;
-                    const offsetY = 176 + info.offset.y;
+                    const offsetY = RESTING_Y + info.offset.y;
                     const dist = Math.hypot(offsetX, offsetY) || 0.0001;
-                    const maxLen = 176 + stretchMax;
+                    const maxLen = RESTING_Y + stretchMax;
                     const scale = dist > maxLen ? maxLen / dist : 1;
 
                     targetPosRef.current = {
@@ -379,7 +592,7 @@ export function PullCordThemeToggle() {
                     };
 
                     const threshold = Math.min(stretchToggle, stretchMax - 1);
-                    if (!hasToggledRef.current && dist - 176 >= threshold) {
+                    if (!hasToggledRef.current && dist - RESTING_Y >= threshold) {
                       hasToggledRef.current = true;
                       handleToggleTheme();
                     }
@@ -422,10 +635,10 @@ export function PullCordThemeToggle() {
             }}
             style={{
               position: 'absolute',
-              left: 9,
-              top: 153,
-              width: 46,
-              height: 46,
+              left: 4,
+              top: RESTING_Y - 28,
+              width: 56,
+              height: 56,
               padding: 0,
               border: 'none',
               background: 'transparent',
@@ -444,8 +657,8 @@ export function PullCordThemeToggle() {
           aria-hidden="true"
           style={{
             position: 'fixed',
-            top: 'calc(var(--pullcord-top, 0px) + 172px)',
-            right: 'calc(var(--pullcord-right, 2.5rem) + 48px)',
+            top: 'calc(var(--pullcord-top, 0px) + 204px)',
+            right: 'calc(var(--pullcord-right, 2.5rem) + 54px)',
             zIndex: 'calc(var(--pullcord-z, 70) - 1)',
           }}
         >
