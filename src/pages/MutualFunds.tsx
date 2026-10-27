@@ -7,6 +7,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import MutualFundCalculator from '@/components/calculator/MutualFundCalculator';
+import { MutualFundDisclaimerBanner } from '@/components/mutual-funds/MutualFundDisclaimerBanner';
 
 const fundCategories = [
   {
@@ -111,6 +112,9 @@ const MutualFunds = () => {
             </div>
           </div>
         </div>
+
+        {/* Premium Mutual Fund Disclaimer Banner */}
+        <MutualFundDisclaimerBanner />
 
         {/* 2. Core Pillars: Expert Guidance & Top-Tier Security */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-14">
@@ -372,14 +376,6 @@ const MutualFunds = () => {
               </Button>
             </div>
           </div>
-        </div>
-
-        {/* 8. AMFI / Regulatory Disclaimers */}
-        <div className="p-5 rounded-2xl bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800 text-xs text-slate-500 dark:text-slate-400 text-center max-w-3xl mx-auto leading-relaxed">
-          <p className="font-semibold text-slate-700 dark:text-slate-300 mb-1">Mutual Fund Investment Disclaimer</p>
-          <p>
-            Mutual fund investments are subject to market risks. Please read all scheme-related documents carefully before investing. Past performance is not indicative of future returns. Finance Brunch is an AMFI/NISM registered distributor facilitating transactions via authorized platform partners (Angel One, NJ E-Wealth).
-          </p>
         </div>
       </div>
     </main>

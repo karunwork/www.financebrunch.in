@@ -130,7 +130,7 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({
               min="0"
               placeholder={`Enter your ${taxpayerType === "individual" || taxpayerType === "nri" ? "annual" : "business"} income`}
               className="pl-10"
-              value={income}
+              value={income === 0 ? "" : income}
               onChange={handleIncomeChange}
             />
           </div>
