@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { 
-  ArrowLeft, ArrowRight, Plane, IndianRupee, ExternalLink, Globe, ShieldCheck, 
+  ArrowLeft, Plane, IndianRupee, ExternalLink, Globe, ShieldCheck, 
   FileCheck2, DollarSign, Clock, CheckCircle2, ChevronRight, Building2, 
   HelpCircle, Sparkles, Phone, MessageSquare
 } from 'lucide-react';
@@ -131,18 +131,18 @@ export default function NRIServices() {
               <div className="flex flex-wrap items-center gap-4">
                 <Button
                   size="lg"
-                  category="primary"
-                  rightIcon={<ExternalLink className="h-4 w-4" />}
-                  className="font-medium shadow-md"
+                  className="bg-blue-600 hover:bg-blue-700 text-white font-medium shadow-md shadow-blue-500/20"
                   onClick={handleNRISpecialistClick}
                 >
+                  <MessageSquare className="mr-2 h-4 w-4" />
                   Connect with NRI Specialist
+                  <ExternalLink className="ml-2 h-4 w-4" />
                 </Button>
                 <Link to="/contact">
                   <Button
                     size="lg"
-                    category="secondary"
-                    rightIcon={<ArrowRight className="h-4 w-4" />}
+                    variant="outline"
+                    className="border-gray-300 dark:border-gray-700 hover:bg-blue-50/50 dark:hover:bg-blue-950/40"
                   >
                     Schedule Consultation
                   </Button>
@@ -299,18 +299,17 @@ export default function NRIServices() {
             <div className="flex flex-wrap justify-center items-center gap-4">
               <Button
                 size="lg"
-                category="success"
-                rightIcon={<ExternalLink className="h-4 w-4" />}
-                className="font-semibold shadow-md"
+                className="bg-white text-blue-700 hover:bg-blue-50 font-semibold shadow-md"
                 onClick={handleNRISpecialistClick}
               >
                 Chat on WhatsApp (+91 7842-494-981)
+                <ExternalLink className="ml-2 h-4 w-4" />
               </Button>
               <Link to="/contact">
                 <Button
                   size="lg"
-                  category="secondary"
-                  rightIcon={<ArrowRight className="h-4 w-4" />}
+                  variant="outline"
+                  className="bg-transparent border-white text-white hover:bg-white/10"
                 >
                   Book a Consultation
                 </Button>

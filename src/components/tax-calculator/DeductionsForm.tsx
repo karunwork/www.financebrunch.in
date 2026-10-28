@@ -183,19 +183,11 @@ const DeductionsForm: React.FC<DeductionsFormProps> = ({
       </div>
       
       <div className="flex justify-between mt-6">
-        <Button
-          category="secondary"
-          rightIcon={<ArrowLeft className="h-4 w-4" />}
-          onClick={goToBasicDetails}
-        >
-          Back
+        <Button variant="outline" onClick={goToBasicDetails}>
+          <ArrowLeft className="mr-2 h-4 w-4" /> Back
         </Button>
-        <Button
-          category="calculator"
-          rightIcon={<Calculator className="h-4 w-4" />}
-          onClick={handleCalculate}
-        >
-          Calculate Tax
+        <Button onClick={handleCalculate}>
+          Calculate Tax <Calculator className="ml-2 h-4 w-4" />
         </Button>
       </div>
     </div>

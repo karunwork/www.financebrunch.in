@@ -299,15 +299,17 @@ export const InsuranceNeedsEstimator: React.FC<InsuranceNeedsEstimatorProps> = (
                 </div>
               </div>
 
+              {/* Action Button */}
+              <div className="pt-6">
                 <Button
                   size="lg"
-                  category="insurance"
-                  rightIcon={<Phone className="h-4 w-4" />}
                   onClick={handleDiscussWithAdvisor}
-                  className="w-full font-bold rounded-xl shadow-lg text-sm"
+                  className="w-full bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-slate-950 font-bold rounded-xl gap-2 shadow-lg shadow-cyan-500/20 text-sm"
                 >
+                  <Phone className="h-4 w-4" />
                   Discuss This Estimate with an Advisor
                 </Button>
+              </div>
             </div>
           </div>
         </div>

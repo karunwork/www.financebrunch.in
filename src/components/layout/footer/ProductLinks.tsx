@@ -10,6 +10,7 @@ export const ProductLinks = () => {
     { name: 'FIRE Strategy', href: '/fire-strategy' },
     { name: 'Retirement Planning', href: '/retirement-planning' },
     { name: 'Investment Planning', href: '/investment-planning' },
+    { name: 'Wealth Management', href: '/wealth-management' },
     { name: 'NRI Services', href: '/nri-services' },
     { name: 'Indian Stock Analysis', href: '/indian-stock-analysis' },
     { name: 'Unlisted Shares', href: '/unlisted-shares' },

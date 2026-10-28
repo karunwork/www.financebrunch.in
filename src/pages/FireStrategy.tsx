@@ -275,13 +275,13 @@ const FireStrategy = () => {
                   
                   <div className="flex flex-col sm:flex-row gap-4 mt-8">
                     <Button 
-                      category="calculator"
-                      rightIcon={<Calculator className="h-4 w-4" />}
+                      className="bg-orange-600 hover:bg-orange-700 text-white"
                       onClick={() => {
                         document.getElementById('fire-calculator')?.scrollIntoView({ behavior: 'smooth' });
                       }}
                     >
                       Calculate Your FIRE Number
+                      <Calculator className="ml-2 h-4 w-4" />
                     </Button>
                   </div>
                 </div>
@@ -480,11 +480,9 @@ const FireStrategy = () => {
               </p>
               <div className="bg-white dark:bg-gray-800 rounded-xl p-8 shadow-lg">
                 <Link to="/calculator">
-                  <Button
-                    category="calculator"
-                    rightIcon={<Calculator className="h-4 w-4" />}
-                  >
+                  <Button className="bg-orange-600 hover:bg-orange-700 text-white">
                     Go to Financial Calculator
+                    <Calculator className="ml-2 h-4 w-4" />
                   </Button>
                 </Link>
                 <p className="mt-4 text-sm text-gray-500 dark:text-gray-400">
@@ -568,13 +566,13 @@ const FireStrategy = () => {
               </p>
               <Button 
                 size="lg" 
-                category="primary"
-                rightIcon={<Target className="h-4 w-4" />}
+                className="bg-white text-orange-700 hover:bg-orange-50"
                 onClick={() => {
                   window.open('https://wa.me/917842494981?text=Hi%20Finance%20Brunch%20Team%2C%20I%27m%20interested%20in%20FIRE%20strategy%20planning.%20Can%20we%20connect%3F', '_blank');
                 }}
               >
                 Connect With an Advisor
+                <Target className="ml-2 h-4 w-4" />
               </Button>
             </div>
           </div>

@@ -27,7 +27,7 @@ const NAV_SECTIONS: NavSection[] = [
       { name: 'Mutual Funds', href: '/mutual-funds' },
       { name: 'Global Tax File', href: '/global-tax-file' },
       { name: 'FIRE Strategy / Early Retirement', href: '/fire-strategy' },
-      { name: 'Wealth Management', href: '/investment-planning' },
+      { name: 'Wealth Management', href: '/wealth-management' },
       { name: 'Insurance Solutions', href: '/insurance-planning' },
       { name: 'Income Tax Filing', href: '/income-tax-filing' },
     ],

@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
 import { motion, useReducedMotion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
+import { Calculator } from 'lucide-react';
 import { EASING, DURATIONS } from '@/lib/animations';
 import { AnimatedNumber } from '@/components/ui/AnimatedNumber';
 import HeroFloatingGraph from './HeroFloatingGraph';
@@ -63,7 +64,7 @@ const Hero = () => {
               <Button 
                 onClick={handleConsultantClick}
                 size="lg" 
-                category="primary"
+                className="text-white bg-primary hover:bg-primary/90 shadow-sm transition-all duration-200 hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98] hover:shadow-md focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-darkblue-950"
               >
                 Schedule a Consultation
               </Button>
@@ -71,6 +72,7 @@ const Hero = () => {
                 <Button 
                   size="lg" 
                   category="calculator"
+                  rightIcon={<Calculator className="h-4 w-4" />}
                   className="w-full sm:w-auto"
                 >
                   Try Our Calculators

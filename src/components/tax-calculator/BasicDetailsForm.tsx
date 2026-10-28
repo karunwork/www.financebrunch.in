@@ -172,28 +172,17 @@ const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({
       ) : null}
       
       <div className="flex justify-between mt-6">
-        <Button 
-          variant="outline"
-          onClick={() => setIncome(0)}
-        >
+        <Button variant="outline" onClick={() => setIncome(0)}>
           Reset
         </Button>
         
         {regime === "old" && taxpayerType === "individual" && country === "india" ? (
-          <Button 
-            category="calculator"
-            rightIcon={<ArrowRight className="h-4 w-4" />}
-            onClick={goToDeductions}
-          >
-            Next: Deductions
+          <Button onClick={goToDeductions}>
+            Next: Deductions <ArrowRight className="ml-2 h-4 w-4" />
           </Button>
         ) : (
-          <Button 
-            category="calculator"
-            rightIcon={<Calculator className="h-4 w-4" />}
-            onClick={handleCalculate}
-          >
-            Calculate Tax
+          <Button onClick={handleCalculate}>
+            Calculate Tax <Calculator className="ml-2 h-4 w-4" />
           </Button>
         )}
       </div>

@@ -89,16 +89,16 @@ export const FooterCTA: React.FC = () => {
           </p>
 
           <div className="pt-2 flex flex-wrap items-center gap-4">
-            <Button
-              asChild
-              category="primary"
-              size="lg"
-              rightIcon={<ArrowUpRight size={18} />}
+            <Link
+              to="/contact"
+              className="group inline-flex items-center gap-2 px-6 py-3.5 rounded-xl font-medium text-sm sm:text-base text-white bg-gradient-to-r from-blue-600 via-blue-500 to-cyan-500 hover:from-blue-700 hover:to-cyan-600 shadow-md shadow-blue-500/20 hover:shadow-cyan-500/30 hover:-translate-y-0.5 active:translate-y-0 transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-slate-900"
             >
-              <Link to="/contact">
-                Start a conversation
-              </Link>
-            </Button>
+              <span>Start a conversation</span>
+              <ArrowUpRight 
+                size={18} 
+                className="group-hover:translate-x-1 group-hover:-translate-y-0.5 transition-transform duration-200" 
+              />
+            </Link>
 
             <a
               href="tel:+917842494981"
@@ -132,9 +132,7 @@ export const FooterCTA: React.FC = () => {
               <Button
                 type="submit"
                 size="default"
-                category="secondary"
-                rightIcon={<Sparkles className="h-3.5 w-3.5" />}
-                className="flex-shrink-0"
+                className="h-10 px-4 bg-slate-900 hover:bg-slate-800 text-white dark:bg-cyan-500 dark:hover:bg-cyan-600 dark:text-slate-950 font-medium transition-all duration-200 rounded-lg flex-shrink-0"
               >
                 Subscribe
               </Button>

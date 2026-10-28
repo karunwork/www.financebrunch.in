@@ -39,22 +39,30 @@ export function UnlistedSharesHero({ handleContactAdvisor }: UnlistedSharesHeroP
           <div className="flex flex-col sm:flex-row justify-center items-center gap-4 mt-4">
             <Button 
               size="lg"
-              category="investment"
-              rightIcon={isMobile ? <Phone className="h-5 w-5" /> : <ExternalLink className="h-5 w-5" />}
-              className="px-8 py-6 h-auto font-semibold"
+              className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white px-8 py-6 h-auto"
               onClick={handleContactAdvisor}
             >
-              {isMobile ? "Call Unlisted Shares Specialist" : "Connect with Unlisted Shares Specialist"}
+              {isMobile ? (
+                <>
+                  Call Unlisted Shares Specialist
+                  <Phone className="ml-2 h-5 w-5" />
+                </>
+              ) : (
+                <>
+                  Connect with Unlisted Shares Specialist
+                  <ExternalLink className="ml-2 h-5 w-5" />
+                </>
+              )}
             </Button>
             
             <Button 
               size="lg" 
-              category="secondary"
-              rightIcon={<ChevronRight className="h-4 w-4" />}
-              className="px-6 py-6 h-auto font-semibold"
+              variant="outline"
+              className="border-purple-200 dark:border-purple-800 text-purple-700 dark:text-purple-300 hover:bg-purple-50 dark:hover:bg-purple-900/20 px-6 py-6 h-auto"
               onClick={() => document.getElementById('overview')?.scrollIntoView({ behavior: 'smooth' })}
             >
               Learn More
+              <ChevronRight className="ml-1 h-4 w-4" />
             </Button>
           </div>
           

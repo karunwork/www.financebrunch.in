@@ -6,7 +6,6 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { useToast } from '@/hooks/use-toast';
-import { Calculator } from 'lucide-react';
 import {
   LineChart,
   Line,
@@ -157,9 +156,7 @@ const RetirementCalculator = () => {
 
       <Button 
         onClick={calculateRetirement}
-        category="calculator"
-        rightIcon={<Calculator className="h-4 w-4" />}
-        className="w-full mb-8 font-semibold"
+        className="w-full mb-8 bg-blue-600 hover:bg-blue-700"
       >
         Calculate Retirement Plan
       </Button>

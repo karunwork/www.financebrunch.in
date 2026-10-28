@@ -170,22 +170,22 @@ const Contact = () => {
                   </div>
                 </div>
 
+                {/* Direct Action Buttons */}
                 <div className="pt-2 flex flex-col sm:flex-row gap-3">
                   <Button
                     onClick={handleWhatsAppChat}
-                    category="success"
-                    rightIcon={<MessageSquare className="h-4 w-4" />}
-                    className="flex-1 font-medium shadow-sm"
+                    className="flex-1 bg-green-600 hover:bg-green-700 text-white font-medium gap-2 shadow-sm"
                   >
+                    <MessageSquare className="h-4 w-4" />
                     Chat on WhatsApp
                   </Button>
                   <Button
                     asChild
-                    category="primary"
-                    rightIcon={<Phone className="h-4 w-4" />}
-                    className="flex-1 font-medium shadow-sm"
+                    variant="outline"
+                    className="flex-1 border-blue-600 text-blue-600 hover:bg-blue-50 dark:border-blue-400 dark:text-blue-400 dark:hover:bg-blue-950/40"
                   >
                     <a href="tel:+917842494981">
+                      <Phone className="h-4 w-4 mr-2" />
                       Direct Call
                     </a>
                   </Button>
@@ -332,11 +332,16 @@ const Contact = () => {
                     <Button
                       type="submit"
                       disabled={isSubmitting}
-                      category="primary"
-                      rightIcon={<Send className="h-4 w-4" />}
-                      className="w-full font-medium py-3 rounded-lg shadow-sm"
+                      className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 rounded-lg flex items-center justify-center gap-2 shadow-sm transition-all"
                     >
-                      {isSubmitting ? 'Sending message...' : 'Submit Request'}
+                      {isSubmitting ? (
+                        <span>Sending message...</span>
+                      ) : (
+                        <>
+                          <Send className="h-4 w-4" />
+                          <span>Submit Request</span>
+                        </>
+                      )}
                     </Button>
 
                     <p className="text-xs text-center text-gray-500 dark:text-gray-400">

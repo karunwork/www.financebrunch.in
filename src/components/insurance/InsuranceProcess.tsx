@@ -139,12 +139,11 @@ export const InsuranceProcess: React.FC<InsuranceProcessProps> = ({ onWhatsApp }
         <div className="mt-12 text-center">
           <Button
             size="lg"
-            category="insurance"
-            rightIcon={<ArrowRight className="h-4 w-4" />}
             onClick={() => onWhatsApp('Health Insurance')}
-            className="font-semibold px-8 py-6 rounded-xl shadow-lg text-base"
+            className="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-8 py-6 rounded-xl shadow-lg shadow-blue-500/20 gap-2 text-base"
           >
             Start Your Free Needs Assessment
+            <ArrowRight className="h-4 w-4" />
           </Button>
         </div>
       </div>

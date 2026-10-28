@@ -88,12 +88,12 @@ export function StockMarketCTA({ onContactAdvisor }: StockMarketCTAProps) {
                 
                 <Button 
                   size="lg" 
-                  category="investment"
-                  rightIcon={<ChevronRight className="h-5 w-5" />}
-                  className="w-full text-base font-semibold"
+                  className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white px-4 py-6 text-base rounded-lg shadow-lg flex items-center justify-center gap-2"
                   onClick={onContactAdvisor}
                 >
+                  <Phone className="h-5 w-5" />
                   {isMobile ? "Call an Advisor" : "Schedule a Consultation"}
+                  <ChevronRight className="h-5 w-5" />
                 </Button>
                 
                 <p className="text-xs text-gray-500 dark:text-gray-400 text-center mt-4">

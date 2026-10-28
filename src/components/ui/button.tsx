@@ -155,6 +155,11 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
         {...props}
       >
         {children}
+        {rightIcon && !asChild && (
+          <span className="inline-flex items-center shrink-0" aria-hidden="true">
+            {rightIcon}
+          </span>
+        )}
       </Comp>
     );
   }

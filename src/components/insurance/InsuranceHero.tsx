@@ -86,21 +86,20 @@ export const InsuranceHero: React.FC<InsuranceHeroProps> = ({
 
             <Button
               size="lg"
-              variant="outline"
+              category="calculator"
               onClick={onScrollToEstimator}
-              className="w-full sm:w-auto border-blue-400/30 bg-blue-950/40 hover:bg-blue-900/50 text-white font-medium px-6 py-6 rounded-xl backdrop-blur-md gap-2 text-base transition-all"
+              rightIcon={<Calculator className="h-4 w-4" />}
+              className="w-full sm:w-auto font-medium px-6 py-6 rounded-xl text-base"
             >
-              <Calculator className="h-4 w-4 text-cyan-400" />
               Calculate Life Cover
             </Button>
 
             <Button
               size="lg"
-              variant="ghost"
               onClick={() => onWhatsApp('General Insurance')}
-              className="w-full sm:w-auto text-emerald-300 hover:text-emerald-200 hover:bg-emerald-950/40 gap-2 text-sm font-medium"
+              className="w-full sm:w-auto bg-emerald-600 hover:bg-emerald-500 active:bg-emerald-700 text-white font-semibold px-6 py-6 rounded-xl shadow-lg shadow-emerald-600/30 border border-emerald-400/30 gap-2 text-base transition-all transform hover:-translate-y-0.5 flex items-center justify-center cursor-pointer"
             >
-              <Phone className="h-4 w-4 text-emerald-400" />
+              <Phone className="h-4 w-4 text-white" />
               WhatsApp Advisor
             </Button>
           </motion.div>

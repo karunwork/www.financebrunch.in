@@ -381,12 +381,11 @@ export const InsuranceProducts: React.FC<InsuranceProductsProps> = ({
                     </p>
                     {onOpenEstimator && (
                       <Button
-                        category="calculator"
-                        rightIcon={<ArrowRight className="h-4 w-4" />}
+                        variant="outline"
                         onClick={onOpenEstimator}
-                        className="w-full mt-2 text-xs font-semibold"
+                        className="w-full mt-2 border-indigo-200 dark:border-indigo-800 text-indigo-600 dark:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-950/50 text-xs font-semibold"
                       >
-                        Launch Interactive Needs Estimator
+                        Launch Interactive Needs Estimator →
                       </Button>
                     )}
                   </div>
@@ -503,11 +502,10 @@ export const InsuranceProducts: React.FC<InsuranceProductsProps> = ({
                   </p>
                 </div>
                 <Button
-                  category="insurance"
-                  rightIcon={<Phone className="h-4 w-4" />}
                   onClick={() => onWhatsApp('Term Insurance')}
-                  className="font-bold px-6 py-6 rounded-xl shrink-0"
+                  className="bg-indigo-500 hover:bg-indigo-400 text-white font-bold px-6 py-6 rounded-xl shrink-0 gap-2 shadow-lg shadow-indigo-500/20"
                 >
+                  <Phone className="h-4 w-4" />
                   Discuss Term Options
                 </Button>
               </div>

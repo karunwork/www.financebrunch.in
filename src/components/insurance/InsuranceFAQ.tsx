@@ -121,22 +121,20 @@ export const InsuranceFAQ: React.FC<InsuranceFAQProps> = ({ onWhatsApp }) => {
           </p>
           <div className="flex flex-wrap items-center justify-center gap-3">
             <Button
-              size="sm"
-              category="success"
-              rightIcon={<Phone className="h-4 w-4" />}
+              variant="outline"
               onClick={() => onWhatsApp('Health Insurance')}
-              className="text-xs sm:text-sm font-semibold"
+              className="border-slate-300 dark:border-slate-700 text-xs sm:text-sm font-semibold gap-2"
             >
+              <Phone className="h-4 w-4 text-emerald-500" />
               Ask on WhatsApp
             </Button>
             <Link to="/contact?service=Insurance+Planning">
               <Button
-                size="sm"
-                category="secondary"
-                rightIcon={<ArrowRight className="h-4 w-4" />}
-                className="text-xs sm:text-sm font-semibold"
+                variant="ghost"
+                className="text-blue-600 dark:text-cyan-400 hover:text-blue-700 text-xs sm:text-sm font-semibold gap-1.5"
               >
-                Submit Query via Contact Form
+                <span>Submit Query via Contact Form</span>
+                <ArrowRight className="h-4 w-4" />
               </Button>
             </Link>
           </div>

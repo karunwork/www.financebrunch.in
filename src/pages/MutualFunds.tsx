@@ -101,12 +101,12 @@ const MutualFunds = () => {
                 Start Your SIP with an Advisor
               </Button>
               <Button
+                variant="outline"
                 size="lg"
-                category="calculator"
-                rightIcon={<ChevronDown className="h-4 w-4" />}
                 onClick={() => {
                   document.getElementById('calculator-section')?.scrollIntoView({ behavior: 'smooth' });
                 }}
+                className="bg-white/10 hover:bg-white/20 text-white border-white/20 backdrop-blur-md"
               >
                 Calculate Returns Below
               </Button>
@@ -239,12 +239,10 @@ const MutualFunds = () => {
               </div>
               <div className="p-7 sm:p-8 pt-0">
                 <Button 
-                  category="investment"
-                  rightIcon={<ChevronRight className="h-4 w-4" />}
-                  className="w-full font-semibold shadow-md"
+                  className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold transition-colors shadow-md"
                   onClick={() => window.open('https://angel-one.onelink.me/Wjgr/f6agg88z', '_blank')}
                 >
-                  Open Account
+                  Open Account <ChevronRight className="ml-1 h-4 w-4 transition-transform group-hover:translate-x-1" />
                 </Button>
               </div>
             </Card>
@@ -281,12 +279,10 @@ const MutualFunds = () => {
               </div>
               <div className="p-7 sm:p-8 pt-0">
                 <Button 
-                  category="investment"
-                  rightIcon={<ChevronRight className="h-4 w-4" />}
-                  className="w-full font-semibold shadow-md"
+                  className="w-full bg-primary hover:bg-primary/90 text-white font-semibold transition-colors shadow-md"
                   onClick={() => window.open('https://njwealth.in/', '_blank')}
                 >
-                  Open Account
+                  Open Account <ChevronRight className="ml-1 h-4 w-4 transition-transform group-hover:translate-x-1" />
                 </Button>
               </div>
             </Card>
@@ -374,11 +370,10 @@ const MutualFunds = () => {
               </div>
               <Button 
                 size="lg" 
-                category="success"
-                rightIcon={<ExternalLink className="h-4 w-4" />}
+                className="bg-white text-blue-700 hover:bg-slate-100 font-bold px-8 shadow-md shrink-0"
                 onClick={handleConsultantClick}
               >
-                Connect on WhatsApp
+                Connect on WhatsApp <ExternalLink className="ml-2 h-4 w-4" />
               </Button>
             </div>
           </div>

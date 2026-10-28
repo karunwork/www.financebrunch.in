@@ -87,6 +87,45 @@ export function PullCordThemeToggle() {
 
   const [isDropping, setIsDropping] = useState(!shouldReduceMotion);
   const [hintVisible, setHintVisible] = useState(true);
+  const [anchorRight, setAnchorRight] = useState<number | null>(null);
+
+  useEffect(() => {
+    const updatePosition = () => {
+      const anchor = document.getElementById('pullcord-anchor');
+      if (anchor) {
+        const rect = anchor.getBoundingClientRect();
+        if (rect.width > 0 && rect.right > 0) {
+          const anchorCenterFromRight = window.innerWidth - (rect.left + rect.width / 2);
+          setAnchorRight(Math.round(anchorCenterFromRight - 32));
+          return;
+        }
+      }
+      setAnchorRight(null);
+    };
+
+    updatePosition();
+    window.addEventListener('resize', updatePosition);
+    window.addEventListener('scroll', updatePosition, { passive: true });
+    const timer1 = setTimeout(updatePosition, 50);
+    const timer2 = setTimeout(updatePosition, 300);
+    const timer3 = setTimeout(updatePosition, 1000);
+
+    return () => {
+      window.removeEventListener('resize', updatePosition);
+      window.removeEventListener('scroll', updatePosition);
+      clearTimeout(timer1);
+      clearTimeout(timer2);
+      clearTimeout(timer3);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (anchorRight !== null) {
+      document.documentElement.style.setProperty('--pullcord-right', `${anchorRight}px`);
+    } else {
+      document.documentElement.style.removeProperty('--pullcord-right');
+    }
+  }, [anchorRight]);
 
   const pointsRef = useRef<Point[]>(createInitialPoints());
   const pathRef = useRef<SVGPathElement>(null);
@@ -317,7 +356,7 @@ export function PullCordThemeToggle() {
         style={{
           position: 'fixed',
           top: 'var(--pullcord-top, 0px)',
-          right: 'var(--pullcord-right, 2.5rem)',
+          right: anchorRight !== null ? `${anchorRight}px` : 'var(--pullcord-right, 2.5rem)',
           zIndex: 'var(--pullcord-z, 70)',
           width: 64,
           height: 380,
@@ -675,7 +714,7 @@ export function PullCordThemeToggle() {
           style={{
             position: 'fixed',
             top: 'calc(var(--pullcord-top, 0px) + 204px)',
-            right: 'calc(var(--pullcord-right, 2.5rem) + 54px)',
+            right: anchorRight !== null ? `${anchorRight + 54}px` : 'calc(var(--pullcord-right, 2.5rem) + 54px)',
             zIndex: 'calc(var(--pullcord-z, 70) - 1)',
           }}
         >

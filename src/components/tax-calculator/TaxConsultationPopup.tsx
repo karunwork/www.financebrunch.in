@@ -64,11 +64,10 @@ export const TaxConsultationPopup: React.FC<TaxConsultationPopupProps> = ({
           <Button
             type="button"
             onClick={onConnect}
-            category="primary"
-            rightIcon={<ArrowRight className="h-4 w-4" />}
-            className="w-full sm:flex-1 order-1 sm:order-2 rounded-xl font-semibold shadow-md"
+            className="w-full sm:flex-1 order-1 sm:order-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white dark:bg-cyan-500 dark:hover:bg-cyan-400 dark:text-slate-950 font-semibold shadow-md hover:shadow-lg transition-all duration-200 flex items-center justify-center gap-2"
           >
-            Connect with a Tax Specialist
+            <span>Connect with a Tax Specialist</span>
+            <ArrowRight className="h-4 w-4" />
           </Button>
         </DialogFooter>
       </DialogContent>

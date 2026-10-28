@@ -809,11 +809,10 @@ export default function Careers() {
                     <Button
                       type="submit"
                       disabled={isSubmitting}
-                      category="primary"
-                      rightIcon={<Send className="h-4 w-4" />}
-                      className="w-full h-11 font-semibold rounded-xl text-sm shadow-md"
+                      className="w-full h-11 bg-blue-600 hover:bg-blue-700 dark:bg-cyan-500 dark:hover:bg-cyan-400 dark:text-slate-950 text-white font-semibold rounded-xl text-sm shadow-md transition-all duration-200 hover:shadow-lg"
                     >
-                      {isSubmitting ? 'Preparing Email...' : 'Send Expression of Interest'}
+                      <Send className="mr-2 h-4 w-4" />
+                      <span>{isSubmitting ? 'Preparing Email...' : 'Send Expression of Interest'}</span>
                     </Button>
 
                     <p className="text-[11px] text-slate-500 dark:text-slate-400 text-center leading-relaxed">

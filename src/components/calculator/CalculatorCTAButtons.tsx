@@ -53,14 +53,13 @@ export const CalculatorCTAButtons: React.FC<CalculatorCTAButtonsProps> = ({
       {/* 2. Secondary Call-to-Action: Connect With Mutual Fund Advisor */}
       <Button
         type="button"
+        variant="outline"
         onClick={handleConnectAdvisor}
-        category="primary"
-        size="lg"
-        rightIcon={<MessageSquare className="h-4 w-4" />}
-        className="flex-1"
+        className="flex-1 h-11 sm:h-12 px-5 rounded-xl font-semibold text-sm sm:text-base border-2 border-blue-600/80 text-blue-600 hover:bg-blue-50/80 dark:border-cyan-400/80 dark:text-cyan-300 dark:hover:bg-cyan-950/40 shadow-xs hover:shadow-sm transition-all duration-200 flex items-center justify-center gap-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-500 focus-visible:ring-offset-2 dark:focus-visible:ring-cyan-400 cursor-pointer text-center"
         aria-label="Connect With Mutual Fund Advisor"
       >
-        Connect With Mutual Fund Advisor
+        <MessageSquare className="h-4 w-4 shrink-0 text-blue-600 dark:text-cyan-400" />
+        <span className="truncate sm:whitespace-normal">Connect With Mutual Fund Advisor</span>
       </Button>
     </div>
   );

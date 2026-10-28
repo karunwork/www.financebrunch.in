@@ -44,22 +44,16 @@ export function StockMarketHero({ onContactAdvisor }: StockMarketHeroProps) {
             
             <div className="flex flex-col md:flex-row gap-4 mb-8">
               <Button 
-                size="lg"
-                category="investment"
-                rightIcon={<Phone className="h-5 w-5" />}
-                className="text-base font-semibold"
+                className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white px-6 py-6 text-lg rounded-lg shadow-xl hover:shadow-blue-500/20 hover:shadow-2xl transition-all duration-300 flex items-center gap-2"
                 onClick={onContactAdvisor}
               >
+                <Phone className="h-5 w-5" />
                 Connect with Advisor
               </Button>
               
               <Link to="#market-overview">
-                <Button
-                  size="lg"
-                  category="secondary"
-                  rightIcon={<LineChart className="h-5 w-5" />}
-                  className="text-base font-semibold"
-                >
+                <Button variant="outline" className="border-blue-300 dark:border-blue-700 py-6 group transition-all duration-300 flex items-center gap-2">
+                  <LineChart className="h-5 w-5 text-blue-600 dark:text-blue-400" />
                   Market Overview
                 </Button>
               </Link>

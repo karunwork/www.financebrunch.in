@@ -21,6 +21,7 @@ const IncomeTaxFiling = lazy(() => import('./pages/IncomeTaxFiling'));
 const IndianStockAnalysis = lazy(() => import('./pages/IndianStockAnalysis'));
 const UnlistedShares = lazy(() => import('./pages/UnlistedShares'));
 const InvestmentPlanning = lazy(() => import('./pages/InvestmentPlanning'));
+const WealthManagement = lazy(() => import('./pages/WealthManagement'));
 const InsurancePlanning = lazy(() => import('./pages/InsurancePlanning'));
 const FireStrategy = lazy(() => import('./pages/FireStrategy'));
 const NRIServices = lazy(() => import('./pages/NRIServices'));
@@ -177,7 +178,7 @@ function App() {
 
                   {/* Investment Planning & Capital Markets - Protected Financial Services */}
                   <Route path="/investment-planning" element={<RegulatoryDisclaimerGuard><InvestmentPlanning /></RegulatoryDisclaimerGuard>} />
-                  <Route path="/wealth-management" element={<RegulatoryDisclaimerGuard><InvestmentPlanning /></RegulatoryDisclaimerGuard>} />
+                  <Route path="/wealth-management" element={<RegulatoryDisclaimerGuard><WealthManagement /></RegulatoryDisclaimerGuard>} />
                   <Route path="/nri-services" element={<RegulatoryDisclaimerGuard><NRIServices /></RegulatoryDisclaimerGuard>} />
                   <Route path="/indian-stock-analysis" element={<RegulatoryDisclaimerGuard><IndianStockAnalysis /></RegulatoryDisclaimerGuard>} />
                   <Route path="/unlisted-shares" element={<RegulatoryDisclaimerGuard><UnlistedShares /></RegulatoryDisclaimerGuard>} />
