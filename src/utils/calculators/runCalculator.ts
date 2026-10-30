@@ -262,8 +262,8 @@ export function runCalculator(meta: CalculatorMeta, inputValues: Record<string, 
   // 5. Step-Up SIP
   if (id === 'step-up-sip') {
     const res = calculateStepUpSIP({
-      monthlyInvestment: inputValues.monthlyInvestment ?? 10000,
-      stepUpPercentage: inputValues.stepUpPercentage ?? 10,
+      initialMonthlyInvestment: inputValues.monthlyInvestment ?? 10000,
+      annualStepUpPercentage: inputValues.stepUpPercentage ?? 10,
       expectedAnnualReturn: inputValues.expectedAnnualReturn ?? 12,
       investmentDurationYears: inputValues.investmentDurationYears ?? 10,
     });
@@ -276,7 +276,7 @@ export function runCalculator(meta: CalculatorMeta, inputValues: Record<string, 
       { name: 'Total Invested', value: res.totalInvested, color: '#3b82f6' },
       { name: 'Estimated Returns', value: res.estimatedReturns, color: '#10b981' },
     ];
-    const scheduleRows: CalculatorExportRow[] = res.yearlyBreakdown.map((r) => ({
+    const scheduleRows: CalculatorExportRow[] = res.annualSchedule.map((r) => ({
       col1: `Year ${r.year}`,
       col2: formatINR(r.monthlyContribution),
       col3: formatINR(r.cumulativeInvested),
