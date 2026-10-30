@@ -91,13 +91,18 @@ export function PullCordThemeToggle() {
 
   useEffect(() => {
     const updatePosition = () => {
-      const anchor = document.getElementById('pullcord-anchor');
-      if (anchor) {
-        const rect = anchor.getBoundingClientRect();
-        if (rect.width > 0 && rect.right > 0) {
-          const anchorCenterFromRight = window.innerWidth - (rect.left + rect.width / 2);
-          setAnchorRight(Math.round(anchorCenterFromRight - 32));
-          return;
+      const anchors = [
+        document.getElementById('pullcord-anchor'),
+        document.getElementById('pullcord-anchor-mobile'),
+      ];
+      for (const anchor of anchors) {
+        if (anchor) {
+          const rect = anchor.getBoundingClientRect();
+          if (rect.width > 0 && rect.right > 0) {
+            const anchorCenterFromRight = window.innerWidth - (rect.left + rect.width / 2);
+            setAnchorRight(Math.round(anchorCenterFromRight - 32));
+            return;
+          }
         }
       }
       setAnchorRight(null);
@@ -106,6 +111,7 @@ export function PullCordThemeToggle() {
     updatePosition();
     window.addEventListener('resize', updatePosition);
     window.addEventListener('scroll', updatePosition, { passive: true });
+    window.addEventListener('orientationchange', updatePosition);
     const timer1 = setTimeout(updatePosition, 50);
     const timer2 = setTimeout(updatePosition, 300);
     const timer3 = setTimeout(updatePosition, 1000);
@@ -113,6 +119,7 @@ export function PullCordThemeToggle() {
     return () => {
       window.removeEventListener('resize', updatePosition);
       window.removeEventListener('scroll', updatePosition);
+      window.removeEventListener('orientationchange', updatePosition);
       clearTimeout(timer1);
       clearTimeout(timer2);
       clearTimeout(timer3);
@@ -137,6 +144,8 @@ export function PullCordThemeToggle() {
   const hasDraggedRef = useRef(false);
   const hasToggledRef = useRef(false);
   const hasEnteredRef = useRef(false);
+  const lastToggleTimeRef = useRef(0);
+  const panDistanceRef = useRef(0);
 
   const targetPosRef = useRef({ x: 32, y: RESTING_Y });
   const wakePhysicsRef = useRef<() => void>(() => {});
@@ -144,6 +153,10 @@ export function PullCordThemeToggle() {
 
   // Toggle theme helper
   const handleToggleTheme = useCallback(() => {
+    const now = Date.now();
+    if (now - lastToggleTimeRef.current < 350) return;
+    lastToggleTimeRef.current = now;
+
     playTactileClick();
     const isDark = document.documentElement.classList.contains('dark') || theme === 'dark';
     const nextTheme = isDark ? 'light' : 'dark';
@@ -628,6 +641,7 @@ export function PullCordThemeToggle() {
                     isDraggingRef.current = true;
                     hasDraggedRef.current = true;
                     hasToggledRef.current = false;
+                    panDistanceRef.current = 0;
                     wakePhysicsRef.current();
                   }
             }
@@ -639,6 +653,7 @@ export function PullCordThemeToggle() {
                     const offsetX = info.offset.x;
                     const offsetY = RESTING_Y + info.offset.y;
                     const dist = Math.hypot(offsetX, offsetY) || 0.0001;
+                    panDistanceRef.current = Math.hypot(info.offset.x, info.offset.y);
                     const maxLen = RESTING_Y + stretchMax;
                     const scale = dist > maxLen ? maxLen / dist : 1;
 
@@ -673,13 +688,19 @@ export function PullCordThemeToggle() {
                       }
                     }
                     wakePhysicsRef.current();
+
+                    // If user tapped without pulling (very small pan distance) and hasn't toggled yet
+                    if (!hasToggledRef.current && panDistanceRef.current < 6) {
+                      triggerClick();
+                    }
+
                     requestAnimationFrame(() => {
                       hasDraggedRef.current = false;
                     });
                   }
             }
-            onClick={(e) => {
-              if (!hasDraggedRef.current && e.detail !== 0) {
+            onClick={() => {
+              if (!hasDraggedRef.current) {
                 triggerClick();
               }
             }}

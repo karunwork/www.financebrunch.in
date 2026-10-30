@@ -552,10 +552,10 @@
   pointer-events: none;
 }
 
-@media not all and (min-width: 48rem) {
-  .pullcord {
-    display: none !important;
-  }
+[data-mobile-menu-open="true"] .pullcord {
+  opacity: 0.15;
+  pointer-events: none;
+  transition: opacity 0.2s ease;
 }
 
 .pullcord-inner {

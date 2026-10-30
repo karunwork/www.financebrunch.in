@@ -159,6 +159,17 @@ export default function Navbar() {
     }
   };
 
+  useEffect(() => {
+    if (isMobileMenuOpen) {
+      document.documentElement.setAttribute('data-mobile-menu-open', 'true');
+    } else {
+      document.documentElement.removeAttribute('data-mobile-menu-open');
+    }
+    return () => {
+      document.documentElement.removeAttribute('data-mobile-menu-open');
+    };
+  }, [isMobileMenuOpen]);
+
   return (
     <motion.header 
       initial={shouldReduceMotion ? { opacity: 1 } : { y: -12, opacity: 0 }}
@@ -365,9 +376,9 @@ export default function Navbar() {
             </Button>
           </div>
 
-          {/* Mobile Menu Button */}
+          {/* Mobile Menu Button & Pull Cord Anchor */}
           <div className="md:hidden flex items-center space-x-2">
-            <ThemeToggle />
+            <div id="pullcord-anchor-mobile" className="w-8 h-8 flex items-center justify-center relative pointer-events-none" aria-hidden="true" />
             <button
               type="button"
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
@@ -485,6 +496,10 @@ export default function Navbar() {
             >
               Get Started
             </Button>
+          </div>
+          <div className="pt-3 flex items-center justify-between border-t border-gray-100 dark:border-darkblue-800 mt-3 px-1">
+            <span className="text-sm font-medium text-gray-600 dark:text-gray-400">Theme</span>
+            <ThemeToggle />
           </div>
         </div>
       </div>
