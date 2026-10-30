@@ -219,7 +219,9 @@ export function USAStockPopup({ open, onOpenChange }: USAStockPopupProps) {
                       <p className="text-sm text-gray-600 dark:text-gray-400">Certified Financial Planner</p>
                       <p className="text-sm text-gray-600 dark:text-gray-400">NISM Certified</p>
                       <p className="text-sm text-gray-600 dark:text-gray-400">+91 8801313321</p>
-                      <p className="text-sm text-gray-600 dark:text-gray-400">saikarun@financebrunch.com</p>
+                      <a href="mailto:admin@financebrunch.in" className="text-sm text-blue-600 dark:text-blue-400 hover:underline block">
+                        admin@financebrunch.in
+                      </a>
                     </div>
                   </div>
                   

@@ -102,7 +102,7 @@ const TermsOfService = () => {
               </p>
               <div className="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg text-sm space-y-1">
                 <p><strong>FinanceBrunch Strategies Pvt. Ltd.</strong></p>
-                <p>Email: contact@financebrunch.com</p>
+                <p>Email: <a href="mailto:admin@financebrunch.in" className="text-blue-600 dark:text-blue-400 hover:underline">admin@financebrunch.in</a></p>
                 <p>Phone: +91 78424 94981</p>
                 <p>Address: Financial District, Hyderabad, Telangana 500032, India</p>
               </div>

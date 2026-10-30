@@ -154,7 +154,9 @@ export const InsuranceExpertGuidance: React.FC<InsuranceExpertGuidanceProps> = (
                   <Mail className="h-4 w-4 text-blue-400 shrink-0" />
                   <div>
                     <p className="text-[11px] text-slate-400">Email Advisory</p>
-                    <p className="font-semibold text-white">contact@financebrunch.com</p>
+                    <a href="mailto:admin@financebrunch.in" className="font-semibold text-white hover:text-cyan-300 transition-colors">
+                      admin@financebrunch.in
+                    </a>
                   </div>
                 </div>
 

@@ -106,7 +106,7 @@ export default function WealthManagement() {
       <ScrollToTop />
 
       {/* ──────────────── 1. BESPOKE HERO SECTION ──────────────── */}
-      <section className="relative overflow-hidden pt-24 pb-20 md:pt-32 md:pb-28 bg-gradient-to-b from-slate-950 via-[#0B0F19] to-slate-950 border-b border-slate-800/60">
+      <section className="relative overflow-hidden pt-16 pb-12 sm:pt-20 sm:pb-16 md:pt-24 md:pb-20 bg-gradient-to-b from-slate-950 via-[#0B0F19] to-slate-950 border-b border-slate-800/60">
         {/* Luxury Background Glow Elements */}
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-7xl h-[520px] bg-gradient-to-b from-purple-600/15 via-indigo-600/10 to-transparent blur-[140px] pointer-events-none rounded-full" />
         <div className="absolute top-36 right-[-8%] w-96 h-96 bg-amber-500/10 blur-[130px] pointer-events-none rounded-full" />
@@ -114,7 +114,7 @@ export default function WealthManagement() {
 
         <div className="container relative z-10 px-4 sm:px-6 lg:px-8 mx-auto">
           {/* Breadcrumb Navigation */}
-          <div className="flex items-center gap-2 text-xs text-slate-400 mb-8">
+          <div className="flex items-center gap-2 text-xs text-slate-400 mb-4 sm:mb-6">
             <Link to="/" className="hover:text-white transition-colors">Home</Link>
             <ChevronRight className="h-3 w-3" />
             <Link to="/#services" className="hover:text-white transition-colors">Services</Link>
@@ -123,23 +123,12 @@ export default function WealthManagement() {
           </div>
 
           <div className="max-w-4xl mx-auto text-center">
-            {/* Top Badge */}
-            <motion.div
-              initial={shouldReduceMotion ? false : { opacity: 0, y: -16 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5 }}
-              className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-gradient-to-r from-purple-500/15 via-indigo-500/15 to-amber-500/10 border border-purple-400/30 text-purple-200 text-xs sm:text-sm font-semibold mb-6 shadow-sm backdrop-blur-md"
-            >
-              <Crown className="h-4 w-4 text-amber-400" />
-              <span>Bespoke Private Wealth & Family Office Advisory</span>
-            </motion.div>
-
             {/* Main Headline */}
             <motion.h1
               initial={shouldReduceMotion ? false : { opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.55, delay: 0.1 }}
-              className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold tracking-tight leading-[1.12] mb-6 text-white"
+              className="text-2xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold tracking-tight leading-[1.15] mb-4 sm:mb-6 text-white"
             >
               Architecting Generational Wealth for{' '}
               <span className="bg-gradient-to-r from-purple-300 via-indigo-200 to-amber-200 bg-clip-text text-transparent">
@@ -152,7 +141,7 @@ export default function WealthManagement() {
               initial={shouldReduceMotion ? false : { opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.55, delay: 0.2 }}
-              className="text-base sm:text-lg md:text-xl text-slate-300 max-w-3xl mx-auto leading-relaxed mb-10"
+              className="text-sm sm:text-base md:text-lg text-slate-300 max-w-3xl mx-auto leading-relaxed mb-6 sm:mb-8"
             >
               Beyond cookie-cutter portfolios. Finance Brunch delivers institutional-grade multi-asset allocation, 
               proactive tax-loss harvesting, curated private market opportunities, and family estate governance—engineered 
@@ -164,12 +153,12 @@ export default function WealthManagement() {
               initial={shouldReduceMotion ? false : { opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.55, delay: 0.3 }}
-              className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-14"
+              className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4 mb-8 sm:mb-10"
             >
               <Button
                 size="lg"
                 onClick={() => handleWhatsAppConsult('Family Wealth Strategy')}
-                className="w-full sm:w-auto bg-gradient-to-r from-purple-600 via-indigo-600 to-purple-700 hover:from-purple-500 hover:to-indigo-500 text-white font-semibold px-8 py-6 rounded-xl shadow-lg shadow-purple-600/30 gap-2.5 text-base transition-all duration-200 transform hover:-translate-y-0.5"
+                className="w-full sm:w-auto bg-gradient-to-r from-purple-600 via-indigo-600 to-purple-700 hover:from-purple-500 hover:to-indigo-500 text-white font-semibold px-6 sm:px-8 py-3.5 sm:py-5 rounded-xl shadow-lg shadow-purple-600/30 gap-2.5 text-sm sm:text-base transition-all duration-200 transform hover:-translate-y-0.5"
               >
                 <Phone className="h-4 w-4" />
                 Schedule Confidential Consultation
@@ -181,7 +170,7 @@ export default function WealthManagement() {
                 onClick={() => {
                   document.getElementById('wealth-tiers')?.scrollIntoView({ behavior: 'smooth' });
                 }}
-                className="w-full sm:w-auto border-purple-400/30 bg-purple-950/30 hover:bg-purple-900/40 text-purple-200 font-medium px-7 py-6 rounded-xl backdrop-blur-md gap-2 text-base transition-all"
+                className="w-full sm:w-auto border-purple-400/30 bg-purple-950/30 hover:bg-purple-900/40 text-purple-200 font-medium px-6 sm:px-7 py-3.5 sm:py-5 rounded-xl backdrop-blur-md gap-2 text-sm sm:text-base transition-all"
               >
                 <span>Explore Advisory Tiers</span>
                 <ChevronDown className="h-4 w-4 text-purple-300" />
@@ -193,23 +182,23 @@ export default function WealthManagement() {
               initial={shouldReduceMotion ? false : { opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.55, delay: 0.4 }}
-              className="grid grid-cols-2 md:grid-cols-4 gap-4 p-5 sm:p-6 rounded-2xl bg-slate-900/60 border border-slate-800/80 backdrop-blur-xl max-w-4xl mx-auto shadow-xl"
+              className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 p-4 sm:p-6 rounded-2xl bg-slate-900/60 border border-slate-800/80 backdrop-blur-xl max-w-4xl mx-auto shadow-xl"
             >
-              <div className="border-r border-slate-800/60 pr-2">
-                <div className="text-2xl sm:text-3xl font-extrabold text-white">₹15 Cr+</div>
-                <div className="text-xs text-slate-400 mt-1 font-medium">Assets Under Advisory</div>
+              <div className="border-r border-slate-800/60 pr-2 sm:pr-4">
+                <div className="text-xl sm:text-2xl md:text-3xl font-extrabold text-white">₹15 Cr+</div>
+                <div className="text-[11px] sm:text-xs text-slate-400 mt-1 font-medium">Assets Under Advisory</div>
               </div>
-              <div className="border-r border-slate-800/60 pr-2 md:border-r">
-                <div className="text-2xl sm:text-3xl font-extrabold text-purple-400">99.4%</div>
-                <div className="text-xs text-slate-400 mt-1 font-medium">Client Retention Rate</div>
+              <div className="pr-0 md:border-r md:border-slate-800/60 md:pr-4">
+                <div className="text-xl sm:text-2xl md:text-3xl font-extrabold text-purple-400">99.4%</div>
+                <div className="text-[11px] sm:text-xs text-slate-400 mt-1 font-medium">Client Retention Rate</div>
               </div>
-              <div className="border-r border-slate-800/60 pr-2">
-                <div className="text-2xl sm:text-3xl font-extrabold text-amber-400">100%</div>
-                <div className="text-xs text-slate-400 mt-1 font-medium">Fiduciary & Conflict-Free</div>
+              <div className="border-r border-slate-800/60 pr-2 sm:pr-4 border-t border-slate-800/60 pt-3 md:border-t-0 md:pt-0">
+                <div className="text-xl sm:text-2xl md:text-3xl font-extrabold text-amber-400">100%</div>
+                <div className="text-[11px] sm:text-xs text-slate-400 mt-1 font-medium">Fiduciary & Conflict-Free</div>
               </div>
-              <div>
-                <div className="text-2xl sm:text-3xl font-extrabold text-cyan-400">1 : 25</div>
-                <div className="text-xs text-slate-400 mt-1 font-medium">Advisor-to-Family Ratio</div>
+              <div className="border-t border-slate-800/60 pt-3 md:border-t-0 md:pt-0">
+                <div className="text-xl sm:text-2xl md:text-3xl font-extrabold text-cyan-400">1 : 25</div>
+                <div className="text-[11px] sm:text-xs text-slate-400 mt-1 font-medium">Advisor-to-Family Ratio</div>
               </div>
             </motion.div>
           </div>
@@ -651,8 +640,12 @@ export default function WealthManagement() {
             </p>
           </div>
 
-          <div className="max-w-4xl mx-auto overflow-x-auto">
-            <table className="w-full text-left border-collapse border border-slate-800 rounded-2xl overflow-hidden">
+          <div className="max-w-4xl mx-auto">
+            <div className="text-[11px] text-slate-400 text-center mb-2.5 block md:hidden">
+              ← Swipe horizontally to compare details →
+            </div>
+            <div className="overflow-x-auto rounded-2xl border border-slate-800">
+              <table className="w-full min-w-[640px] text-left border-collapse">
               <thead>
                 <tr className="bg-slate-900 border-b border-slate-800 text-xs sm:text-sm text-slate-300">
                   <th className="p-4 sm:p-5 font-bold">Key Consideration</th>
@@ -694,6 +687,7 @@ export default function WealthManagement() {
                 </tr>
               </tbody>
             </table>
+            </div>
           </div>
         </div>
       </section>

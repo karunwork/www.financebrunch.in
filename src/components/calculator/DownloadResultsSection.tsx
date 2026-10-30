@@ -66,7 +66,7 @@ export const DownloadResultsSection: React.FC<DownloadResultsSectionProps> = ({
 
   return (
     <Card className={`rounded-2xl border border-slate-200/90 dark:border-slate-800 bg-gradient-to-br from-slate-50 via-white to-blue-50/30 dark:from-slate-900 dark:via-slate-900/90 dark:to-slate-950 shadow-sm overflow-hidden ${className}`}>
-      <CardContent className="p-5 sm:p-6">
+      <CardContent className="p-4 sm:p-6">
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div className="space-y-1">
             <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-blue-100 dark:bg-blue-950/60 text-blue-700 dark:text-cyan-400">
@@ -81,34 +81,34 @@ export const DownloadResultsSection: React.FC<DownloadResultsSectionProps> = ({
             </p>
           </div>
 
-          <div className="flex flex-wrap sm:flex-nowrap items-center gap-3 w-full sm:w-auto shrink-0">
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 sm:gap-3 w-full sm:w-auto shrink-0 pt-1 sm:pt-0">
             <Button
               onClick={handleDownloadPdf}
               disabled={isExportingPdf || isExportingDocx}
-              size="sm"
+              size="default"
               category="primary"
-              rightIcon={isExportingPdf ? <Loader2 className="w-4 h-4 animate-spin" /> : <FileText className="w-4 h-4" />}
-              className="flex-1 sm:flex-none font-semibold shadow-sm"
+              rightIcon={isExportingPdf ? <Loader2 className="w-4 h-4 animate-spin shrink-0" /> : <FileText className="w-4 h-4 shrink-0" />}
+              className="w-full sm:w-auto justify-center font-semibold shadow-sm h-10 px-4 text-xs sm:text-sm"
             >
-              {isExportingPdf ? 'Generating PDF...' : 'Download PDF'}
+              <span>{isExportingPdf ? 'Generating PDF...' : 'Download PDF'}</span>
             </Button>
 
             <Button
               onClick={handleDownloadDocx}
               disabled={isExportingPdf || isExportingDocx}
               variant="outline"
-              size="sm"
-              className="flex-1 sm:flex-none border-slate-300 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-900 dark:text-white font-semibold transition-all"
+              size="default"
+              className="w-full sm:w-auto justify-center border-slate-300 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-900 dark:text-white font-semibold transition-all h-10 px-4 text-xs sm:text-sm"
             >
               {isExportingDocx ? (
                 <>
-                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                  Generating Word...
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin shrink-0" />
+                  <span>Generating Word...</span>
                 </>
               ) : (
                 <>
-                  <FileDown className="w-4 h-4 mr-2 text-blue-600 dark:text-cyan-400" />
-                  Download Word (.docx)
+                  <FileDown className="w-4 h-4 mr-2 text-blue-600 dark:text-cyan-400 shrink-0" />
+                  <span>Download Word (.docx)</span>
                 </>
               )}
             </Button>

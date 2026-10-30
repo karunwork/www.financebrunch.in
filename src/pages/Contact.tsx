@@ -137,8 +137,12 @@ const Contact = () => {
                   </div>
                   <div>
                     <h3 className="font-semibold text-gray-900 dark:text-gray-200 text-sm">Email Address</h3>
-                    <p className="text-gray-600 dark:text-gray-400 text-sm mt-0.5">contact@financebrunch.com</p>
-                    <p className="text-gray-600 dark:text-gray-400 text-sm">support@financebrunch.in</p>
+                    <a 
+                      href="mailto:admin@financebrunch.in" 
+                      className="text-blue-600 dark:text-blue-400 text-sm mt-0.5 hover:underline block font-medium transition-colors"
+                    >
+                      admin@financebrunch.in
+                    </a>
                   </div>
                 </div>
 
