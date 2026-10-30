@@ -47,7 +47,7 @@ export interface CalculatorExportRow {
 }
 
 export interface CalculatorExportData {
-  calculatorType: 'sip' | 'stepup' | 'lumpsum' | 'swp';
+  calculatorType: 'sip' | 'stepup' | 'lumpsum' | 'swp' | string;
   calculatorTitle: string;
   generatedDateStr: string;
   inputs: Array<{ label: string; value: string }>;

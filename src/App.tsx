@@ -157,6 +157,8 @@ function App() {
                   {/* Financial Calculators - Disclaimer Excluded */}
                   <Route path="/calculator" element={<Calculator />} />
                   <Route path="/calculators" element={<Calculator />} />
+                  <Route path="/calculator/:calculatorSlug" element={<Calculator />} />
+                  <Route path="/calculators/:calculatorSlug" element={<Calculator />} />
                   <Route path="/sip-calculator" element={<Calculator />} />
                   <Route path="/step-up-sip-calculator" element={<Calculator />} />
                   <Route path="/lumpsum-calculator" element={<Calculator />} />
