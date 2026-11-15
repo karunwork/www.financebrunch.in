@@ -15,7 +15,7 @@ export function MutualFundSheet() {
         {/* Hero Section */}
         <div className="relative w-full h-[300px] overflow-hidden rounded-xl mb-8">
           <img 
-            src="/lovable-uploads/bf6dd0ac-44d2-4676-a31c-07952b0c5108.png" 
+            src="/assets/bf6dd0ac-44d2-4676-a31c-07952b0c5108.png"
             alt="Mutual Fund Investment" 
             className="w-full h-full object-cover"
           />

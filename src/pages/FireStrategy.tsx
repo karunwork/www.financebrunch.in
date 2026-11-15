@@ -99,7 +99,7 @@ const FireStrategy = () => {
                   <div className="md:w-1/3">
                     <div className="relative w-full aspect-square rounded-2xl overflow-hidden shadow-lg">
                       <img 
-                        src="/lovable-uploads/26c5a7e3-fcfa-4500-ae98-4f465f3ac8b1.png" 
+                        src="/assets/26c5a7e3-fcfa-4500-ae98-4f465f3ac8b1.png"
                         alt="Finance Brunch Expertise" 
                         className="w-full h-full object-cover"
                       />
@@ -288,7 +288,7 @@ const FireStrategy = () => {
                 
                 <div className="relative overflow-hidden rounded-xl shadow-lg">
                   <img 
-                    src="/lovable-uploads/26c5a7e3-fcfa-4500-ae98-4f465f3ac8b1.png" 
+                    src="/assets/26c5a7e3-fcfa-4500-ae98-4f465f3ac8b1.png"
                     alt="Early Retirement Planning" 
                     className="w-full h-auto rounded-xl"
                   />

@@ -30,7 +30,7 @@ export function FixedDepositSheet() {
         {/* Hero Section */}
         <div className="relative w-full h-[300px] overflow-hidden rounded-xl mb-8">
           <img 
-            src="/lovable-uploads/b10e7df8-0120-4065-9082-e64035550408.png" 
+            src="/assets/b10e7df8-0120-4065-9082-e64035550408.png"
             alt="Fixed Deposit Investments" 
             className="w-full h-full object-cover"
           />

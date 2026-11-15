@@ -42,7 +42,7 @@ export function IndianStockHero({ onContactAdvisor }: IndianStockHeroProps) {
           <div className="md:w-1/2">
             <div className="relative rounded-xl overflow-hidden shadow-2xl animate-fade-in-up">
               <img 
-                src="/lovable-uploads/b7af595c-860c-4bed-8735-64391a005af9.png" 
+                src="/assets/b7af595c-860c-4bed-8735-64391a005af9.png"
                 alt="Bombay Stock Exchange Building" 
                 className="w-full h-auto object-cover"
               />

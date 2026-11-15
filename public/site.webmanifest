@@ -15,8 +15,9 @@
     },
     {
       "src": "/favicon.png",
-      "sizes": "206x156",
-      "type": "image/png"
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
     }
   ]
 }

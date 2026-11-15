@@ -185,7 +185,7 @@ const InvestmentPlanning = () => {
     {
       id: "indian-stock-analysis",
       title: "Indian Stock Analysis",
-      image: "/lovable-uploads/06b665ec-50f4-4f68-b7fe-836df10af649.png",
+      image: "/assets/06b665ec-50f4-4f68-b7fe-836df10af649.png",
       imageAlt: "Indian Stock Analysis - BSE Building",
       description: "Expert analysis of Indian equity markets with actionable insights on stocks across various sectors and market capitalizations.",
       buttonText: "We are still building",
@@ -197,7 +197,7 @@ const InvestmentPlanning = () => {
     {
       id: "usa-stock-analysis",
       title: "USA Stock Analysis",
-      image: "/lovable-uploads/39526ab9-be38-46a7-9a10-857828b19686.png",
+      image: "/assets/39526ab9-be38-46a7-9a10-857828b19686.png",
       imageAlt: "USA Stock Analysis - Wall Street",
       description: "In-depth research on US equities, focusing on growth stocks, tech companies, and dividend-yielding investments across NASDAQ and NYSE.",
       buttonText: "Explore USA Markets",
@@ -207,7 +207,7 @@ const InvestmentPlanning = () => {
     {
       id: "ipo-analysis",
       title: "IPO Analysis",
-      image: "/lovable-uploads/57727f9c-2aca-4226-99e9-efa57dc9848f.png",
+      image: "/assets/57727f9c-2aca-4226-99e9-efa57dc9848f.png",
       imageAlt: "IPO Analysis",
       description: "Detailed evaluation of upcoming IPOs, including business models, financial health, valuation, and potential for long-term growth.",
       buttonText: "View IPO Insights",
@@ -229,7 +229,7 @@ const InvestmentPlanning = () => {
     {
       id: "digital-gold",
       title: "Digital Gold",
-      image: "/lovable-uploads/75e0d2e9-6d50-49f9-abe9-5236913686da.png",
+      image: "/assets/75e0d2e9-6d50-49f9-abe9-5236913686da.png",
       imageAlt: "Digital Gold",
       description: "Invest in 99.9% pure gold electronically without worrying about storage, security, or authenticity issues.",
       buttonText: "We are still building",
@@ -241,7 +241,7 @@ const InvestmentPlanning = () => {
     {
       id: "crypto-currency",
       title: "Crypto Currency Investments",
-      image: "/lovable-uploads/b7af595c-860c-4bed-8735-64391a005af9.png",
+      image: "/assets/b7af595c-860c-4bed-8735-64391a005af9.png",
       imageAlt: "Crypto Currency",
       description: "Strategic guidance on blockchain assets and cryptocurrencies, helping you navigate this emerging investment class with confidence.",
       buttonText: "We are still building",

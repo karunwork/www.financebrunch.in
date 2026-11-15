@@ -62,7 +62,7 @@ const AdvisorPopup = ({ open, onOpenChange }: AdvisorPopupProps) => {
         
         <div className="relative overflow-hidden rounded-lg border border-blue-100 dark:border-blue-900/50">
           <img 
-            src="/lovable-uploads/75e0d2e9-6d50-49f9-abe9-5236913686da.png" 
+            src="/assets/75e0d2e9-6d50-49f9-abe9-5236913686da.png"
             alt="Financial advisor" 
             className="w-full h-48 object-cover opacity-90"
           />

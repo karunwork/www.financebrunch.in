@@ -77,7 +77,7 @@ const MutualFunds = () => {
         {/* 1. Hero Section with Growth Visual */}
         <div className="relative w-full min-h-[340px] sm:min-h-[420px] rounded-3xl overflow-hidden mb-12 shadow-2xl border border-slate-200/80 dark:border-slate-800">
           <img 
-            src="/lovable-uploads/bf6dd0ac-44d2-4676-a31c-07952b0c5108.png" 
+            src="/assets/bf6dd0ac-44d2-4676-a31c-07952b0c5108.png"
             alt="Mutual Fund Investment Growth" 
             className="absolute inset-0 w-full h-full object-cover object-center"
           />

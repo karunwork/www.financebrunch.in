@@ -51,7 +51,7 @@ export const UpcomingIPOSection = () => {
         <div className="max-w-6xl mx-auto">
           <div className="flex justify-center mb-8">
             <img 
-              src="/lovable-uploads/57727f9c-2aca-4226-99e9-efa57dc9848f.png" 
+              src="/assets/57727f9c-2aca-4226-99e9-efa57dc9848f.png"
               alt="IPO Analysis" 
               className="w-full max-w-md rounded-lg shadow-lg"
             />

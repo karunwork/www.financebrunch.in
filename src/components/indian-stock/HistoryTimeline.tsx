@@ -51,7 +51,7 @@ export function HistoryTimeline() {
               <div className="md:w-1/2 md:pl-12 md:text-left">
                 <div className="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg shadow-md">
                   <img 
-                    src="/lovable-uploads/bf6dd0ac-44d2-4676-a31c-07952b0c5108.png" 
+                    src="/assets/bf6dd0ac-44d2-4676-a31c-07952b0c5108.png"
                     alt="Historical Mumbai" 
                     className="w-full h-auto rounded-md mb-3"
                   />
@@ -67,7 +67,7 @@ export function HistoryTimeline() {
               <div className="md:w-1/2 md:pr-12 mb-8 md:mb-0 md:text-right">
                 <div className="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg shadow-md">
                   <img 
-                    src="/lovable-uploads/afd7b556-34ae-453c-aae9-770e16ab4414.png" 
+                    src="/assets/afd7b556-34ae-453c-aae9-770e16ab4414.png"
                     alt="Early Trading Floor" 
                     className="w-full h-auto rounded-md mb-3"
                   />
@@ -107,7 +107,7 @@ export function HistoryTimeline() {
               <div className="md:w-1/2 md:pl-12 md:text-left">
                 <div className="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg shadow-md">
                   <img 
-                    src="/lovable-uploads/75e0d2e9-6d50-49f9-abe9-5236913686da.png" 
+                    src="/assets/75e0d2e9-6d50-49f9-abe9-5236913686da.png"
                     alt="SEBI Headquarters" 
                     className="w-full h-auto rounded-md mb-3"
                   />
@@ -123,7 +123,7 @@ export function HistoryTimeline() {
               <div className="md:w-1/2 md:pr-12 mb-8 md:mb-0 md:text-right">
                 <div className="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg shadow-md">
                   <img 
-                    src="/lovable-uploads/3a5fcbd0-7610-456b-b056-3607bd6b15e2.png" 
+                    src="/assets/3a5fcbd0-7610-456b-b056-3607bd6b15e2.png"
                     alt="NSE Building" 
                     className="w-full h-auto rounded-md mb-3"
                   />
@@ -163,7 +163,7 @@ export function HistoryTimeline() {
               <div className="md:w-1/2 md:pl-12 md:text-left">
                 <div className="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg shadow-md">
                   <img 
-                    src="/lovable-uploads/b80d81b8-1bd9-42ad-9457-5b8f46a67af0.png" 
+                    src="/assets/b80d81b8-1bd9-42ad-9457-5b8f46a67af0.png"
                     alt="Modern Trading" 
                     className="w-full h-auto rounded-md mb-3"
                   />
@@ -179,7 +179,7 @@ export function HistoryTimeline() {
               <div className="md:w-1/2 md:pr-12 mb-8 md:mb-0 md:text-right">
                 <div className="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg shadow-md">
                   <img 
-                    src="/lovable-uploads/4d13bcab-a123-47b9-bf2e-cd9cc4554217.png" 
+                    src="/assets/4d13bcab-a123-47b9-bf2e-cd9cc4554217.png"
                     alt="Modern Trading Floor" 
                     className="w-full h-auto rounded-md mb-3"
                   />

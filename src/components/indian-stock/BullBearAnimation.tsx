@@ -17,10 +17,10 @@ export function BullBearAnimation() {
     
     // Load images
     const bullImage = new Image();
-    bullImage.src = '/lovable-uploads/06b665ec-50f4-4f68-b7fe-836df10af649.png';
+    bullImage.src = '/assets/06b665ec-50f4-4f68-b7fe-836df10af649.png';
     
     const bearImage = new Image();
-    bearImage.src = '/lovable-uploads/26c5a7e3-fcfa-4500-ae98-4f465f3ac8b1.png';
+    bearImage.src = '/assets/26c5a7e3-fcfa-4500-ae98-4f465f3ac8b1.png';
     
     let bullX = -100;
     let bearX = canvas.width + 100;

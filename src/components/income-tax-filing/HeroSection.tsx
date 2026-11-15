@@ -38,7 +38,7 @@ const HeroSection: React.FC<HeroSectionProps> = ({ openContactForm }) => {
           
           <div className="lg:w-1/2">
             <img 
-              src="/lovable-uploads/b80d81b8-1bd9-42ad-9457-5b8f46a67af0.png" 
+              src="/assets/b80d81b8-1bd9-42ad-9457-5b8f46a67af0.png"
               alt="Income Tax Filing" 
               className="w-full rounded-lg shadow-lg"
             />

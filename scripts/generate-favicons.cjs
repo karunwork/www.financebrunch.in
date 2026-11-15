@@ -48,10 +48,13 @@ const manifest = {
 fs.writeFileSync('public/site.webmanifest', JSON.stringify(manifest, null, 2), 'utf8');
 console.log('✓ Created public/site.webmanifest');
 
-// 3. Create a valid ICO file container around PNG data
+// 3. Create a valid ICO file container around the square Finance Brunch PNG
 // ICONDIR: 6 bytes (idReserved=0, idType=1, idCount=1)
 // ICONDIRENTRY: 16 bytes (bWidth, bHeight, bColorCount, bReserved, wPlanes=1, wBitCount=32, dwBytesInRes, dwImageOffset=22)
-const pngLen = symbolBuf.length;
+const faviconPngBuf = fs.existsSync('public/favicon.png')
+  ? fs.readFileSync('public/favicon.png')
+  : symbolBuf;
+const pngLen = faviconPngBuf.length;
 const icoHeader = Buffer.alloc(22);
 icoHeader.writeUInt16LE(0, 0); // reserved
 icoHeader.writeUInt16LE(1, 2); // type 1 = icon
@@ -65,7 +68,7 @@ icoHeader.writeUInt16LE(32, 12); // bpp
 icoHeader.writeUInt32LE(pngLen, 14); // data size
 icoHeader.writeUInt32LE(22, 18); // offset where PNG starts
 
-const validIcoBuf = Buffer.concat([icoHeader, symbolBuf]);
+const validIcoBuf = Buffer.concat([icoHeader, faviconPngBuf]);
 fs.writeFileSync('public/favicon.ico', validIcoBuf);
 console.log('✓ Created valid public/favicon.ico (size:', validIcoBuf.length, 'bytes)');
 
