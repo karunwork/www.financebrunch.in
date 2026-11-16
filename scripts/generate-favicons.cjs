@@ -1,27 +1,34 @@
 const fs = require('fs');
-const path = require('path');
 
-const symbolPath = path.resolve('public/images/finance-brunch-symbol.png');
-const symbolBuf = fs.readFileSync(symbolPath);
-const b64 = symbolBuf.toString('base64');
+const iconEntries = [
+  ['public/favicon-16.png', 16],
+  ['public/favicon-32.png', 32],
+  ['public/favicon-v2.png', 48],
+].map(([file, size]) => ({ data: fs.readFileSync(file), size }));
 
-// 1. Create a 512x512 square SVG favicon with rounded dark navy background and the FB logo
-const svgContent = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
-  <defs>
-    <linearGradient id="fbBg" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#0a1628"/>
-      <stop offset="100%" stop-color="#040914"/>
-    </linearGradient>
-  </defs>
-  <rect width="512" height="512" rx="108" fill="url(#fbBg)"/>
-  <rect width="504" height="504" x="4" y="4" rx="104" fill="none" stroke="#2563eb" stroke-opacity="0.3" stroke-width="4"/>
-  <image href="data:image/png;base64,${b64}" x="56" y="86" width="400" height="340" preserveAspectRatio="xMidYMid meet"/>
-</svg>`;
+const directory = Buffer.alloc(6 + iconEntries.length * 16);
+directory.writeUInt16LE(0, 0);
+directory.writeUInt16LE(1, 2);
+directory.writeUInt16LE(iconEntries.length, 4);
+let offset = directory.length;
+const images = [];
+iconEntries.forEach(({ data, size }, index) => {
+  const entryOffset = 6 + index * 16;
+  directory.writeUInt8(size === 256 ? 0 : size, entryOffset);
+  directory.writeUInt8(size === 256 ? 0 : size, entryOffset + 1);
+  directory.writeUInt8(0, entryOffset + 2);
+  directory.writeUInt8(0, entryOffset + 3);
+  directory.writeUInt16LE(1, entryOffset + 4);
+  directory.writeUInt16LE(32, entryOffset + 6);
+  directory.writeUInt32LE(data.length, entryOffset + 8);
+  directory.writeUInt32LE(offset, entryOffset + 12);
+  images.push(data);
+  offset += data.length;
+});
+fs.writeFileSync('public/favicon.ico', Buffer.concat([directory, ...images]));
+console.log('Created public/favicon.ico with 16x16, 32x32, and 48x48 entries');
 
-fs.writeFileSync('public/favicon.svg', svgContent, 'utf8');
-console.log('✓ Created public/favicon.svg');
-
-// 2. Create webmanifest for Google and mobile browsers
+// Keep the manifest aligned with the static HTML icon declarations.
 const manifest = {
   name: "Finance Brunch",
   short_name: "Finance Brunch",
@@ -32,43 +39,20 @@ const manifest = {
   theme_color: "#080e1e",
   icons: [
     {
-      src: "/favicon.svg",
-      sizes: "any",
-      type: "image/svg+xml",
+      src: "/favicon-v2-192.png",
+      sizes: "192x192",
+      type: "image/png",
       purpose: "any maskable"
     },
     {
-      src: "/favicon.png",
-      sizes: "206x156",
-      type: "image/png"
+      src: "/favicon-v2-512.png",
+      sizes: "512x512",
+      type: "image/png",
+      purpose: "any maskable"
     }
   ]
 };
 
 fs.writeFileSync('public/site.webmanifest', JSON.stringify(manifest, null, 2), 'utf8');
-console.log('✓ Created public/site.webmanifest');
-
-// 3. Create a valid ICO file container around the square Finance Brunch PNG
-// ICONDIR: 6 bytes (idReserved=0, idType=1, idCount=1)
-// ICONDIRENTRY: 16 bytes (bWidth, bHeight, bColorCount, bReserved, wPlanes=1, wBitCount=32, dwBytesInRes, dwImageOffset=22)
-const faviconPngBuf = fs.existsSync('public/favicon.png')
-  ? fs.readFileSync('public/favicon.png')
-  : symbolBuf;
-const pngLen = faviconPngBuf.length;
-const icoHeader = Buffer.alloc(22);
-icoHeader.writeUInt16LE(0, 0); // reserved
-icoHeader.writeUInt16LE(1, 2); // type 1 = icon
-icoHeader.writeUInt16LE(1, 4); // count = 1
-icoHeader.writeUInt8(48, 6);   // width 48
-icoHeader.writeUInt8(48, 7);   // height 48
-icoHeader.writeUInt8(0, 8);    // color count 0 = >= 8bpp
-icoHeader.writeUInt8(0, 9);    // reserved
-icoHeader.writeUInt16LE(1, 10); // color planes
-icoHeader.writeUInt16LE(32, 12); // bpp
-icoHeader.writeUInt32LE(pngLen, 14); // data size
-icoHeader.writeUInt32LE(22, 18); // offset where PNG starts
-
-const validIcoBuf = Buffer.concat([icoHeader, faviconPngBuf]);
-fs.writeFileSync('public/favicon.ico', validIcoBuf);
-console.log('✓ Created valid public/favicon.ico (size:', validIcoBuf.length, 'bytes)');
+console.log('Updated public/site.webmanifest');
 
